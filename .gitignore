@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+target/
+*.class
+*.jar
+.metadata/
+.settings/
+.classpath
+.project
