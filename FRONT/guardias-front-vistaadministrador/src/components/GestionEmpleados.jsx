@@ -1,11 +1,27 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
 
 function GestionEmpleados({ setPagina }) {
-  const empleados = [
-    { nombre: 'Ana Martínez', rol: 'Enfermera', area: 'UTI', estado: 'Activo' },
-    { nombre: 'Roberto Gómez', rol: 'Médico de Guardia', area: 'Urgencias', estado: 'Activo' },
-    { nombre: 'Lucía Fernández', rol: 'Personal de Limpieza', area: 'Servicios Generales', estado: 'Inactivo' },
-  ];
+   const [empleados, setEmpleados] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Función para obtener empleados del backend
+  const fetchEmpleados = async () => {
+    try {
+      const response = await fetch("http://localhost:8090/api/empleados");
+      if (!response.ok) throw new Error("Error al obtener empleados");
+      const data = await response.json();
+      setEmpleados(data);
+    } catch (error) {
+      console.error("Error:", error);
+      alert("No se pudo conectar con el servidor");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEmpleados();
+  }, []);
 
   return (
     <div className="tabla-container">
@@ -16,30 +32,34 @@ function GestionEmpleados({ setPagina }) {
       
       <input type="text" placeholder="🔍 Buscar por nombre o DNI..." className="input-busqueda" />
 
-      <table className="tabla-empleados">
-        <thead>
-          <tr>
-            <th>NOMBRE</th>
-            <th>ROL</th>
-            <th>ÁREA</th>
-            <th>ESTADO</th>
-            <th>ACCIONES</th>
-          </tr>
-        </thead>
-        <tbody>
-          {empleados.map((e, i) => (
-            <tr key={i}>
-              <td>{e.nombre}</td>
-              <td>{e.rol}</td>
-              <td>{e.area}</td>
-              <td>
-                <span className={`badge ${e.estado.toLowerCase()}`}>● {e.estado}</span>
-              </td>
-              <td className="accion-editar">✎ Editar</td>
+      {loading ? <p>Cargando empleados...</p> : (
+        <table className="tabla-empleados">
+          <thead>
+            <tr>
+              <th>DNI</th>
+              <th>NOMBRE</th>
+              <th>ROL</th>
+              <th>EMAIL</th>
+              <th>TELÉFONO</th>
+              <th>DIRECCIÓN</th>
+              <th>ACCIONES</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {empleados.map((e) => (
+              <tr key={e.dni}>
+                <td>{e.dni}</td>
+                <td>{e.nombre} {e.apellido}</td>
+                <td>{e.rol}</td>
+                <td>{e.email}</td>
+                <td>{e.telefono}</td>
+                <td>{e.direccion}</td>
+                <td className="accion-editar">✎ Editar</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }

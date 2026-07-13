@@ -1,6 +1,24 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
 
 function FormularioCrearGuardias({ setPagina }) {
+  const [empleados, setEmpleados] = useState([]);
+
+  // Cargamos los empleados desde el backend al cargar el formulario
+  useEffect(() => {
+    const fetchEmpleados = async () => {
+      try {
+        const response = await fetch("http://localhost:8090/api/empleados");
+        if (response.ok) {
+          const data = await response.json();
+          setEmpleados(data);
+        }
+      } catch (error) {
+        console.error("Error al cargar empleados:", error);
+      }
+    };
+    fetchEmpleados();
+  }, []);
+
   return (
     <div className="form-container">
       <button className="btn-volver" onClick={() => setPagina('GESTION GUARDIAS')}>← Volver</button>
@@ -37,9 +55,11 @@ function FormularioCrearGuardias({ setPagina }) {
           <label>Personal Asignado (Opcional)</label>
           <select className="input-estilo">
             <option value="">Dejar sin asignar (Guardia Abierta)</option>
-            <option>Ana Martínez</option>
-            <option>Roberto Gómez</option>
-            <option>Lucía Fernández</option>
+            {empleados.map((emp) => (
+              <option key={emp.id} value={emp.id}>
+                {emp.nombre} {emp.apellido}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -49,4 +69,4 @@ function FormularioCrearGuardias({ setPagina }) {
   );
 }
 
-export default FormularioCrearGuardias
+export default FormularioCrearGuardias;
