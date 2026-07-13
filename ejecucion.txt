@@ -1,0 +1,20 @@
+
+cd C:\Users\pabli\Desktop\DESARROLLO EN LA NUBE\ProyectoAppGestionGuardias\config-server
+
+mvnw spring-boot:run
+
+cd C:\Users\pabli\Desktop\DESARROLLO EN LA NUBE\ProyectoAppGestionGuardias\discovery-server
+
+mvnw spring-boot:run
+
+Despues microservicio y por ultimo apigateway
+cd "C:\Users\pabli\Desktop\DESARROLLO EN LA NUBE\TP\MICROSERVICIOS\empleado-service"
+
+mvnw spring-boot:run
+
+
+cd C:\Users\pabli\Desktop\DESARROLLO EN LA NUBE\ProyectoAppGestionGuardias\api-gateway
+
+mvnw spring-boot:run
+
+mvnw clear

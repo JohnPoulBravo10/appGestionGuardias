@@ -13,22 +13,22 @@ import java.util.Optional;
 @Service
 public class EmpleadoService {
 
-    @Autowired
+     @Autowired
     private EmpleadoRepository empleadoRepository;
 
     public List<Empleado> obtenerTodos() {
         return empleadoRepository.findAll();
     }
 
-    public Optional<Empleado> obtenerPorId(Long id) {
-        return empleadoRepository.findById(id);
+    public Optional<Empleado> obtenerPorId(Long dni) {
+        return empleadoRepository.findById(dni);
     }
 
     public Empleado guardarEmpleado(Empleado empleado) {
         return empleadoRepository.save(empleado);
     }
 
-    public void eliminarEmpleado(Long id) {
-        empleadoRepository.deleteById(id);
+    public void eliminarEmpleado(Long dni) {
+        empleadoRepository.deleteById(dni);
     }
 }

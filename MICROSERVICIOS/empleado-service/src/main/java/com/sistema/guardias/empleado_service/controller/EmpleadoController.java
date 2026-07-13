@@ -27,16 +27,16 @@ public class EmpleadoController {
         return empleadoService.guardarEmpleado(empleado);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Empleado> obtenerEmpleado(@PathVariable Long id) {
-        return empleadoService.obtenerPorId(id)
+    @GetMapping("/{dni}")
+    public ResponseEntity<Empleado> obtenerEmpleado(@PathVariable Long dni) {
+        return empleadoService.obtenerPorId(dni)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarEmpleado(@PathVariable Long id) {
-        empleadoService.eliminarEmpleado(id);
+    @DeleteMapping("/{dni}")
+    public ResponseEntity<Void> eliminarEmpleado(@PathVariable Long dni) {
+        empleadoService.eliminarEmpleado(dni);
         return ResponseEntity.noContent().build();
     }
 }

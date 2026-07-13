@@ -16,20 +16,24 @@ import lombok.NoArgsConstructor;
 public class Empleado {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // ID autoincremental
-    private Long id;
-
+    @Column(unique = true, nullable = false)
+    private Long dni;
+    
     @Column(nullable = false)
     private String nombre;
 
     @Column(nullable = false)
     private String apellido;
 
-    @Column(unique = true, nullable = false)
-    private String dni;
-
     @Enumerated(EnumType.STRING) // Guarda el nombre del rol en la BD (ej: "Enfermeria")
     private Rol rol;
 
     private String email;
+    
+    private long telefono;
+    
+    private String direccion;
+    
+    
+    
 }

@@ -1,0 +1,21 @@
+server:
+  port: 8761
+
+spring:
+  application:
+    name: discovery-server
+
+eureka:
+  client:
+    # Como este es el servidor, NO debe registrarse a sí mismo
+    register-with-eureka: false
+    # Tampoco necesita buscar otros servicios, porque él es el registro
+    fetch-registry: false
+  server:
+    # Opcional: Esto ayuda a evitar que Eureka entre en modo de protección
+    # y borre servicios por un error de red pequeño
+    wait-time-in-ms-when-sync-empty: 0
+
+# Desactivamos el Config Client en el Discovery Server para evitar
+# el error que tenías al intentar importar una configuración externa
+spring.config.import: "optional:none"
