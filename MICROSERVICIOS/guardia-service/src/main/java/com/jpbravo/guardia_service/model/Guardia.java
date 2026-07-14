@@ -1,10 +1,11 @@
 
-package com.sistema.guardias.guardia_service.model;
-
+package com.jpbravo.guardia_service.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "guardias")
@@ -13,21 +14,32 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class Guardia {
-
-    @Id
+     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    
     @Column(nullable = false)
-    private LocalDateTime fechaInicio;
+    private LocalDate fecha;
 
+    
     @Column(nullable = false)
-    private LocalDateTime fechaFin;
+    private LocalTime horaInicio;
 
+    
     @Column(nullable = false)
-    private Long empleadoId; // Relación lógica con el microservicio de empleados
+    private LocalTime horaFin;
 
+    
+    private Long empleadoId;
+
+    
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private EstadoGuardia estado; // PROXIMA, EN_CURSO, COMPLETADA
+    private Rol rol;
+
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EstadoGuardia estado;
 }

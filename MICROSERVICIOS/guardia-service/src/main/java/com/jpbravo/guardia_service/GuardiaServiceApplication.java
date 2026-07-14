@@ -1,4 +1,4 @@
-package com.sistema.guardias.guardia_service;
+package com.jpbravo.guardia_service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

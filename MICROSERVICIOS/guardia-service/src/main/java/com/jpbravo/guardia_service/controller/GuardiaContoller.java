@@ -1,9 +1,8 @@
 
+package com.jpbravo.guardia_service.controller;
 
-package com.sistema.guardias.guardia_service.controller;
-
-import com.sistema.guardias.guardia_service.model.Guardia;
-import com.sistema.guardias.guardia_service.service.GuardiaService;
+import com.jpbravo.guardia_service.model.Guardia;
+import com.jpbravo.guardia_service.service.GuardiaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,9 +11,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/guardias")
-public class GuardiaController {
 
-    @Autowired
+public class GuardiaContoller {
+     @Autowired
     private GuardiaService guardiaService;
 
     @GetMapping

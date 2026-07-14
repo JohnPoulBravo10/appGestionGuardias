@@ -1,5 +1,6 @@
 
-package com.sistema.guardias.guardia_service.model;
+package com.jpbravo.guardia_service.model;
+
 
 public enum EstadoGuardia {
     PROXIMA,
