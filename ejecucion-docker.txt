@@ -1,0 +1,90 @@
+================================================================================
+       INSTRUCCIONES DE EJECUCIÓN - App Gestión de Guardias (Docker)
+================================================================================
+
+REQUISITOS PREVIOS
+------------------
+- Docker Desktop instalado y en ejecución
+
+
+================================================================================
+                          COMANDOS DE EJECUCIÓN
+================================================================================
+
+LEVANTAR LA APLICACIÓN
+----------------------
+
+  # Construir las imágenes y levantar todos los servicios:
+  docker-compose up --build
+
+  # Levantar en segundo plano (modo detached):
+  docker-compose up --build -d
+
+  # Levantar sin reconstruir imágenes (si ya fueron construidas):
+  docker-compose up -d
+
+
+BAJAR LA APLICACIÓN
+-------------------
+
+  # Detener y eliminar los contenedores:
+  docker-compose down
+
+  # Detener, eliminar contenedores Y eliminar los volúmenes (borra datos de BD):
+  docker-compose down -v
+
+
+OTROS COMANDOS ÚTILES
+---------------------
+
+  # Ver los logs de todos los servicios:
+  docker-compose logs -f
+
+  # Ver los logs de un servicio específico (ej: api-gateway):
+  docker-compose logs -f api-gateway
+
+  # Ver el estado de los contenedores:
+  docker-compose ps
+
+  # Reiniciar un servicio específico:
+  docker-compose restart <nombre-del-servicio>
+
+  # Reconstruir un servicio específico:
+  docker-compose up --build -d <nombre-del-servicio>
+
+
+================================================================================
+                     DIRECCIONES DE ACCESO (localhost)
+================================================================================
+
+  SERVICIO                          URL
+  --------------------------------  ------------------------------------------
+  Frontend Administrador            http://localhost:5173
+  Frontend Empleados                http://localhost:5174
+  API Gateway                       http://localhost:8090
+  Eureka (Discovery Server)         http://localhost:8761
+  Config Server                     http://localhost:8888
+  Empleado Service                  http://localhost:8080
+  Guardia Service                   http://localhost:8081
+  MySQL (Base de Datos)             localhost:3307  (usuario: root / pass: rootpassword)
+
+
+================================================================================
+                          ORDEN DE ARRANQUE
+================================================================================
+
+Los servicios se levantan automáticamente en el siguiente orden gracias a las
+dependencias configuradas en docker-compose.yml:
+
+  1. MySQL (mysql-db)
+  2. Config Server (config-server)
+  3. Discovery Server / Eureka (discovery-server)  — espera a Config Server
+  4. Empleado Service (empleado-service)            — espera a Eureka y MySQL
+  5. Guardia Service (guardia-service)              — espera a Eureka y MySQL
+  6. API Gateway (api-gateway)                      — espera a Eureka
+  7. Frontend Administrador (front-admin)           — espera a API Gateway
+  8. Frontend Empleados (front-empleados)            — espera a API Gateway
+
+NOTA: El arranque completo puede tardar varios minutos debido a los healthchecks.
+
+================================================================================

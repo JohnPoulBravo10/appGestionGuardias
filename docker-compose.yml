@@ -1,0 +1,167 @@
+version: '3.8'
+
+services:
+
+  # ==================== BASE DE DATOS ====================
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - guardias-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # ==================== CONFIG SERVER ====================
+  config-server:
+    build:
+      context: ./config-server
+      dockerfile: Dockerfile
+    container_name: config-server
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker, native
+    networks:
+      - guardias-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # ==================== DISCOVERY SERVER (EUREKA) ====================
+  discovery-server:
+    build:
+      context: ./discovery-server
+      dockerfile: Dockerfile
+    container_name: discovery-server
+    restart: unless-stopped
+    ports:
+      - "8761:8761"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker, native
+    depends_on:
+      config-server:
+        condition: service_healthy
+    networks:
+      - guardias-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8761/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # ==================== EMPLEADO SERVICE ====================
+  empleado-service:
+    build:
+      context: ./MICROSERVICIOS/empleado-service
+      dockerfile: Dockerfile
+    container_name: empleado-service
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker, native
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/empleado_service?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: rootpassword
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+      mysql-db:
+        condition: service_healthy
+    networks:
+      - guardias-network
+
+  # ==================== GUARDIA SERVICE ====================
+  guardia-service:
+    build:
+      context: ./MICROSERVICIOS/guardia_service
+      dockerfile: Dockerfile
+    container_name: guardia-service
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker, native
+      SERVER_PORT: 8081
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/guardia_service?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: rootpassword
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+      mysql-db:
+        condition: service_healthy
+    networks:
+      - guardias-network
+
+  # ==================== API GATEWAY ====================
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker, native
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+    networks:
+      - guardias-network
+
+  # ==================== FRONTEND ADMINISTRADOR ====================
+  front-admin:
+    build:
+      context: ./FRONT/guardias-front-vistaadministrador
+      dockerfile: Dockerfile
+    container_name: front-admin
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - guardias-network
+
+  # ==================== FRONTEND EMPLEADOS ====================
+  front-empleados:
+    build:
+      context: ./FRONT/guardias-front-vistaempleados
+      dockerfile: Dockerfile
+    container_name: front-empleados
+    restart: unless-stopped
+    ports:
+      - "5174:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - guardias-network
+
+volumes:
+  mysql-data:
+
+networks:
+  guardias-network:
+    driver: bridge
