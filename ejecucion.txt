@@ -8,7 +8,7 @@ cd C:\Users\pabli\Desktop\DESARROLLO EN LA NUBE\ProyectoAppGestionGuardias\disco
 mvnw spring-boot:run
 
 Despues microservicio y por ultimo apigateway
-cd "C:\Users\pabli\Desktop\DESARROLLO EN LA NUBE\TP\MICROSERVICIOS\empleado-service"
+cd C:\Users\pabli\Desktop\DESARROLLO EN LA NUBE\TP\MICROSERVICIOS\empleado-service
 
 mvnw spring-boot:run
 

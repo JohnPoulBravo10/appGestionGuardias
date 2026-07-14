@@ -3,6 +3,7 @@ package com.sistema.guardias.empleado_service.service;
 
 
 import com.sistema.guardias.empleado_service.model.Empleado;
+import com.sistema.guardias.empleado_service.model.Rol;
 import com.sistema.guardias.empleado_service.repository.EmpleadoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,5 +31,9 @@ public class EmpleadoService {
 
     public void eliminarEmpleado(Long dni) {
         empleadoRepository.deleteById(dni);
+    }
+
+    public List<Empleado> obtenerPorRol(Rol rol) {
+        return empleadoRepository.findByRol(rol);
     }
 }

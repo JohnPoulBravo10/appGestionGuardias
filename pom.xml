@@ -23,6 +23,7 @@
         <module>discovery-server</module>
         <module>api-gateway</module>
         <module>microservicios/empleado-service</module>
+        <module>microservicios/guardia-service</module>
     </modules>
 
     <properties>

@@ -3,6 +3,7 @@ package com.sistema.guardias.empleado_service.controller;
 
 
 import com.sistema.guardias.empleado_service.model.Empleado;
+import com.sistema.guardias.empleado_service.model.Rol;
 import com.sistema.guardias.empleado_service.service.EmpleadoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,13 @@ public class EmpleadoController {
     private EmpleadoService empleadoService;
 
     @GetMapping
-    public List<Empleado> listarEmpleados() {
+    public List<Empleado> listarEmpleados(
+            @RequestParam(required = false) Rol rol) {
+
+        if (rol != null) {
+            return empleadoService.obtenerPorRol(rol);
+        }
+
         return empleadoService.obtenerTodos();
     }
 
