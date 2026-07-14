@@ -1,0 +1,15 @@
+.git
+.gitignore
+FRONT/
+*.md
+docker-compose.yml
+init-db.sql
+ejecucion.txt
+**/target/
+**/.idea
+**/*.iml
+**/.mvn
+**/mvnw
+**/mvnw.cmd
+**/node_modules
+**/dist

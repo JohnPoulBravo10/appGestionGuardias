@@ -1,0 +1,15 @@
+# Perfil Docker para config-server
+# Las propiedades base (profiles.active: native, config server native, port)
+# se heredan de application.yml. Aquí solo van sobreescrituras para Docker.
+spring:
+  application:
+    name: config-server
+
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: classpath:/config
+
+server:
+  port: 8888
