@@ -92,7 +92,7 @@ services:
   # ==================== GUARDIA SERVICE ====================
   guardia-service:
     build:
-      context: ./MICROSERVICIOS/guardia_service
+      context: ./MICROSERVICIOS/guardia-service
       dockerfile: Dockerfile
     container_name: guardia-service
     restart: unless-stopped
