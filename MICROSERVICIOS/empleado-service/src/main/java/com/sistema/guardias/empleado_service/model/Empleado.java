@@ -33,7 +33,12 @@ public class Empleado {
     private long telefono;
     
     private String direccion;
+
+    @Column(unique = true, nullable = false)
+    private String usuario;
+
+    @Column(nullable = false)
+    private String password;
     
-    
-    
+
 }

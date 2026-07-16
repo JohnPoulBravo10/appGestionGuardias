@@ -36,4 +36,12 @@ public class EmpleadoService {
     public List<Empleado> obtenerPorRol(Rol rol) {
         return empleadoRepository.findByRol(rol);
     }
+
+    /**
+     * Busca un empleado por su nombre de usuario.
+     * Utilizado para la pantalla de login (validación básica).
+     */
+    public Optional<Empleado> buscarPorUsuario(String usuario) {
+        return empleadoRepository.findByUsuario(usuario);
+    }
 }

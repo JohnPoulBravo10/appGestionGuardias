@@ -59,6 +59,7 @@ OTROS COMANDOS ÚTILES
 
   SERVICIO                          URL
   --------------------------------  ------------------------------------------
+  Frontend Login                    http://localhost:5175
   Frontend Administrador            http://localhost:5173
   Frontend Empleados                http://localhost:5174
   API Gateway                       http://localhost:8090
@@ -83,7 +84,8 @@ dependencias configuradas en docker-compose.yml:
   5. Guardia Service (guardia-service)              — espera a Eureka y MySQL
   6. API Gateway (api-gateway)                      — espera a Eureka
   7. Frontend Administrador (front-admin)           — espera a API Gateway
-  8. Frontend Empleados (front-empleados)            — espera a API Gateway
+  8. Frontend Empleados (front-empleados)           — espera a API Gateway
+  9. Frontend Login (front-login)                  — espera a API Gateway
 
 NOTA: El arranque completo puede tardar varios minutos debido a los healthchecks.
 

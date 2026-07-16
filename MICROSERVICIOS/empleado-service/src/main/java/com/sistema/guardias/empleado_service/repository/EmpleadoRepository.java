@@ -16,4 +16,7 @@ public interface EmpleadoRepository extends JpaRepository<Empleado, Long> {
     
     List<Empleado> findByApellidoContainingIgnoreCase(String apellido);
     List<Empleado> findByRol(Rol rol);
+
+    /** Busca un empleado por su nombre de usuario único (para login) */
+    Optional<Empleado> findByUsuario(String usuario);
 }
