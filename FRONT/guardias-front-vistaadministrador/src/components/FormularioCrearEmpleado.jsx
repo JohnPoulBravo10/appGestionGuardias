@@ -1,69 +1,114 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-function FormularioCrearEmpleado({ setPagina }) {
+function FormularioCrearEmpleado({ setPagina, empleadoEditar, setEmpleadoEditar }) {
+  const esEdicion = empleadoEditar != null;
+
+
 
   const guardarEmpleado = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const response = await fetch("http://localhost:8090/api/empleados", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(empleado)
-    });
+    try {
+      const response = await fetch(
 
-    if (!response.ok) {
-      throw new Error("Error al guardar empleado");
+        esEdicion
+          ? `http://localhost:8090/api/empleados/${empleado.dni}`
+          : "http://localhost:8090/api/empleados",
+
+        {
+          method: esEdicion ? "PUT" : "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(empleado)
+        }
+
+      );
+
+      if (!response.ok) {
+        throw new Error("Error al guardar empleado");
+      }
+
+      const data = await response.json();
+
+      console.log("Empleado guardado:", data);
+
+      alert(
+        esEdicion
+          ? "Empleado actualizado correctamente"
+          : "Empleado registrado correctamente"
+      );
+
+      setEmpleado({
+        dni: "",
+        nombre: "",
+        apellido: "",
+        rol: "ENFERMERIA",
+        email: "",
+        telefono: "",
+        direccion: ""
+      });
+
+      setEmpleadoEditar(null);
+
+      setPagina("GESTION EMPLEADOS");
+
+    } catch (error) {
+      console.error(error);
+      alert("No se pudo registrar el empleado");
     }
+  };
 
-    const data = await response.json();
-
-    console.log("Empleado guardado:", data);
-
-    alert("Empleado registrado correctamente");
-
-    setEmpleado({
+  const [empleado, setEmpleado] = useState(
+    empleadoEditar ?? {
       dni: "",
       nombre: "",
       apellido: "",
-      rol: "",
+      rol: "ENFERMERIA",
       email: "",
       telefono: "",
       direccion: ""
-    });
+    }
+  );
 
-  } catch (error) {
-    console.error(error);
-    alert("No se pudo registrar el empleado");
-  }
-};
+  useEffect(() => {
 
-  const [empleado, setEmpleado] = useState({
-    dni: "",
-    nombre: "",
-    apellido: "",
-    rol: "ENFERMERIA",
-    email: "",
-    telefono: "",
-    direccion: ""
-  });
+    if (empleadoEditar) {
 
-  
+      setEmpleado(empleadoEditar);
+
+    } else {
+
+      setEmpleado({
+        dni: "",
+        nombre: "",
+        apellido: "",
+        rol: "ENFERMERIA",
+        email: "",
+        telefono: "",
+        direccion: ""
+      });
+
+    }
+
+  }, [empleadoEditar]);
+
 
   return (
     <div className="tabla-container">
 
       <button
         className="btn-volver"
-        onClick={() => setPagina("GESTION EMPLEADOS")}
+        onClick={() => {
+          setEmpleadoEditar(null);
+          setPagina("GESTION EMPLEADOS");
+        }}
       >
         ← Volver
       </button>
 
       <h3 style={{ marginBottom: "25px", marginTop: "10px" }}>
-        Registrar Nuevo Empleado
+        {esEdicion ? "Editar Empleado" : "Registrar Nuevo Empleado"}
       </h3>
 
       <form className="form-empleado" onSubmit={guardarEmpleado}>
@@ -109,15 +154,14 @@ function FormularioCrearEmpleado({ setPagina }) {
             <input
               type="number"
               className="input-estilo"
-              placeholder="Ej: 12345678"
               value={empleado.dni}
+              disabled={esEdicion}
               onChange={(e) =>
                 setEmpleado({
                   ...empleado,
-                  dni: e.target.value,
+                  dni: e.target.value
                 })
               }
-              required
             />
           </div>
 
@@ -191,7 +235,7 @@ function FormularioCrearEmpleado({ setPagina }) {
         </div>
 
         <button type="submit" className="btn-guardar">
-          Guardar Empleado
+          {esEdicion ? "Actualizar Empleado" : "Guardar Empleado"}
         </button>
 
       </form>

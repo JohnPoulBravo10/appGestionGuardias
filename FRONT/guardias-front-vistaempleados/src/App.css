@@ -158,9 +158,37 @@
 
 
 /* Tabla */
-    .tabla-container { background: #1a1a1a; padding: 20px; border-radius: 16px; border: 1px solid #333; }
-    .tabla-guardias { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
-    .tabla-guardias th { color: #888; text-align: left; padding: 15px; font-size: 0.8rem; }
-    .tabla-guardias td { background: #222; padding: 20px; color: #fff; }
-    .tabla-guardias td:first-child { border-radius: 10px 0 0 10px; }
-    .tabla-guardias td:last-child { border-radius: 0 10px 10px 0; }
+    .tabla-container {
+  background: #1a1a1a;
+  padding: 25px;
+  border-radius: 12px;
+  border: 1px solid #2a2a2a;
+  width: 100%; /* Para que ocupe todo el ancho disponible */
+}
+
+.header-tabla {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.tabla-guardias, .tabla-empleados {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-guardias th, .tabla-empleados th {
+  color: #888;
+  text-align: left;
+  padding: 15px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.tabla-guardias td, .tabla-empleados td {
+  padding: 15px;
+  border-bottom: 1px solid #222;
+  font-size: 0.9rem;
+}

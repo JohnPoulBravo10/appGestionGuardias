@@ -13,7 +13,7 @@ import java.util.List;
 @RequestMapping("/api/guardias")
 
 public class GuardiaContoller {
-     @Autowired
+    @Autowired
     private GuardiaService guardiaService;
 
     @GetMapping
@@ -31,6 +31,15 @@ public class GuardiaContoller {
         return guardiaService.obtenerPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/empleado/{idEmpleado}")
+    public ResponseEntity<List<Guardia>> obtenerGuardiasEmpleado(
+            @PathVariable Long idEmpleado) {
+
+        List<Guardia> guardias = guardiaService.obtenerGuardiasEmpleado(idEmpleado);
+
+        return ResponseEntity.ok(guardias);
     }
 
     @DeleteMapping("/{id}")
