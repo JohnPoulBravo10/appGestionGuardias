@@ -1,6 +1,4 @@
-
 package com.sistema.guardias.empleado_service.service;
-
 
 import com.sistema.guardias.empleado_service.model.Empleado;
 import com.sistema.guardias.empleado_service.model.Rol;
@@ -14,7 +12,7 @@ import java.util.Optional;
 @Service
 public class EmpleadoService {
 
-     @Autowired
+    @Autowired
     private EmpleadoRepository empleadoRepository;
 
     public List<Empleado> obtenerTodos() {
@@ -26,10 +24,18 @@ public class EmpleadoService {
     }
 
     public Empleado guardarEmpleado(Empleado empleado) {
+        if (empleadoRepository.existsById(empleado.getDni())) {
+            throw new RuntimeException("Ya existe un empleado con ese DNI");
+        }
+
         return empleadoRepository.save(empleado);
     }
 
     public void eliminarEmpleado(Long dni) {
+        if (!empleadoRepository.existsById(dni)) {
+            throw new RuntimeException("Empleado no encontrado");
+        }
+
         empleadoRepository.deleteById(dni);
     }
 
@@ -37,10 +43,17 @@ public class EmpleadoService {
         return empleadoRepository.findByRol(rol);
     }
 
-    /**
-     * Busca un empleado por su ID de usuario.
-     */
     public Optional<Empleado> buscarPorUsuarioId(Long usuarioId) {
         return empleadoRepository.findByUsuarioId(usuarioId);
+    }
+
+    public Empleado actualizarEmpleado(Long dni, Empleado empleado) {
+        if (!empleadoRepository.existsById(dni)) {
+            throw new RuntimeException("Empleado no encontrado");
+        }
+
+        empleado.setDni(dni);
+
+        return empleadoRepository.save(empleado);
     }
 }

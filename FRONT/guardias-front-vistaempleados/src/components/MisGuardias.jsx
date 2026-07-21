@@ -1,37 +1,82 @@
-import React from 'react'
+import React, { useEffect, useState } from "react";
+
 
 function MisGuardias() {
-  
-    const guardias = [
-    { fecha: 'Mañana, 27/05/2026', horario: '08:00 a 16:00', area: 'Enfermería', estado: 'Próxima' },
-    { fecha: 'Jueves, 28/05/2026', horario: '08:00 a 16:00', area: 'Enfermería', estado: 'Confirmada' },
-  ];
+    const [loading, setLoading] = useState(true);
+    const [guardias,setGuardias] = useState([]);
+    useEffect(() => {
+    obtenerGuardias(42765715);
+}, []);
+
+ const obtenerGuardias = async (id) => {
+
+    setLoading(true);
+
+    try {
+
+        const response = await fetch(
+            `http://localhost:8090/api/guardias/empleado/${id}`
+        );
+
+        if (!response.ok) {
+            throw new Error("Error al obtener guardias");
+        }
+
+        const data = await response.json();
+
+        setGuardias(data);
+
+    } catch (error) {
+
+        console.error(error);
+
+    } finally {
+
+        setLoading(false);
+
+    }
+};
 
   return (
     <div className="tabla-container">
       <h3 style={{ marginBottom: '20px' }}>MIS GUARDIAS</h3>
+      {loading ? <p>Cargando guardias...</p> : (
       <table className="tabla-guardias">
         <thead>
           <tr>
             <th>FECHA</th>
             <th>HORARIO</th>
-            <th>AREA</th>
+            <th>ÁREA</th>
             <th>ESTADO</th>
-            <th>ACCIONES</th>
           </tr>
         </thead>
         <tbody>
-          {guardias.map((g, i) => (
-            <tr key={i}>
-              <td>{g.fecha}</td>
-              <td>{g.horario}</td>
-              <td>{g.area}</td>
-              <td>{g.estado}</td>
-              <td style={{ color: '#aaa', cursor: 'pointer' }}>Solicitar cambio</td>
-            </tr>
-          ))}
+          {
+            guardias.map((g) => (
+              <tr key={g.id}>
+
+                <td>{g.fecha}</td>
+
+                <td>
+                  {g.horaInicio} - {g.horaFin}
+                </td>
+
+                <td>{g.rol}</td>
+
+
+                <td>
+                  <span className="badge">
+                    {g.estado}
+                  </span>
+                </td>
+
+
+              </tr>
+            ))
+          }
         </tbody>
       </table>
+      )}
     </div>
   )
 }

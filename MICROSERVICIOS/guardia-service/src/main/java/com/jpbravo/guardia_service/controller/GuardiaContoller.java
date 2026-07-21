@@ -13,7 +13,7 @@ import java.util.List;
 @RequestMapping("/api/guardias")
 
 public class GuardiaContoller {
-     @Autowired
+    @Autowired
     private GuardiaService guardiaService;
 
     @GetMapping
@@ -33,9 +33,25 @@ public class GuardiaContoller {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/empleado/{idEmpleado}")
+    public ResponseEntity<List<Guardia>> obtenerGuardiasEmpleado(
+            @PathVariable Long idEmpleado) {
+
+        List<Guardia> guardias = guardiaService.obtenerGuardiasEmpleado(idEmpleado);
+
+        return ResponseEntity.ok(guardias);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarGuardia(@PathVariable Long id) {
         guardiaService.eliminarGuardia(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> actualizarGuardia(@PathVariable Long id, @RequestBody Guardia guardia) {
+            Guardia actualizada = guardiaService.actualizarGuardia(id, guardia);
+            return ResponseEntity.ok(actualizada);
+    }
+
 }

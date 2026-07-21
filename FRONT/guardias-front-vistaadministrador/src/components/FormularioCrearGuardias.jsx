@@ -9,8 +9,7 @@ function FormularioCrearGuardias({ setPagina }) {
     horaInicio: "",
     horaFin: "",
     rol: "",
-    empleadoId: "",
-    estado: "ABIERTA"
+    empleadoId: ""
   });
 
   const cargarEmpleadosPorRol = async (rol) => {
@@ -53,7 +52,10 @@ function FormularioCrearGuardias({ setPagina }) {
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify(guardia)
+          body: JSON.stringify({
+            ...guardia,
+            empleadoId: guardia.empleadoId === "" ? null : Number(guardia.empleadoId)
+          })
         }
       );
 
@@ -68,8 +70,7 @@ function FormularioCrearGuardias({ setPagina }) {
         horaInicio: "",
         horaFin: "",
         rol: "",
-        empleadoId: "",
-        estado: "ABIERTA"
+        empleadoId: ""
       });
 
       setEmpleados([]);
@@ -195,7 +196,7 @@ function FormularioCrearGuardias({ setPagina }) {
             onChange={(e) =>
               setGuardia({
                 ...guardia,
-                empleadoId: e.target.value
+                empleadoId: e.target.value === "" ? null : Number(e.target.value)
               })
             }
           >
