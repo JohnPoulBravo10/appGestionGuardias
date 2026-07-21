@@ -96,3 +96,8 @@ docker compose up -d mysql-db config-server discovery-server empleado-service gu
 
 cd FRONT/guardias-front-vistaadministrador
 npm run dev
+
+
+docker compose up -d --build guardia-service
+
+docker compose up -d --build empleado-service

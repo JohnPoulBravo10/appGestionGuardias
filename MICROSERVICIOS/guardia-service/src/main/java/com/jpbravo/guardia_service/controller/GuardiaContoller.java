@@ -47,4 +47,11 @@ public class GuardiaContoller {
         guardiaService.eliminarGuardia(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> actualizarGuardia(@PathVariable Long id, @RequestBody Guardia guardia) {
+            Guardia actualizada = guardiaService.actualizarGuardia(id, guardia);
+            return ResponseEntity.ok(actualizada);
+    }
+
 }

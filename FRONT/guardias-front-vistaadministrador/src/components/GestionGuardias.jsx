@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-function GestionGuardias({ setPagina }) {
+function GestionGuardias({ setPagina, setGuardiaEditar }) {
   const [guardias, setGuardias] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -68,6 +68,15 @@ function GestionGuardias({ setPagina }) {
     }
 
   };
+
+
+  const editarGuardia = (guardia) => {
+
+
+    setGuardiaEditar(guardia)
+    setPagina('EDITAR GUARDIA')
+
+  }
 
   return (
     <div className="tabla-container">

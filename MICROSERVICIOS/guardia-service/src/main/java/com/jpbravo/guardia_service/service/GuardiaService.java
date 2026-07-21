@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Service
 public class GuardiaService {
-     @Autowired
+    @Autowired
     private GuardiaRepository repository;
 
     public List<Guardia> obtenerTodas() {
@@ -37,7 +37,27 @@ public class GuardiaService {
         repository.deleteById(id);
     }
 
-    public List<Guardia >obtenerGuardiasEmpleado(Long idEmpleado){
+    public List<Guardia> obtenerGuardiasEmpleado(Long idEmpleado) {
         return repository.findByEmpleadoId(idEmpleado);
+    }
+
+    public Guardia actualizarGuardia(Long id, Guardia guardiaActualizada) {
+
+        Guardia guardia = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Guardia no encontrada"));
+
+        guardia.setFecha(guardiaActualizada.getFecha());
+        guardia.setHoraInicio(guardiaActualizada.getHoraInicio());
+        guardia.setHoraFin(guardiaActualizada.getHoraFin());
+        guardia.setRol(guardiaActualizada.getRol());
+        guardia.setEmpleadoId(guardiaActualizada.getEmpleadoId());
+
+        if (guardiaActualizada.getEmpleadoId() == null) {
+            guardia.setEstado(EstadoGuardia.ABIERTA);
+        } else {
+            guardia.setEstado(EstadoGuardia.PROXIMA);
+        }
+
+        return repository.save(guardia);
     }
 }

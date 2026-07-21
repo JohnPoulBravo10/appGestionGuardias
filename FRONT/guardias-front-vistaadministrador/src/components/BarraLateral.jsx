@@ -12,6 +12,7 @@ function BarraLateral({ paginaActual, setPagina }) {
 
       <nav className="menu">
         <BotonMenu texto="INICIO" activo={paginaActual === 'INICIO'} onClick={() => setPagina('INICIO')} />
+        <BotonMenu texto="CALENDARIO" activo={paginaActual === 'CALENDARIO'} onClick={() => setPagina('CALENDARIO')} />
         <BotonMenu texto="GESTIÓN EMPLEADOS" activo={(paginaActual === 'GESTION EMPLEADOS' || paginaActual === 'CREAR EMPLEADO')} onClick={() => setPagina('GESTION EMPLEADOS')} />
         <BotonMenu texto="GESTIÓN GUARDIAS" activo={paginaActual === 'GESTION GUARDIAS' || paginaActual === 'CREAR GUARDIAS'} onClick={() => setPagina('GESTION GUARDIAS')} />
         <BotonMenu texto="SOLICITUDES" activo={paginaActual === 'SOLICITUDES'} onClick={() => setPagina('SOLICITUDES')} />

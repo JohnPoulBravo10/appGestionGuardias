@@ -26,7 +26,12 @@ function FormularioCrearEmpleado({ setPagina, empleadoEditar, setEmpleadoEditar 
       );
 
       if (!response.ok) {
-        throw new Error("Error al guardar empleado");
+
+        const mensaje = await response.text();
+
+        alert(mensaje);
+
+        return;
       }
 
       const data = await response.json();

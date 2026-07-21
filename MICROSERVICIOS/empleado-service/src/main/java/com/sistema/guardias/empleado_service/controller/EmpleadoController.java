@@ -1,11 +1,11 @@
-
 package com.sistema.guardias.empleado_service.controller;
-
 
 import com.sistema.guardias.empleado_service.model.Empleado;
 import com.sistema.guardias.empleado_service.model.Rol;
 import com.sistema.guardias.empleado_service.service.EmpleadoService;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,8 +30,22 @@ public class EmpleadoController {
     }
 
     @PostMapping
-    public Empleado crearEmpleado(@RequestBody Empleado empleado) {
-        return empleadoService.guardarEmpleado(empleado);
+    public ResponseEntity<?> crearEmpleado(@RequestBody Empleado empleado) {
+
+        try {
+
+            Empleado nuevo = empleadoService.guardarEmpleado(empleado);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
+
+        } catch (RuntimeException e) {
+
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(e.getMessage());
+
+        }
+
     }
 
     @GetMapping("/{dni}")
@@ -45,5 +59,25 @@ public class EmpleadoController {
     public ResponseEntity<Void> eliminarEmpleado(@PathVariable Long dni) {
         empleadoService.eliminarEmpleado(dni);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{dni}")
+    public ResponseEntity<?> actualizarEmpleado(
+            @PathVariable Long dni,
+            @RequestBody Empleado empleado) {
+
+        try {
+
+            Empleado actualizado = empleadoService.actualizarEmpleado(dni, empleado);
+
+            return ResponseEntity.ok(actualizado);
+
+        } catch (RuntimeException e) {
+
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+
+        }
     }
 }
