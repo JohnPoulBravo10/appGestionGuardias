@@ -67,7 +67,9 @@ OTROS COMANDOS ÚTILES
   Config Server                     http://localhost:8888
   Empleado Service                  http://localhost:8080
   Guardia Service                   http://localhost:8081
-  MySQL (Base de Datos)             localhost:3307  (usuario: root / pass: rootpassword)
+  Autenticación Service             http://localhost:8083
+  PhpMyAdmin                        http://localhost:8082 (usuario: root / pass: rootpassword)
+  MySQL (Base de Datos)             localhost:3307
 
 
 ================================================================================
@@ -79,13 +81,15 @@ dependencias configuradas en docker-compose.yml:
 
   1. MySQL (mysql-db)
   2. Config Server (config-server)
-  3. Discovery Server / Eureka (discovery-server)  — espera a Config Server
+  3. Discovery Server / Eureka (discovery-server)   — espera a Config Server
   4. Empleado Service (empleado-service)            — espera a Eureka y MySQL
   5. Guardia Service (guardia-service)              — espera a Eureka y MySQL
-  6. API Gateway (api-gateway)                      — espera a Eureka
-  7. Frontend Administrador (front-admin)           — espera a API Gateway
-  8. Frontend Empleados (front-empleados)           — espera a API Gateway
-  9. Frontend Login (front-login)                  — espera a API Gateway
+  6. Autenticación Service (autenticacion-service)  — espera a Eureka y MySQL
+  7. API Gateway (api-gateway)                      — espera a Eureka
+  8. Frontend Administrador (front-admin)           — espera a API Gateway
+  9. Frontend Empleados (front-empleados)           — espera a API Gateway
+  10. Frontend Login (front-login)                  — espera a API Gateway
+  11. PhpMyAdmin (phpmyadmin)                       — espera a MySQL
 
 NOTA: El arranque completo puede tardar varios minutos debido a los healthchecks.
 

@@ -1,56 +1,107 @@
 import React, { useState } from "react";
 
+/**
+ * URL base del API Gateway.
+ * En desarrollo apunta a localhost:8090; en Docker se reemplaza por el hostname interno.
+ */
+const API_BASE_URL = "http://localhost:8090";
+
+/**
+ * Mapea el rol funcional del empleado (select) al enum de usuario para autenticación.
+ * "ADMINISTRADOR" → Rol.ADMINISTRADOR; cualquier otro → Rol.EMPLEADO.
+ *
+ * @param {string} rolEmpleado - Rol funcional seleccionado en el formulario
+ * @returns {string} Valor del enum Rol para el servicio de autenticación
+ */
+function mapearRolUsuario(rolEmpleado) {
+  return rolEmpleado === "ADMINISTRADOR" ? "ADMINISTRADOR" : "EMPLEADO";
+}
+
+/**
+ * FormularioCrearEmpleado — Formulario para registrar un nuevo empleado.
+ *
+ * Ahora envía los datos a POST /auth/register en lugar de POST /api/empleados.
+ * El servicio de autenticación crea el usuario (credenciales) y delega
+ * la creación del perfil al empleado-service vía Feign.
+ *
+ * @param {Object} props
+ * @param {Function} props.setPagina - Callback para navegar entre páginas
+ */
 function FormularioCrearEmpleado({ setPagina }) {
 
-  const guardarEmpleado = async (e) => {
-  e.preventDefault();
-
-  try {
-    const response = await fetch("http://localhost:8090/api/empleados", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(empleado)
-    });
-
-    if (!response.ok) {
-      throw new Error("Error al guardar empleado");
-    }
-
-    const data = await response.json();
-
-    console.log("Empleado guardado:", data);
-
-    alert("Empleado registrado correctamente");
-
-    setEmpleado({
-      dni: "",
-      nombre: "",
-      apellido: "",
-      rol: "",
-      email: "",
-      telefono: "",
-      direccion: ""
-    });
-
-  } catch (error) {
-    console.error(error);
-    alert("No se pudo registrar el empleado");
-  }
-};
-
   const [empleado, setEmpleado] = useState({
+    usuario: "",
+    password: "",
     dni: "",
     nombre: "",
     apellido: "",
     rol: "ENFERMERIA",
     email: "",
     telefono: "",
-    direccion: ""
+    direccion: "",
   });
 
-  
+  /**
+   * Envía los datos de registro al servicio de autenticación.
+   * Construye el RegistroRequestDto esperado por el backend:
+   * - usuario, password, rolUsuario (enum) → credenciales
+   * - dni, nombre, apellido, email, telefono, direccion, rolEmpleado (string) → perfil
+   */
+  const guardarEmpleado = async (e) => {
+    e.preventDefault();
+
+    try {
+      const requestBody = {
+        // Datos de autenticación
+        usuario: empleado.usuario,
+        password: empleado.password,
+        rolUsuario: mapearRolUsuario(empleado.rol),
+        // Datos del perfil de empleado
+        dni: Number(empleado.dni),
+        nombre: empleado.nombre,
+        apellido: empleado.apellido,
+        email: empleado.email,
+        telefono: Number(empleado.telefono),
+        direccion: empleado.direccion,
+        rolEmpleado: empleado.rol,
+      };
+
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Error al registrar empleado");
+      }
+
+      const data = await response.json();
+
+      console.log("Empleado registrado:", data);
+
+      alert("Empleado registrado correctamente");
+
+      setEmpleado({
+        usuario: "",
+        password: "",
+        dni: "",
+        nombre: "",
+        apellido: "",
+        rol: "ENFERMERIA",
+        email: "",
+        telefono: "",
+        direccion: "",
+      });
+
+    } catch (error) {
+      console.error(error);
+      alert("No se pudo registrar el empleado: " + error.message);
+    }
+  };
 
   return (
     <div className="tabla-container">
@@ -68,6 +119,44 @@ function FormularioCrearEmpleado({ setPagina }) {
 
       <form className="form-empleado" onSubmit={guardarEmpleado}>
 
+        {/* Campos de autenticación */}
+        <div className="form-row">
+          <div className="form-group">
+            <label>Usuario</label>
+            <input
+              type="text"
+              className="input-estilo"
+              placeholder="Ej: jperez"
+              value={empleado.usuario}
+              onChange={(e) =>
+                setEmpleado({
+                  ...empleado,
+                  usuario: e.target.value,
+                })
+              }
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Contraseña</label>
+            <input
+              type="password"
+              className="input-estilo"
+              placeholder="Contraseña inicial"
+              value={empleado.password}
+              onChange={(e) =>
+                setEmpleado({
+                  ...empleado,
+                  password: e.target.value,
+                })
+              }
+              required
+            />
+          </div>
+        </div>
+
+        {/* Datos personales */}
         <div className="form-group">
           <label>Nombre</label>
           <input

@@ -38,10 +38,9 @@ public class EmpleadoService {
     }
 
     /**
-     * Busca un empleado por su nombre de usuario.
-     * Utilizado para la pantalla de login (validación básica).
+     * Busca un empleado por su ID de usuario.
      */
-    public Optional<Empleado> buscarPorUsuario(String usuario) {
-        return empleadoRepository.findByUsuario(usuario);
+    public Optional<Empleado> buscarPorUsuarioId(Long usuarioId) {
+        return empleadoRepository.findByUsuarioId(usuarioId);
     }
 }

@@ -17,14 +17,46 @@ const REDIRECT_URLS = {
 }
 
 /**
+ * Decodifica el payload de un JWT (sin verificar firma).
+ * Extrae las claims del token para uso client-side (e.g., rol para redirección).
+ *
+ * @param {string} token - JWT completo (header.payload.signature)
+ * @returns {Object} Claims decodificadas del payload
+ */
+function decodeJwtPayload(token) {
+  const payloadBase64 = token.split('.')[1]
+  // Reemplaza caracteres URL-safe y decodifica
+  const payloadJson = atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/'))
+  return JSON.parse(payloadJson)
+}
+
+/**
+ * Extrae el rol principal del payload JWT.
+ * El claim "roles" es un array de objetos con forma { authority: "ROLE_XXX" }.
+ *
+ * @param {Object} payload - Claims decodificadas del JWT
+ * @returns {string} Nombre del rol sin prefijo "ROLE_" (e.g., "ADMINISTRADOR")
+ */
+function extractRolFromPayload(payload) {
+  const roles = payload.roles || []
+  if (roles.length === 0) {
+    return null
+  }
+  // Cada authority tiene formato "ROLE_ADMINISTRADOR" o "ROLE_EMPLEADO"
+  const authority = roles[0].authority || ''
+  return authority.replace(/^ROLE_/, '')
+}
+
+/**
  * useLoginForm — Custom hook que encapsula toda la lógica del formulario de login.
  *
  * Responsabilidades:
  * - Estado del formulario (usuario, password, showPassword)
  * - Validación de campos antes del submit
- * - Llamada al endpoint GET /api/empleados/login
+ * - Llamada al endpoint POST /auth/login con credenciales JSON
+ * - Decodificación del JWT para extraer rol y redirigir
+ * - Almacenamiento del token en localStorage
  * - Manejo de estados de carga y error
- * - Redirección por rol tras login exitoso
  *
  * @returns {Object} Estado y handlers del formulario
  */
@@ -78,7 +110,7 @@ export default function useLoginForm() {
 
   /**
    * Handler del submit del formulario.
-   * Valida campos → llama al API → redirige o muestra error.
+   * Valida campos → llama POST /auth/login → decodifica JWT → redirige por rol.
    */
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault()
@@ -94,17 +126,23 @@ export default function useLoginForm() {
     setIsLoading(true)
 
     try {
-      const params = new URLSearchParams({ usuario: usuario.trim(), password })
       const response = await fetch(
-        `${API_BASE_URL}/api/empleados/login?${params.toString()}`,
+        `${API_BASE_URL}/auth/login`,
         {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' },
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({
+            usuario: usuario.trim(),
+            password,
+          }),
         }
       )
 
       if (!response.ok) {
-        if (response.status === 401) {
+        if (response.status === 401 || response.status === 403) {
           setError('Usuario o contraseña incorrectos')
         } else {
           setError(`Error del servidor (${response.status}). Intente nuevamente.`)
@@ -112,8 +150,15 @@ export default function useLoginForm() {
         return
       }
 
-      const empleado = await response.json()
-      redirigirPorRol(empleado.rol)
+      const { token } = await response.json()
+
+      // Persistir JWT para uso en otros frontends (admin, empleados)
+      localStorage.setItem('token', token)
+
+      // Decodificar payload para extraer rol y redirigir
+      const payload = decodeJwtPayload(token)
+      const rol = extractRolFromPayload(payload)
+      redirigirPorRol(rol)
 
     } catch (err) {
       // Error de red (servidor caído, sin conexión, etc.)

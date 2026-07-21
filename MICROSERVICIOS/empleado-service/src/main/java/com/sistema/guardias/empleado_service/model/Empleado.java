@@ -34,11 +34,7 @@ public class Empleado {
     
     private String direccion;
 
-    @Column(unique = true, nullable = false)
-    private String usuario;
-
-    @Column(nullable = false)
-    private String password;
-    
+    @Column(name = "usuario_id", nullable = false)
+    private Long usuarioId;
 
 }
