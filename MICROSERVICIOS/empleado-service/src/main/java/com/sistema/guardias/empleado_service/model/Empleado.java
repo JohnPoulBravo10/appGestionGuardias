@@ -33,7 +33,8 @@ public class Empleado {
     private long telefono;
     
     private String direccion;
-    
-    
-    
+
+    @Column(name = "usuario_id", nullable = false)
+    private Long usuarioId;
+
 }

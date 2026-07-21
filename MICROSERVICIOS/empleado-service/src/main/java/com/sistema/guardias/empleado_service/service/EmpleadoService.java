@@ -36,4 +36,11 @@ public class EmpleadoService {
     public List<Empleado> obtenerPorRol(Rol rol) {
         return empleadoRepository.findByRol(rol);
     }
+
+    /**
+     * Busca un empleado por su ID de usuario.
+     */
+    public Optional<Empleado> buscarPorUsuarioId(Long usuarioId) {
+        return empleadoRepository.findByUsuarioId(usuarioId);
+    }
 }
