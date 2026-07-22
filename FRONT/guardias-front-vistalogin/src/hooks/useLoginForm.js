@@ -98,13 +98,19 @@ export default function useLoginForm() {
 
   /**
    * Redirige al frontend correspondiente según el rol del empleado.
+   * Pasa el JWT como query parameter porque localStorage no se comparte
+   * entre orígenes con distinto puerto (login:5175 → admin:5173/empleado:5174).
    * Usa un pequeño delay para que el usuario perciba el login exitoso.
+   *
+   * @param {string} rol - Rol extraído del JWT (e.g., "ADMINISTRADOR")
+   * @param {string} token - JWT completo para pasar al frontend destino
    */
-  const redirigirPorRol = useCallback((rol) => {
+  const redirigirPorRol = useCallback((rol, token) => {
     const destino = REDIRECT_URLS[rol] || REDIRECT_URLS.DEFAULT
+    const urlConToken = `${destino}?token=${encodeURIComponent(token)}`
     // Breve pausa para feedback visual antes de redirigir
     setTimeout(() => {
-      window.location.href = destino
+      window.location.href = urlConToken
     }, 300)
   }, [])
 
@@ -155,10 +161,10 @@ export default function useLoginForm() {
       // Persistir JWT para uso en otros frontends (admin, empleados)
       localStorage.setItem('token', token)
 
-      // Decodificar payload para extraer rol y redirigir
+      // Decodificar payload para extraer rol y redirigir con el token
       const payload = decodeJwtPayload(token)
       const rol = extractRolFromPayload(payload)
-      redirigirPorRol(rol)
+      redirigirPorRol(rol, token)
 
     } catch (err) {
       // Error de red (servidor caído, sin conexión, etc.)
