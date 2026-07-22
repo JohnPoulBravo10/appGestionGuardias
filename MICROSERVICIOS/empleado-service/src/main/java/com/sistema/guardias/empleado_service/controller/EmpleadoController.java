@@ -57,6 +57,23 @@ public class EmpleadoController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    /**
+     * Obtiene un empleado por su usuarioId (vinculado al auth-service).
+     * Usado por los frontends para recuperar el perfil del usuario autenticado.
+     *
+     * @param usuarioId ID del usuario en la tabla de autenticación
+     * @return Empleado asociado o 404 si no existe
+     */
+    @GetMapping("/por-usuario/{usuarioId}")
+    public ResponseEntity<Empleado> obtenerPorUsuarioId(
+            @PathVariable Long usuarioId) {
+
+        return empleadoService
+                .buscarPorUsuarioId(usuarioId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @DeleteMapping("/{dni}")
     public ResponseEntity<?> eliminarEmpleado(
             @PathVariable Long dni) {

@@ -4,7 +4,7 @@ function EditarGuardia({ setPagina, guardiaEditar, setGuardiaEditar }) {
 
     const [empleados, setEmpleados] = useState([]);
 
-  
+
 
     const cargarEmpleadosPorRol = async (rol) => {
 
@@ -33,7 +33,7 @@ function EditarGuardia({ setPagina, guardiaEditar, setGuardiaEditar }) {
 
     };
 
-  
+
 
     useEffect(() => {
 
@@ -43,7 +43,7 @@ function EditarGuardia({ setPagina, guardiaEditar, setGuardiaEditar }) {
 
     }, [guardiaEditar]);
 
-    
+
 
     const guardarGuardia = async (e) => {
 
@@ -71,7 +71,7 @@ function EditarGuardia({ setPagina, guardiaEditar, setGuardiaEditar }) {
 
             alert("Guardia editada correctamente");
 
-            setPagina("GESTION GUARDIAS");
+            setPagina("GESTION DE GUARDIAS");
 
         } catch (error) {
 
@@ -82,7 +82,7 @@ function EditarGuardia({ setPagina, guardiaEditar, setGuardiaEditar }) {
 
     };
 
-    
+
 
     if (!guardiaEditar) {
         return <p>Cargando...</p>;
@@ -94,7 +94,7 @@ function EditarGuardia({ setPagina, guardiaEditar, setGuardiaEditar }) {
 
             <button
                 className="btn-volver"
-                onClick={() => setPagina("GESTION GUARDIAS")}
+                onClick={() => setPagina("GESTION DE GUARDIAS")}
             >
                 ← Volver
             </button>
@@ -108,7 +108,7 @@ function EditarGuardia({ setPagina, guardiaEditar, setGuardiaEditar }) {
                 onSubmit={guardarGuardia}
             >
 
-                
+
 
                 <div className="form-group">
 
@@ -129,7 +129,7 @@ function EditarGuardia({ setPagina, guardiaEditar, setGuardiaEditar }) {
 
                 </div>
 
-               
+
 
                 <div className="form-row">
 
@@ -173,7 +173,7 @@ function EditarGuardia({ setPagina, guardiaEditar, setGuardiaEditar }) {
 
                 </div>
 
-               
+
 
                 <div className="form-group">
 
@@ -228,7 +228,7 @@ function EditarGuardia({ setPagina, guardiaEditar, setGuardiaEditar }) {
 
                 </div>
 
-                
+
 
                 <div className="form-group">
 

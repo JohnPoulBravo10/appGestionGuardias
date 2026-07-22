@@ -1,4 +1,5 @@
 import React from 'react'
+import LogoutIcon from './LogoutIcon'
 
 function BotonMenu({ texto, activo = false, onClick, esCerrarSesion = false }) {
   return (
@@ -6,9 +7,9 @@ function BotonMenu({ texto, activo = false, onClick, esCerrarSesion = false }) {
       className={`btn-menu ${activo ? 'activo' : ''} ${esCerrarSesion ? 'cerrar-sesion' : ''}`}
       onClick={onClick}
     >
-      {texto}
+      {esCerrarSesion && <LogoutIcon className="logout-icon" />}
+      <span style={esCerrarSesion ? { fontWeight: 'bold' } : {}}>{texto}</span>
     </button>
   );
 }
 export default BotonMenu
-

@@ -52,7 +52,7 @@ function FormularioCrearEmpleado({
 
   const volverAGestion = () => {
     setEmpleadoEditar(null);
-    setPagina("GESTION EMPLEADOS");
+    setPagina("GESTION DE EMPLEADOS");
   };
 
   const guardarEmpleado = async (e) => {
@@ -114,7 +114,7 @@ function FormularioCrearEmpleado({
 
         throw new Error(
           errorText ||
-            "Error al procesar la solicitud del empleado"
+          "Error al procesar la solicitud del empleado"
         );
       }
 
@@ -133,13 +133,13 @@ function FormularioCrearEmpleado({
 
       setEmpleado(empleadoVacio);
       setEmpleadoEditar(null);
-      setPagina("GESTION EMPLEADOS");
+      setPagina("GESTION DE EMPLEADOS");
     } catch (error) {
       console.error(error);
 
       alert(
         "No se pudo completar la operación: " +
-          error.message
+        error.message
       );
     }
   };

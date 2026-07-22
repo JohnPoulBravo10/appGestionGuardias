@@ -10,17 +10,17 @@ import ContenedorContenido from './components/ContenedorContenido'
 
 function App() {
   const [count, setCount] = useState(0)
-  const [pagina, setPagina] = useState('SOLICITAR CAMBIO')
+  const [pagina, setPagina] = useState('INICIO')
 
   return (
-      <section className="center">
+    <section className="center">
       <BarraLateral paginaActual={pagina} setPagina={setPagina} />
       <main className="area-derecha">
         <BarraSuperior />
         <ContenedorContenido pagina={pagina} />
       </main>
     </section>
-   
+
   )
 }
 
