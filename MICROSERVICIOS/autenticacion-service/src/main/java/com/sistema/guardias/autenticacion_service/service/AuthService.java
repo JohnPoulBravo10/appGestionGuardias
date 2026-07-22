@@ -42,10 +42,11 @@ public class AuthService {
 
         // 1. Guardar el usuario (credenciales seguras)
         Usuario usuario = Usuario.builder()
-                .usuario(dto.getUsuario())
-                .password(passwordEncoder.encode(dto.getPassword()))
-                .rol(dto.getRolUsuario())
-                .build();
+        .usuario(dto.getUsuario())
+        .password(passwordEncoder.encode(dto.getPassword()))
+        .rol(dto.getRolUsuario())
+        .empleadoDni(dto.getDni())
+        .build();
         
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
 
