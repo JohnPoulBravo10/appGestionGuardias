@@ -5,7 +5,7 @@ function GestionGuardias({ setPagina, setGuardiaEditar }) {
   const [loading, setLoading] = useState(true);
 
  useEffect(() => {
-    console.log("GestionGuardias cargado");
+    
     obtenerGuardias();
 }, []);
 

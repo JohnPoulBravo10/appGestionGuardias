@@ -1,10 +1,28 @@
+import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
+
+import ModalConfirmacion from '../ModalConfirmacion'
+import UserIcon from '../UserIcon'
+import LogoutIcon from '../LogoutIcon'
+
+import useUsuarioActual from '../../hooks/useUsuarioActual'
+import { cerrarSesion } from '../../utils/authUtils'
 
 function BarraLateralEmpleado() {
   const navigate = useNavigate()
 
-  const cerrarSesion = () => {
-    localStorage.removeItem('token')
+  const [mostrarModal, setMostrarModal] = useState(false)
+
+  const {
+    empleado,
+    isLoading,
+    error,
+  } = useUsuarioActual()
+
+  const confirmarCierreSesion = () => {
+    cerrarSesion()
+    setMostrarModal(false)
+
     navigate('/login', {
       replace: true,
     })
@@ -13,70 +31,106 @@ function BarraLateralEmpleado() {
   const claseMenu = ({ isActive }) =>
     `btn-menu ${isActive ? 'activo' : ''}`
 
+  const nombre = empleado?.nombre || ''
+  const apellido = empleado?.apellido || ''
+
+  const rol =
+    empleado?.rol ||
+    empleado?.usuario?.rol ||
+    'ENFERMERÍA'
+
   return (
-    <aside className="barralateral">
-      <div className="perfil">
-        <div className="foto-perfil">
-          👤
+    <>
+      <aside className="barralateral">
+        <div className="perfil">
+          <div className="foto-perfil">
+            <UserIcon className="icono-usuario" />
+          </div>
+
+          {isLoading && (
+            <p>Cargando usuario...</p>
+          )}
+
+          {!isLoading && error && (
+            <p>No se pudo cargar el usuario</p>
+          )}
+
+          {!isLoading && !error && empleado && (
+            <>
+              <h3>
+                {nombre.toUpperCase()}
+                <br />
+                {apellido.toUpperCase()}
+              </h3>
+
+              <p>{String(rol).toUpperCase()}</p>
+            </>
+          )}
         </div>
 
-        <h3>
-          JUAN PABLO
-          <br />
-          BRAVO
-        </h3>
+        <nav className="menu">
+          <NavLink
+            to="/empleado"
+            end
+            className={claseMenu}
+          >
+            INICIO
+          </NavLink>
 
-        <p>ENFERMERÍA</p>
-      </div>
+          <NavLink
+            to="/empleado/calendario"
+            className={claseMenu}
+          >
+            CALENDARIO
+          </NavLink>
 
-      <nav className="menu">
-        <NavLink
-          to="/empleado"
-          end
-          className={claseMenu}
-        >
-          INICIO
-        </NavLink>
+          <NavLink
+            to="/empleado/mis-guardias"
+            className={claseMenu}
+          >
+            MIS GUARDIAS
+          </NavLink>
 
-        <NavLink
-          to="/empleado/calendario"
-          className={claseMenu}
-        >
-          CALENDARIO
-        </NavLink>
+          <NavLink
+            to="/empleado/solicitar-cambio"
+            className={claseMenu}
+          >
+            SOLICITAR CAMBIO
+          </NavLink>
 
-        <NavLink
-          to="/empleado/mis-guardias"
-          className={claseMenu}
-        >
-          MIS GUARDIAS
-        </NavLink>
+          <NavLink
+            to="/empleado/historial"
+            className={claseMenu}
+          >
+            HISTORIAL
+          </NavLink>
+        </nav>
 
-        <NavLink
-          to="/empleado/solicitar-cambio"
-          className={claseMenu}
-        >
-          SOLICITAR CAMBIO
-        </NavLink>
+        <div className="footer-lateral">
+          <button
+            type="button"
+            className="btn-cerrar-sesion"
+            onClick={() => setMostrarModal(true)}
+          >
+            <LogoutIcon className="icono-logout" />
 
-        <NavLink
-          to="/empleado/historial"
-          className={claseMenu}
-        >
-          HISTORIAL
-        </NavLink>
-      </nav>
+            <span>
+              CERRAR
+              <br />
+              SESIÓN
+            </span>
+          </button>
+        </div>
+      </aside>
 
-      <div className="footer-lateral">
-        <button
-          type="button"
-          className="btn-menu cerrar-sesion"
-          onClick={cerrarSesion}
-        >
-          CERRAR SESIÓN
-        </button>
-      </div>
-    </aside>
+      <ModalConfirmacion
+        visible={mostrarModal}
+        titulo="Cerrar sesión"
+        mensaje="¿Está seguro de que desea cerrar sesión?"
+        onConfirmar={confirmarCierreSesion}
+        onCancelar={() => setMostrarModal(false)}
+      />
+    </>
   )
 }
 
