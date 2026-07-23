@@ -27,4 +27,7 @@ public class Usuario {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Rol rol;
+
+    @Column(name = "empleado_dni", unique = true)
+    private Long empleadoDni;
 }

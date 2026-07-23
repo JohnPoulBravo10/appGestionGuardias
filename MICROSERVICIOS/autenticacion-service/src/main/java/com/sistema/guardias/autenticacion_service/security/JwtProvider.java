@@ -25,17 +25,19 @@ public class JwtProvider {
     }
 
     public String generateToken(Authentication authentication) {
-        UserDetailsImpl usuarioPrincipal = (UserDetailsImpl) authentication.getPrincipal();
+    UserDetailsImpl usuarioPrincipal =
+            (UserDetailsImpl) authentication.getPrincipal();
 
-        return Jwts.builder()
-                .setSubject(usuarioPrincipal.getUsername())
-                .claim("id", usuarioPrincipal.getId())
-                .claim("roles", usuarioPrincipal.getAuthorities())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(new Date().getTime() + expiration))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-                .compact();
-    }
+    return Jwts.builder()
+            .setSubject(usuarioPrincipal.getUsername())
+            .claim("id", usuarioPrincipal.getId())
+            .claim("empleadoDni", usuarioPrincipal.getEmpleadoDni())
+            .claim("roles", usuarioPrincipal.getAuthorities())
+            .setIssuedAt(new Date())
+            .setExpiration(new Date(System.currentTimeMillis() + expiration))
+            .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+            .compact();
+}
 
     public String getUserNameFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody().getSubject();

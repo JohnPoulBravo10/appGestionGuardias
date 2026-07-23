@@ -47,6 +47,16 @@ public class EmpleadoController {
         }
     }
 
+    @GetMapping("/por-usuario/{usuarioId}")
+    public ResponseEntity<Empleado> obtenerEmpleadoPorUsuarioId(
+            @PathVariable Long usuarioId) {
+
+        return empleadoService
+                .buscarPorUsuarioId(usuarioId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/{dni}")
     public ResponseEntity<Empleado> obtenerEmpleado(
             @PathVariable Long dni) {
