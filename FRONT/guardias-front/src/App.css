@@ -465,28 +465,43 @@ button {
    ACCIONES DE TABLAS
 ========================================================= */
 
-.accion-editar {
+.acciones-empleado {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  white-space: nowrap;
+}
+
+.accion-editar,
+.accion-eliminar {
+  padding: 0;
+
+  background: transparent;
   color: #aaaaaa;
+
+  border: none;
 
   cursor: pointer;
 
-  transition: color 0.2s ease;
+  font: inherit;
+  line-height: 1;
+
+  transition:
+    color 0.2s ease,
+    transform 0.15s ease;
 }
 
 .accion-editar:hover {
   color: #ffffff;
 }
 
-.accion-eliminar {
-  color: #aaaaaa;
-
-  cursor: pointer;
-
-  transition: color 0.2s ease;
-}
-
 .accion-eliminar:hover {
   color: #ff5c5c;
+}
+
+.accion-editar:active,
+.accion-eliminar:active {
+  transform: translateY(1px);
 }
 
 /* =========================================================
@@ -496,7 +511,6 @@ button {
 .input-busqueda {
   width: 100%;
 
-  margin-bottom: 20px;
   padding: 13px 15px;
 
   background: #111111;
@@ -1152,83 +1166,80 @@ select.input-estilo {
   flex-shrink: 0;
 }
 
-/* =========================
-   MODAL DE CONFIRMACIÓN
-   ========================= */
 
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
+
+/* =========================================================
+   FILTROS Y ORDENAMIENTO DE EMPLEADOS
+========================================================= */
+
+.filtrosOrdenEmpleados {
+  width: 100%;
+
+  margin: 20px 0 12px;
 
   display: flex;
   align-items: center;
-  justify-content: center;
-
-  padding: 20px;
-  background-color: rgba(0, 0, 0, 0.75);
+  gap: 15px;
 }
 
-.modal-dialogo {
-  width: 100%;
-  max-width: 420px;
-  padding: 26px;
-
-  background-color: #1b1b1b;
-  border: 1px solid #3a3a3a;
-  border-radius: 12px;
-
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+.filtrosOrdenEmpleados .input-busqueda {
+  flex: 1;
+  min-width: 0;
 }
 
-.modal-titulo {
-  margin: 0 0 10px;
-
-  color: #ffffff;
-  font-size: 22px;
-  font-weight: 700;
+.filtrosOrdenEmpleados .input-estilo {
+  width: 180px;
+  min-width: 180px;
+  flex-shrink: 0;
 }
 
-.modal-mensaje {
-  margin: 0 0 24px;
+.contador-empleados {
+  margin: 0 0 12px;
 
-  color: #c5c5c5;
-  font-size: 15px;
-  line-height: 1.5;
+  color: #969696;
+
+  font-size: 13px;
 }
 
-.modal-acciones {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
+/* =========================================================
+   RESPONSIVE DE FILTROS Y TABLA DE EMPLEADOS
+========================================================= */
+
+@media (max-width: 1100px) {
+  .filtrosOrdenEmpleados {
+    flex-wrap: wrap;
+  }
+
+  .filtrosOrdenEmpleados .input-busqueda {
+    flex-basis: 100%;
+  }
+
+  .filtrosOrdenEmpleados .input-estilo {
+    flex: 1;
+    width: auto;
+    min-width: 180px;
+  }
+
+  .tabla-container {
+    overflow-x: auto;
+  }
+
+  .tabla-empleados {
+    min-width: 1050px;
+  }
 }
 
-.modal-btn {
-  padding: 10px 18px;
+@media (max-width: 650px) {
+  .filtrosOrdenEmpleados {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+  }
 
-  border-radius: 7px;
-  cursor: pointer;
-
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.modal-btn-cancelar {
-  color: #ffffff;
-  background-color: transparent;
-  border: 1px solid #555555;
-}
-
-.modal-btn-cancelar:hover {
-  background-color: #292929;
-}
-
-.modal-btn-confirmar {
-  color: #ffffff;
-  background-color: #e04b50;
-  border: 1px solid #e04b50;
-}
-
-.modal-btn-confirmar:hover {
-  background-color: #c83e43;
+  .filtrosOrdenEmpleados .input-busqueda,
+  .filtrosOrdenEmpleados .input-estilo {
+    width: 100%;
+    min-width: 0;
+    flex: none;
+  }
 }

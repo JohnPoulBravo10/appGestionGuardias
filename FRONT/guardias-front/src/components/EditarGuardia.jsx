@@ -71,7 +71,7 @@ function EditarGuardia({ setPagina, guardiaEditar, setGuardiaEditar }) {
 
             alert("Guardia editada correctamente");
 
-            setPagina("GESTION DE GUARDIAS");
+            setPagina("GESTION GUARDIAS");
 
         } catch (error) {
 
@@ -93,8 +93,9 @@ function EditarGuardia({ setPagina, guardiaEditar, setGuardiaEditar }) {
         <div className="form-container">
 
             <button
+                type="button"
                 className="btn-volver"
-                onClick={() => setPagina("GESTION DE GUARDIAS")}
+                onClick={() => setPagina("GESTION GUARDIAS")}
             >
                 ← Volver
             </button>

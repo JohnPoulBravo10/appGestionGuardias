@@ -52,7 +52,7 @@ function FormularioCrearEmpleado({
 
   const volverAGestion = () => {
     setEmpleadoEditar(null);
-    setPagina("GESTION DE EMPLEADOS");
+    setPagina("GESTION EMPLEADOS");
   };
 
   const guardarEmpleado = async (e) => {
@@ -133,7 +133,7 @@ function FormularioCrearEmpleado({
 
       setEmpleado(empleadoVacio);
       setEmpleadoEditar(null);
-      setPagina("GESTION DE EMPLEADOS");
+      setPagina("GESTION EMPLEADOS");
     } catch (error) {
       console.error(error);
 
