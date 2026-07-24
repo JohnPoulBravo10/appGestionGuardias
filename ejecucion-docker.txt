@@ -59,9 +59,10 @@ OTROS COMANDOS ÚTILES
 
   SERVICIO                          URL
   --------------------------------  ------------------------------------------
-  Frontend Login                    http://localhost:5175
-  Frontend Administrador            http://localhost:5173
-  Frontend Empleados                http://localhost:5174
+  Frontend (SPA Unificada)          http://localhost:5173
+    - Login                         http://localhost:5173/login
+    - Panel Administrador           http://localhost:5173/admin
+    - Vista Empleado                http://localhost:5173/empleado
   API Gateway                       http://localhost:8090
   Eureka (Discovery Server)         http://localhost:8761
   Config Server                     http://localhost:8888
@@ -86,10 +87,8 @@ dependencias configuradas en docker-compose.yml:
   5. Guardia Service (guardia-service)              — espera a Eureka y MySQL
   6. Autenticación Service (autenticacion-service)  — espera a Eureka y MySQL
   7. API Gateway (api-gateway)                      — espera a Eureka
-  8. Frontend Administrador (front-admin)           — espera a API Gateway
-  9. Frontend Empleados (front-empleados)           — espera a API Gateway
-  10. Frontend Login (front-login)                  — espera a API Gateway
-  11. PhpMyAdmin (phpmyadmin)                       — espera a MySQL
+  8. Frontend (frontend)                            — espera a API Gateway
+  9. PhpMyAdmin (phpmyadmin)                        — espera a MySQL
 
 NOTA: El arranque completo puede tardar varios minutos debido a los healthchecks.
 
@@ -100,7 +99,7 @@ para programar
 
 docker compose up -d mysql-db config-server discovery-server empleado-service guardia-service api-gateway autenticacion-service
 
-cd FRONT/guardias-front-vistaadministrador
+cd FRONT/guardias-front
 npm run dev
 
 

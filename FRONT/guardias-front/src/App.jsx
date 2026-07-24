@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Navigate,
   Route,
   Routes,
   useNavigate,
+  useLocation,
 } from 'react-router-dom'
 
 import './App.css'
@@ -41,6 +42,21 @@ const rutaPorPagina = {
 
 function App() {
   const navigate = useNavigate()
+  const location = useLocation()
+
+  useEffect(() => {
+    const path = location.pathname
+
+    if (path.startsWith('/admin')) {
+      document.title = 'SGGS — Vista Administrador'
+    } else if (path.startsWith('/empleado')) {
+      document.title = 'SGGS — Vista Empleado'
+    } else if (path.startsWith('/login')) {
+      document.title = 'SGGS — Login'
+    } else {
+      document.title = 'SGGS'
+    }
+  }, [location.pathname])
 
   const [empleadoEditar, setEmpleadoEditar] = useState(null)
   const [guardiaEditar, setGuardiaEditar] = useState(null)

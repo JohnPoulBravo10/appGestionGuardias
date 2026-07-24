@@ -33,8 +33,7 @@ public class EmpleadoController {
             @RequestBody Empleado empleado) {
 
         try {
-            Empleado nuevo =
-                    empleadoService.guardarEmpleado(empleado);
+            Empleado nuevo = empleadoService.guardarEmpleado(empleado);
 
             return ResponseEntity
                     .status(HttpStatus.CREATED)
@@ -45,16 +44,6 @@ public class EmpleadoController {
                     .status(HttpStatus.CONFLICT)
                     .body(e.getMessage());
         }
-    }
-
-    @GetMapping("/por-usuario/{usuarioId}")
-    public ResponseEntity<Empleado> obtenerEmpleadoPorUsuarioId(
-            @PathVariable Long usuarioId) {
-
-        return empleadoService
-                .buscarPorUsuarioId(usuarioId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{dni}")
@@ -106,8 +95,7 @@ public class EmpleadoController {
             @RequestBody Empleado empleado) {
 
         try {
-            Empleado actualizado =
-                    empleadoService.actualizarEmpleado(dni, empleado);
+            Empleado actualizado = empleadoService.actualizarEmpleado(dni, empleado);
 
             return ResponseEntity.ok(actualizado);
 

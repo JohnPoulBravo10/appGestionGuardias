@@ -109,15 +109,13 @@ function BarraLateralEmpleado() {
         <div className="footer-lateral">
           <button
             type="button"
-            className="btn-cerrar-sesion"
+            className="cerrar-sesion"
             onClick={() => setMostrarModal(true)}
           >
-            <LogoutIcon className="icono-logout" />
+            <LogoutIcon className="logout-icon" />
 
             <span>
-              CERRAR
-              <br />
-              SESIÓN
+              CERRAR SESIÓN
             </span>
           </button>
         </div>

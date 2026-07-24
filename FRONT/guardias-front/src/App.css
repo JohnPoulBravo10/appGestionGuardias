@@ -190,6 +190,7 @@ button {
     color 0.2s ease,
     border-color 0.2s ease;
 }
+
 .btn-menu {
   text-decoration: none;
   color: inherit;
@@ -238,6 +239,7 @@ button {
   cursor: pointer;
 
   font-size: 13px;
+  font-weight: bold;
   text-align: center;
   text-transform: uppercase;
 
@@ -1028,8 +1030,13 @@ select.input-estilo {
 /* Animaciones del modal */
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
@@ -1037,6 +1044,7 @@ select.input-estilo {
     opacity: 0;
     transform: translateY(16px) scale(0.97);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -1136,34 +1144,6 @@ select.input-estilo {
   width: 52px;
   height: 52px;
   display: block;
-}
-
-.btn-cerrar-sesion {
-  width: 100%;
-  padding: 10px 14px;
-
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  color: #ff5f63;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-
-  font-size: 13px;
-  font-weight: 600;
-  text-align: left;
-}
-
-.btn-cerrar-sesion:hover {
-  background-color: rgba(255, 95, 99, 0.08);
-}
-
-.icono-logout {
-  width: 38px;
-  height: 38px;
-  flex-shrink: 0;
 }
 
 
