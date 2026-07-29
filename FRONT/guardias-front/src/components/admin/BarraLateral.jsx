@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { cerrarSesion } from '../utils/authUtils'
-import UserIcon from './UserIcon'
-import LogoutIcon from './LogoutIcon'
-import ModalConfirmacion from './ModalConfirmacion'
-import useUsuarioActual from '../hooks/useUsuarioActual'
+import { cerrarSesion } from '../../utils/authUtils'
+import UserIcon from '../common/icons/UserIcon'
+import LogoutIcon from '../common/icons/LogoutIcon'
+import ModalConfirmacion from '../common/ui/ModalConfirmacion'
+import useUsuarioActual from '../../hooks/useUsuarioActual'
 
 function BarraLateral() {
   const navigate = useNavigate()
@@ -36,14 +36,14 @@ function BarraLateral() {
     'ADMINISTRADOR'
 
   const obtenerClaseMenu = ({ isActive }) =>
-    `btn-menu ${isActive ? 'activo' : ''}`
+    `common-btn-menu ${isActive ? 'activo' : ''}`
 
   return (
     <>
-      <aside className="barralateral">
-        <div className="perfil">
+      <aside className="common-barralateral">
+        <div className="common-perfil">
           <div className="foto-perfil">
-            <UserIcon className="icono-usuario" />
+            <UserIcon className="common-icono-usuario" />
           </div>
 
           {isLoading && (
@@ -67,7 +67,7 @@ function BarraLateral() {
           )}
         </div>
 
-        <nav className="menu">
+        <nav className="common-menu">
           <NavLink
             to="/admin"
             end
@@ -108,10 +108,10 @@ function BarraLateral() {
         <div className="footer-lateral">
           <button
             type="button"
-            className="cerrar-sesion"
+            className="common-cerrar-sesion"
             onClick={() => setMostrarModal(true)}
           >
-            <LogoutIcon className="logout-icon" />
+            <LogoutIcon className="common-logout-icon" />
 
             <span>
               CERRAR SESIÓN

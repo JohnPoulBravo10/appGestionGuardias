@@ -1,4 +1,4 @@
-import ShieldIcon from './ShieldIcon'
+import ShieldIcon from '../common/icons/ShieldIcon'
 import LoginInput from './LoginInput'
 import useLoginForm from '../../hooks/useLoginForm'
 

@@ -21,15 +21,15 @@ function SolicitarCambio() {
 
   return (
     <form
-      className="div_solicitar_cambio"
+      className="empleado-solicitar-cambio"
       onSubmit={handleSubmit}
     >
-      <h2 className="titulo-formulario">
+      <h2 className="empleado-titulo-formulario">
         Solicitar Cambio de Guardia
       </h2>
 
       <label
-        className="label-form"
+        className="empleado-label-form"
         htmlFor="guardia-cambiar"
       >
         Seleccionar Guardia a Cambiar
@@ -37,7 +37,7 @@ function SolicitarCambio() {
 
       <select
         id="guardia-cambiar"
-        className="input-estilo"
+        className="empleado-input-estilo"
         value={guardiaSeleccionada}
         onChange={(event) =>
           setGuardiaSeleccionada(event.target.value)
@@ -54,7 +54,7 @@ function SolicitarCambio() {
       </select>
 
       <label
-        className="label-form"
+        className="empleado-label-form"
         htmlFor="companero-propuesto"
       >
         Compañero Propuesto (Opcional)
@@ -62,7 +62,7 @@ function SolicitarCambio() {
 
       <select
         id="companero-propuesto"
-        className="input-estilo"
+        className="empleado-input-estilo"
         value={companeroPropuesto}
         onChange={(event) =>
           setCompaneroPropuesto(event.target.value)
@@ -73,14 +73,14 @@ function SolicitarCambio() {
         </option>
       </select>
 
-      <p className="texto-ayuda">
+      <p className="empleado-texto-ayuda">
         Si no proponés a nadie, la solicitud quedará
         abierta para que otro empleado o administrador
         la asigne.
       </p>
 
       <label
-        className="label-form"
+        className="empleado-label-form"
         htmlFor="motivo-cambio"
       >
         Motivo del Cambio
@@ -88,7 +88,7 @@ function SolicitarCambio() {
 
       <textarea
         id="motivo-cambio"
-        className="input-estilo area-texto"
+        className="empleado-input-estilo empleado-area-texto"
         placeholder="Escribí brevemente el motivo de tu solicitud..."
         value={motivo}
         onChange={(event) =>
@@ -97,10 +97,10 @@ function SolicitarCambio() {
         required
       />
 
-      <div className="contenedor-boton">
+      <div className="empleado-contenedor-boton">
         <button
           type="submit"
-          className="btn-enviar"
+          className="empleado-btn-enviar"
         >
           ✈️ Enviar Solicitud
         </button>

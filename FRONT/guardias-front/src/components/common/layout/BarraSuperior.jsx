@@ -1,9 +1,9 @@
 import React from 'react'
-import BellIcon from './BellIcon'
+import BellIcon from '../icons/BellIcon'
 
 function BarraSuperior() {
   return (
-    <div className='barrasuperior'>
+    <div className="common-barra-superior">
       <div>
         <p className="login-subtitle">
           Sistema de Gestión de Guardias de Salud
@@ -11,7 +11,7 @@ function BarraSuperior() {
       </div>
      
 
-      <button className="btn-notificacion" aria-label="Notificaciones">
+      <button className="common-btn-notificacion" aria-label="Notificaciones">
         <BellIcon style={{ width: '20px', height: '20px' }} />
       </button>
     </div>

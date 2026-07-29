@@ -155,13 +155,13 @@ function GestionEmpleados({
   }
 
   return (
-    <div className="tabla-container">
-      <div className="header-tabla">
+    <div className="admin-tabla-container">
+      <div className="admin-header-tabla">
         <h3>Gestión de Empleados</h3>
 
         <button
           type="button"
-          className="btn-nuevo"
+          className="admin-btn-nuevo"
           onClick={() => {
             setEmpleadoEditar(null)
             setPagina('CREAR EMPLEADO')
@@ -171,10 +171,10 @@ function GestionEmpleados({
         </button>
       </div>
 
-      <div className="filtrosOrdenEmpleados">
+      <div className="admin-filtros-orden">
         <input
           type="text"
-          className="input-busqueda"
+          className="admin-input-busqueda"
           placeholder="🔍 Buscar por nombre o DNI..."
           value={textoBusqueda}
           onChange={(event) =>
@@ -187,7 +187,7 @@ function GestionEmpleados({
           onChange={(event) =>
             setFiltroRol(event.target.value)
           }
-          className="input-estilo"
+          className="admin-input-estilo"
           aria-label="Filtrar empleados por área"
         >
           <option value="TODOS">
@@ -216,7 +216,7 @@ function GestionEmpleados({
           onChange={(event) =>
             setOrden(event.target.value)
           }
-          className="input-estilo"
+          className="admin-input-estilo"
           aria-label="Ordenar empleados"
         >
           <option value="dniAsc">
@@ -246,7 +246,7 @@ function GestionEmpleados({
       </div>
 
       {!loading && (
-        <p className="contador-empleados">
+        <p className="admin-contador-empleados">
           Mostrando {empleadosVisibles.length} de{' '}
           {empleados.length} empleados
         </p>
@@ -257,7 +257,7 @@ function GestionEmpleados({
       ) : empleadosVisibles.length === 0 ? (
         <p>No se encontraron empleados.</p>
       ) : (
-        <table className="tabla-empleados">
+        <table className="admin-tabla-empleados">
           <thead>
             <tr>
               <th>DNI</th>
@@ -288,10 +288,10 @@ function GestionEmpleados({
 
                 <td>{empleado.direccion}</td>
 
-                <td className="acciones-empleado">
+                <td className="admin-acciones">
                   <button
                     type="button"
-                    className="accion-editar"
+                    className="admin-accion-editar"
                     onClick={() =>
                       editarEmpleado(empleado)
                     }
@@ -301,7 +301,7 @@ function GestionEmpleados({
 
                   <button
                     type="button"
-                    className="accion-eliminar"
+                    className="admin-accion-eliminar"
                     onClick={() =>
                       eliminarEmpleado(empleado.dni)
                     }

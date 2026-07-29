@@ -1,0 +1,412 @@
+/* ==========================================================================
+   EMPLEADO.CSS — Estilos exclusivos del módulo empleado
+   Prefijo: empleado-
+   ========================================================================== */
+
+
+/* =========================================================
+   PANEL EMPLEADO (Dashboard)
+   Usado por: PanelEmpleado
+   ========================================================= */
+
+.empleado-panel-principal {
+  width: 100%;
+  max-width: 960px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.empleado-panel-titulo {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+/* ── Tarjetas de resumen ── */
+
+.empleado-panel-tarjetas {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.empleado-panel-tarjeta {
+  padding: 20px 22px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  background: #1a1a1a;
+
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.empleado-panel-tarjeta:hover {
+  border-color: #3a3a3a;
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.03);
+}
+
+.empleado-tarjeta-label {
+  color: #999999;
+
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.empleado-tarjeta-contenido {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.empleado-tarjeta-valor {
+  color: #ffffff;
+
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.empleado-tarjeta-icono {
+  color: #555555;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: color 0.2s ease;
+}
+
+.empleado-panel-tarjeta:hover .empleado-tarjeta-icono {
+  color: #888888;
+}
+
+.empleado-tarjeta-cargando {
+  color: #ffffff;
+
+  font-size: 1rem;
+}
+
+.empleado-tarjeta-sin-datos {
+  color: #999999;
+
+  font-size: 0.85rem;
+}
+
+/* ── Próxima guardia (tarjeta especial) ── */
+
+.empleado-proxima-guardia-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.empleado-proxima-guardia-horario {
+  color: #ffffff;
+
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.empleado-proxima-guardia-area {
+  color: #999999;
+
+  font-size: 0.8rem;
+}
+
+/* ── Contenedor inferior (notificaciones) ── */
+
+.empleado-panel-tabla-container {
+  padding: 22px 24px;
+
+  background: #1a1a1a;
+
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+}
+
+.empleado-panel-tabla-titulo {
+  margin: 0 0 16px;
+
+  color: #cccccc;
+
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.empleado-panel-error,
+.empleado-panel-vacio {
+  margin: 0;
+  padding: 20px 0;
+
+  color: #777777;
+
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.empleado-panel-error {
+  color: #f44336;
+}
+
+/* =========================================================
+   MIS GUARDIAS (tabla de guardias del empleado)
+   Usado por: MisGuardias
+   ========================================================= */
+
+.empleado-tabla-container {
+  width: 100%;
+
+  padding: 24px;
+
+  background: #1a1a1a;
+
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+}
+
+.empleado-tabla-guardias {
+  width: 100%;
+
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+.empleado-tabla-guardias th {
+  padding: 14px;
+
+  color: #888888;
+
+  border-bottom: 1px solid #2a2a2a;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.empleado-tabla-guardias td {
+  padding: 14px;
+
+  color: #ffffff;
+
+  border-bottom: 1px solid #222222;
+
+  font-size: 13px;
+}
+
+.empleado-tabla-guardias tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.empleado-tabla-guardias tbody tr:hover {
+  background: #1e1e1e;
+}
+
+.empleado-mensaje-error {
+  color: #f44336;
+
+  font-size: 0.9rem;
+}
+
+/* =========================================================
+   BADGES
+   Usado por: MisGuardias
+   ========================================================= */
+
+.empleado-badge {
+  display: inline-block;
+
+  padding: 4px 10px;
+
+  border: 1px solid transparent;
+  border-radius: 12px;
+
+  font-size: 12px;
+}
+
+.empleado-badge.programada,
+.empleado-badge.activo,
+.empleado-badge.PROXIMA {
+  color: #4caf50;
+
+  background: rgba(76, 175, 80, 0.1);
+  border-color: rgba(76, 175, 80, 0.3);
+}
+
+.empleado-badge.incompleta,
+.empleado-badge.inactivo,
+.empleado-badge.ABIERTA {
+  color: #f44336;
+
+  background: rgba(244, 67, 54, 0.1);
+  border-color: rgba(244, 67, 54, 0.3);
+}
+
+/* =========================================================
+   SOLICITAR CAMBIO DE GUARDIA
+   Usado por: SolicitarCambio
+   ========================================================= */
+
+.empleado-solicitar-cambio {
+  width: 100%;
+  max-width: 650px;
+
+  margin: 0 auto;
+  padding: 30px;
+
+  background: #1a1a1a;
+
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.empleado-titulo-formulario {
+  margin: 0 0 25px;
+
+  color: #ffffff;
+
+  font-size: 1.4rem;
+}
+
+.empleado-label-form {
+  display: block;
+
+  margin-top: 15px;
+  margin-bottom: 8px;
+
+  color: #cccccc;
+
+  font-size: 0.9rem;
+}
+
+.empleado-input-estilo {
+  width: 100%;
+  min-width: 0;
+
+  padding: 12px;
+
+  background: #0a0a0a;
+  color: #ffffff;
+
+  border: 1px solid #333333;
+  border-radius: 8px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.empleado-input-estilo::placeholder {
+  color: #666666;
+}
+
+.empleado-input-estilo:hover {
+  border-color: #4a4a4a;
+}
+
+.empleado-input-estilo:focus {
+  border-color: #777777;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
+}
+
+.empleado-input-estilo option {
+  background-color: #121212;
+  color: #ffffff;
+}
+
+.empleado-area-texto {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.empleado-texto-ayuda {
+  font-size: 0.75rem;
+  color: #888888;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+.empleado-contenedor-boton {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.empleado-btn-enviar {
+  width: 100%;
+
+  margin-top: 15px;
+  padding: 15px;
+
+  background: #ffffff;
+  color: #000000;
+
+  border: none;
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  font-size: 1rem;
+  font-weight: 700;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.empleado-btn-enviar:hover {
+  background: #e0e0e0;
+}
+
+.empleado-btn-enviar:active {
+  transform: translateY(1px);
+}
+
+.empleado-btn-enviar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   RESPONSIVE — PANEL EMPLEADO
+   ========================================================= */
+
+@media (max-width: 768px) {
+  .empleado-panel-tarjetas {
+    grid-template-columns: 1fr;
+  }
+
+  .empleado-panel-principal {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 650px) {
+  .empleado-panel-tabla-container {
+    overflow-x: auto;
+  }
+
+  .empleado-solicitar-cambio {
+    padding: 22px;
+  }
+}

@@ -8,6 +8,7 @@ services:
     container_name: mysql-db
     restart: unless-stopped
     environment:
+      TZ: America/Argentina/Buenos_Aires
       MYSQL_ROOT_PASSWORD: rootpassword
     ports:
       - "3307:3306"
@@ -33,6 +34,7 @@ services:
     ports:
       - "8888:8888"
     environment:
+      TZ: America/Argentina/Buenos_Aires
       SPRING_PROFILES_ACTIVE: docker, native
     networks:
       - guardias-network
@@ -53,6 +55,7 @@ services:
     ports:
       - "8761:8761"
     environment:
+      TZ: America/Argentina/Buenos_Aires
       SPRING_PROFILES_ACTIVE: docker, native
     depends_on:
       config-server:
@@ -76,6 +79,7 @@ services:
     ports:
       - "8080:8080"
     environment:
+      TZ: America/Argentina/Buenos_Aires
       SPRING_PROFILES_ACTIVE: docker, native
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/empleado_service?createDatabaseIfNotExist=true
       SPRING_DATASOURCE_USERNAME: root
@@ -99,6 +103,7 @@ services:
     ports:
       - "8081:8081"
     environment:
+      TZ: America/Argentina/Buenos_Aires
       SPRING_PROFILES_ACTIVE: docker, native
       SERVER_PORT: 8081
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/guardia_service?createDatabaseIfNotExist=true
@@ -123,6 +128,7 @@ services:
     ports:
       - "8083:8083"
     environment:
+      TZ: America/Argentina/Buenos_Aires
       SPRING_PROFILES_ACTIVE: docker, native
       SERVER_PORT: 8083
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/autenticacion_service?createDatabaseIfNotExist=true
@@ -147,6 +153,7 @@ services:
     ports:
       - "8090:8090"
     environment:
+      TZ: America/Argentina/Buenos_Aires
       SPRING_PROFILES_ACTIVE: docker, native
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
     depends_on:
@@ -162,6 +169,8 @@ services:
       dockerfile: Dockerfile
     container_name: frontend
     restart: unless-stopped
+    environment:
+      TZ: America/Argentina/Buenos_Aires
     ports:
       - "5173:80"
     depends_on:
@@ -177,6 +186,7 @@ services:
     ports:
       - "8082:80"
     environment:
+      TZ: America/Argentina/Buenos_Aires
       PMA_HOST: mysql-db
       PMA_PORT: 3306
       MYSQL_ROOT_PASSWORD: rootpassword

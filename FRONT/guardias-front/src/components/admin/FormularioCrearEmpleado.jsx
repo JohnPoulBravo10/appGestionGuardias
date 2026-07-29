@@ -145,28 +145,28 @@ function FormularioCrearEmpleado({
   };
 
   return (
-    <div className="form-container">
+    <div className="admin-form-container">
       <button
         type="button"
-        className="btn-volver"
+        className="admin-btn-volver"
         onClick={volverAGestion}
       >
         ← Volver
       </button>
 
-      <h3 className="titulo-formulario">
+      <h3 className="admin-titulo-formulario">
         {esEdicion
           ? "Editar Empleado"
           : "Registrar Nuevo Empleado"}
       </h3>
 
       <form
-        className="form-empleado"
+        className="admin-form-empleado"
         onSubmit={guardarEmpleado}
       >
         {!esEdicion && (
-          <div className="form-row">
-            <div className="form-group">
+          <div className="admin-form-row">
+            <div className="admin-form-group">
               <label htmlFor="usuario">
                 Usuario
               </label>
@@ -174,7 +174,7 @@ function FormularioCrearEmpleado({
               <input
                 id="usuario"
                 type="text"
-                className="input-estilo"
+                className="admin-input-estilo"
                 placeholder="Ej: jperez"
                 value={empleado.usuario}
                 onChange={(e) =>
@@ -187,7 +187,7 @@ function FormularioCrearEmpleado({
               />
             </div>
 
-            <div className="form-group">
+            <div className="admin-form-group">
               <label htmlFor="password">
                 Contraseña
               </label>
@@ -195,7 +195,7 @@ function FormularioCrearEmpleado({
               <input
                 id="password"
                 type="password"
-                className="input-estilo"
+                className="admin-input-estilo"
                 placeholder="Contraseña inicial"
                 value={empleado.password}
                 onChange={(e) =>
@@ -210,8 +210,8 @@ function FormularioCrearEmpleado({
           </div>
         )}
 
-        <div className="form-row">
-          <div className="form-group">
+        <div className="admin-form-row">
+          <div className="admin-form-group">
             <label htmlFor="nombre">
               Nombre
             </label>
@@ -219,7 +219,7 @@ function FormularioCrearEmpleado({
             <input
               id="nombre"
               type="text"
-              className="input-estilo"
+              className="admin-input-estilo"
               placeholder="Ej: Juan"
               value={empleado.nombre}
               onChange={(e) =>
@@ -232,7 +232,7 @@ function FormularioCrearEmpleado({
             />
           </div>
 
-          <div className="form-group">
+          <div className="admin-form-group">
             <label htmlFor="apellido">
               Apellido
             </label>
@@ -240,7 +240,7 @@ function FormularioCrearEmpleado({
             <input
               id="apellido"
               type="text"
-              className="input-estilo"
+              className="admin-input-estilo"
               placeholder="Ej: Pérez"
               value={empleado.apellido}
               onChange={(e) =>
@@ -254,8 +254,8 @@ function FormularioCrearEmpleado({
           </div>
         </div>
 
-        <div className="form-row">
-          <div className="form-group">
+        <div className="admin-form-row">
+          <div className="admin-form-group">
             <label htmlFor="dni">
               DNI
             </label>
@@ -263,7 +263,7 @@ function FormularioCrearEmpleado({
             <input
               id="dni"
               type="number"
-              className="input-estilo"
+              className="admin-input-estilo"
               placeholder="Ej: 42765715"
               value={empleado.dni}
               disabled={esEdicion}
@@ -277,14 +277,14 @@ function FormularioCrearEmpleado({
             />
           </div>
 
-          <div className="form-group">
+          <div className="admin-form-group">
             <label htmlFor="rol">
               Rol
             </label>
 
             <select
               id="rol"
-              className="input-estilo"
+              className="admin-input-estilo"
               value={empleado.rol}
               onChange={(e) =>
                 actualizarCampo(
@@ -313,7 +313,7 @@ function FormularioCrearEmpleado({
           </div>
         </div>
 
-        <div className="form-group">
+        <div className="admin-form-group">
           <label htmlFor="email">
             Correo electrónico
           </label>
@@ -321,7 +321,7 @@ function FormularioCrearEmpleado({
           <input
             id="email"
             type="email"
-            className="input-estilo"
+            className="admin-input-estilo"
             placeholder="email@hospital.com"
             value={empleado.email ?? ""}
             onChange={(e) =>
@@ -333,7 +333,7 @@ function FormularioCrearEmpleado({
           />
         </div>
 
-        <div className="form-group">
+        <div className="admin-form-group">
           <label htmlFor="telefono">
             Teléfono
           </label>
@@ -342,7 +342,7 @@ function FormularioCrearEmpleado({
             id="telefono"
             type="tel"
             inputMode="numeric"
-            className="input-estilo"
+            className="admin-input-estilo"
             placeholder="Ej: 3425123456"
             value={empleado.telefono ?? ""}
             onChange={(e) =>
@@ -354,7 +354,7 @@ function FormularioCrearEmpleado({
           />
         </div>
 
-        <div className="form-group">
+        <div className="admin-form-group">
           <label htmlFor="direccion">
             Dirección
           </label>
@@ -362,7 +362,7 @@ function FormularioCrearEmpleado({
           <input
             id="direccion"
             type="text"
-            className="input-estilo"
+            className="admin-input-estilo"
             placeholder="Ej: San Martín 123"
             value={empleado.direccion ?? ""}
             onChange={(e) =>
@@ -376,7 +376,7 @@ function FormularioCrearEmpleado({
 
         <button
           type="submit"
-          className="btn-guardar"
+          className="admin-btn-guardar"
         >
           {esEdicion
             ? "Actualizar Empleado"

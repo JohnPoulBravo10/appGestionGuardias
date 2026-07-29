@@ -8,23 +8,26 @@ import {
 } from 'react-router-dom'
 
 import './App.css'
+import './components/common/common.css'
 
 import AdminLayout from './layouts/AdminLayout'
 import EmpleadoLayout from './layouts/EmpleadoLayout'
 
-import LoginPage from './pages/auth/LoginPage'
+import LoginForm from './components/login/LoginForm'
+import './components/login/login.css'
 
-import GestionEmpleados from './components/GestionEmpleados'
-import FormularioCrearEmpleado from './components/FormularioCrearEmpleado'
-import GestionGuardias from './components/GestionGuardias'
-import FormularioCrearGuardias from './components/FormularioCrearGuardias'
-import CalendarioGuardias from './components/CalendarioGuardias'
-import EditarGuardia from './components/EditarGuardia'
+import GestionEmpleados from './components/admin/GestionEmpleados'
+import FormularioCrearEmpleado from './components/admin/FormularioCrearEmpleado'
+import GestionGuardias from './components/admin/GestionGuardias'
+import FormularioCrearGuardias from './components/admin/FormularioCrearGuardias'
+import CalendarioGuardias from './components/admin/CalendarioGuardias'
+import EditarGuardia from './components/admin/EditarGuardia'
+import PanelPrincipal from './components/admin/PanelPrincipal'
 
-import EmpleadoInicio from './pages/empleado/EmpleadoInicio'
-import MisGuardiasPage from './pages/empleado/MisGuardiasPage'
-import SolicitarCambioPage from './pages/empleado/SolicitarCambioPage'
-import CalendarioEmpleadoPage from './pages/empleado/CalendarioEmpleadoPage'
+import PanelEmpleado from './components/empleado/PanelEmpleado'
+import MisGuardias from './components/empleado/MisGuardias'
+import SolicitarCambio from './components/empleado/SolicitarCambio'
+import CalendarioMisGuardias from './components/empleado/CalendarioMisGuardias'
 
 const rutaPorPagina = {
   INICIO: '/admin',
@@ -83,7 +86,11 @@ function App() {
 
       <Route
         path="/login"
-        element={<LoginPage />}
+        element={
+          <main className="login-page">
+            <LoginForm />
+          </main>
+        }
       />
 
       {/* =========================
@@ -95,7 +102,7 @@ function App() {
       >
         <Route
           index
-          element={<h3>Bienvenido al Panel</h3>}
+          element={<PanelPrincipal />}
         />
 
         <Route
@@ -169,22 +176,22 @@ function App() {
       >
         <Route
           index
-          element={<EmpleadoInicio />}
+          element={<PanelEmpleado />}
         />
 
         <Route
           path="calendario"
-          element={<CalendarioEmpleadoPage />}
+          element={<CalendarioMisGuardias />}
         />
 
         <Route
           path="mis-guardias"
-          element={<MisGuardiasPage />}
+          element={<MisGuardias />}
         />
 
         <Route
           path="solicitar-cambio"
-          element={<SolicitarCambioPage />}
+          element={<SolicitarCambio />}
         />
 
         <Route

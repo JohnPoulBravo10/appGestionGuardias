@@ -79,26 +79,26 @@ const mesSiguiente = () => {
 // Obtener clase CSS según la guardia
 // ===========================
 const obtenerClaseGuardia = (g) => {
-    let clase = "guardia";
+    let clase = "admin-guardia";
 
     if (g.estado === "ABIERTA") {
-        clase += " guardiaRoja";
+        clase += " admin-guardia-roja";
     } else {
         switch (g.rol) {
             case "ENFERMERIA":
-                clase += " guardiaEnfermeria";
+                clase += " admin-guardia-enfermeria";
                 break;
             case "LIMPIEZA":
-                clase += " guardiaLimpieza";
+                clase += " admin-guardia-limpieza";
                 break;
             case "MANTENIMIENTO":
-                clase += " guardiaMantenimiento";
+                clase += " admin-guardia-mantenimiento";
                 break;
             case "ADMINISTRADOR":
-                clase += " guardiaAdministrador";
+                clase += " admin-guardia-administrador";
                 break;
             default:
-                clase += " guardiaEnfermeria";
+                clase += " admin-guardia-enfermeria";
                 break;
         }
     }
@@ -106,25 +106,25 @@ const obtenerClaseGuardia = (g) => {
 };
 
 return (
-    <div className="contenedorCalendario">
-        <div className="calendarioArriba">
+    <div className="admin-contenedor-calendario">
+        <div className="admin-calendario-arriba">
             <h2>Calendario de Guardias</h2>
 
-            <div className="calendarioFiltros">
-                <div className="selectorMes">
-                    <button className="btnMes" onClick={mesAnterior}>
+            <div className="admin-calendario-filtros">
+                <div className="admin-selector-mes">
+                    <button className="admin-btn-mes" onClick={mesAnterior}>
                         ◀
                     </button>
-                    <span className="tituloMes">
+                    <span className="admin-titulo-mes">
                         {meses[mes]} de {anio}
                     </span>
-                    <button className="btnMes" onClick={mesSiguiente}>
+                    <button className="admin-btn-mes" onClick={mesSiguiente}>
                         ▶
                     </button>
                 </div>
 
                 <select 
-                    className="input-estilo" 
+                    className="admin-input-estilo" 
                     value={filtroArea} 
                     onChange={(e) => setFiltroArea(e.target.value)}
                 >
@@ -138,7 +138,7 @@ return (
         </div>
 
         <div className="calendario">
-            <div className="calendarioDias">
+            <div className="admin-calendario-dias">
                 {diasSemana.map(dia => (
                     <div key={dia}>
                         <strong>{dia}</strong>
@@ -146,12 +146,12 @@ return (
                 ))}
             </div>
 
-            <div className="calendarioCuadros">
+            <div className="admin-calendario-cuadros">
                 {diasCalendario.map((dia, index) => (
-                    <div key={index} className="diaCalendario">
+                    <div key={index} className="admin-dia-calendario">
                         {dia && (
                             <>
-                                <div className="numeroDia">
+                                <div className="admin-numero-dia">
                                     {dia}
                                 </div>
 
@@ -174,13 +174,13 @@ return (
                                     })
                                     .map((g, idx) => (
                                         <div key={idx} className={obtenerClaseGuardia(g)}>
-                                            <div className="horaGuardia">
+                                            <div className="admin-hora-guardia">
                                                 {g.horaInicio ? g.horaInicio.substring(0, 5) : ""} - {g.horaFin ? g.horaFin.substring(0, 5) : ""}
                                             </div>
-                                            <div className="rolGuardia">
+                                            <div className="admin-rol-guardia">
                                                 {g.rol}
                                             </div>
-                                            <div className="empleadoGuardia">
+                                            <div className="admin-empleado-guardia">
                                                 {g.empleadoNombre ?? "Sin asignar"}
                                             </div>
                                         </div>

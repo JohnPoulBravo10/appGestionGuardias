@@ -95,7 +95,7 @@ function MisGuardias() {
   }
 
   return (
-    <div className="tabla-container">
+    <div className="empleado-tabla-container">
       <h3 style={{ marginBottom: '20px' }}>
         MIS GUARDIAS
       </h3>
@@ -105,7 +105,7 @@ function MisGuardias() {
       )}
 
       {!loading && error && (
-        <p className="mensaje-error">
+        <p className="empleado-mensaje-error">
           {error}
         </p>
       )}
@@ -119,7 +119,7 @@ function MisGuardias() {
       {!loading &&
         !error &&
         guardias.length > 0 && (
-          <table className="tabla-guardias">
+          <table className="empleado-tabla-guardias">
             <thead>
               <tr>
                 <th>FECHA</th>
@@ -142,7 +142,7 @@ function MisGuardias() {
                   <td>{guardia.rol}</td>
 
                   <td>
-                    <span className="badge">
+                    <span className="empleado-badge">
                       {guardia.estado}
                     </span>
                   </td>

@@ -90,34 +90,34 @@ function EditarGuardia({ setPagina, guardiaEditar, setGuardiaEditar }) {
 
     return (
 
-        <div className="form-container">
+        <div className="admin-form-container">
 
             <button
                 type="button"
-                className="btn-volver"
+                className="admin-btn-volver"
                 onClick={() => setPagina("GESTION GUARDIAS")}
             >
                 ← Volver
             </button>
 
-            <h3 className="titulo-formulario">
+            <h3 className="admin-titulo-formulario">
                 Editar Guardia
             </h3>
 
             <form
-                className="form-generico"
+                className="admin-form-generico"
                 onSubmit={guardarGuardia}
             >
 
 
 
-                <div className="form-group">
+                <div className="admin-form-group">
 
                     <label>Fecha de la Guardia</label>
 
                     <input
                         type="date"
-                        className="input-estilo"
+                        className="admin-input-estilo"
                         value={guardiaEditar.fecha}
                         onChange={(e) =>
                             setGuardiaEditar({
@@ -132,15 +132,15 @@ function EditarGuardia({ setPagina, guardiaEditar, setGuardiaEditar }) {
 
 
 
-                <div className="form-row">
+                <div className="admin-form-row">
 
-                    <div className="form-group">
+                    <div className="admin-form-group">
 
                         <label>Hora Inicio</label>
 
                         <input
                             type="time"
-                            className="input-estilo"
+                            className="admin-input-estilo"
                             value={guardiaEditar.horaInicio}
                             onChange={(e) =>
                                 setGuardiaEditar({
@@ -153,13 +153,13 @@ function EditarGuardia({ setPagina, guardiaEditar, setGuardiaEditar }) {
 
                     </div>
 
-                    <div className="form-group">
+                    <div className="admin-form-group">
 
                         <label>Hora Fin</label>
 
                         <input
                             type="time"
-                            className="input-estilo"
+                            className="admin-input-estilo"
                             value={guardiaEditar.horaFin}
                             onChange={(e) =>
                                 setGuardiaEditar({
@@ -176,13 +176,13 @@ function EditarGuardia({ setPagina, guardiaEditar, setGuardiaEditar }) {
 
 
 
-                <div className="form-group">
+                <div className="admin-form-group">
 
                     <label>Área</label>
 
                     <select
 
-                        className="input-estilo"
+                        className="admin-input-estilo"
 
                         value={guardiaEditar.rol}
 
@@ -231,13 +231,13 @@ function EditarGuardia({ setPagina, guardiaEditar, setGuardiaEditar }) {
 
 
 
-                <div className="form-group">
+                <div className="admin-form-group">
 
                     <label>Personal Asignado</label>
 
                     <select
 
-                        className="input-estilo"
+                        className="admin-input-estilo"
 
                         value={guardiaEditar.empleadoId ?? ""}
 
@@ -283,7 +283,7 @@ function EditarGuardia({ setPagina, guardiaEditar, setGuardiaEditar }) {
 
                 <button
                     type="submit"
-                    className="btn-guardar"
+                    className="admin-btn-guardar"
                 >
                     Guardar Guardia
                 </button>

@@ -41,31 +41,31 @@ function ModalConfirmacion({
 
   return (
     <div
-      className="modal-overlay"
+      className="common-modal-overlay"
       onClick={handleOverlayClick}
     >
       <div
         ref={dialogRef}
-        className="modal-dialogo"
+        className="common-modal-dialogo"
         role="dialog"
         aria-modal="true"
         aria-labelledby="titulo-modal-cerrar-sesion"
       >
         <h3
           id="titulo-modal-cerrar-sesion"
-          className="modal-titulo"
+          className="common-modal-titulo"
         >
           {titulo}
         </h3>
 
-        <p className="modal-mensaje">
+        <p className="common-modal-mensaje">
           {mensaje}
         </p>
 
-        <div className="modal-acciones">
+        <div className="common-modal-acciones">
           <button
             type="button"
-            className="modal-btn modal-btn-cancelar"
+            className="common-modal-btn common-modal-btn-cancelar"
             onClick={onCancelar}
           >
             Cancelar
@@ -73,7 +73,7 @@ function ModalConfirmacion({
 
           <button
             type="button"
-            className="modal-btn modal-btn-confirmar"
+            className="common-modal-btn common-modal-btn-confirmar"
             onClick={onConfirmar}
           >
             Confirmar

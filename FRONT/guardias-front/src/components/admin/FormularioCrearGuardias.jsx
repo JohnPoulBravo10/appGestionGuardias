@@ -83,27 +83,27 @@ function FormularioCrearGuardias({ setPagina }) {
   };
 
   return (
-    <div className="form-container">
+    <div className="admin-form-container">
 
       <button
-        className="btn-volver"
+        className="admin-btn-volver"
         onClick={() => setPagina("GESTION GUARDIAS")}
       >
         ← Volver
       </button>
 
-      <h3 className="titulo-formulario">
+      <h3 className="admin-titulo-formulario">
         Crear Nueva Guardia
       </h3>
 
-      <form className="form-generico" onSubmit={guardarGuardia}>
+      <form className="admin-form-generico" onSubmit={guardarGuardia}>
 
-        <div className="form-group">
+        <div className="admin-form-group">
           <label>Fecha de la Guardia</label>
 
           <input
             type="date"
-            className="input-estilo"
+            className="admin-input-estilo"
             value={guardia.fecha}
             onChange={(e) =>
               setGuardia({
@@ -115,14 +115,14 @@ function FormularioCrearGuardias({ setPagina }) {
           />
         </div>
 
-        <div className="form-row">
+        <div className="admin-form-row">
 
-          <div className="form-group">
+          <div className="admin-form-group">
             <label>Hora de Inicio</label>
 
             <input
               type="time"
-              className="input-estilo"
+              className="admin-input-estilo"
               value={guardia.horaInicio}
               onChange={(e) =>
                 setGuardia({
@@ -134,12 +134,12 @@ function FormularioCrearGuardias({ setPagina }) {
             />
           </div>
 
-          <div className="form-group">
+          <div className="admin-form-group">
             <label>Hora de Fin</label>
 
             <input
               type="time"
-              className="input-estilo"
+              className="admin-input-estilo"
               value={guardia.horaFin}
               onChange={(e) =>
                 setGuardia({
@@ -153,12 +153,12 @@ function FormularioCrearGuardias({ setPagina }) {
 
         </div>
 
-        <div className="form-group">
+        <div className="admin-form-group">
 
           <label>Área de Trabajo</label>
 
           <select
-            className="input-estilo"
+            className="admin-input-estilo"
             value={guardia.rol}
             onChange={(e) => {
 
@@ -186,12 +186,12 @@ function FormularioCrearGuardias({ setPagina }) {
 
         </div>
 
-        <div className="form-group">
+        <div className="admin-form-group">
 
           <label>Personal Asignado (Opcional)</label>
 
           <select
-            className="input-estilo"
+            className="admin-input-estilo"
             value={guardia.empleadoId}
             onChange={(e) =>
               setGuardia({
@@ -220,7 +220,7 @@ function FormularioCrearGuardias({ setPagina }) {
 
         <button
           type="submit"
-          className="btn-guardar"
+          className="admin-btn-guardar"
         >
           Guardar Guardia
         </button>

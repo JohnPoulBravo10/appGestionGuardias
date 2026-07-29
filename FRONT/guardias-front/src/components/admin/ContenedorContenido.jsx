@@ -6,15 +6,16 @@ import GestionGuardias from './GestionGuardias'
 import FormularioCrearGuardias from './FormularioCrearGuardias'
 import CalendarioGuardias from './CalendarioGuardias'
 import EditarGuardia from './EditarGuardia'
+import PanelPrincipal from './PanelPrincipal'
 
 function ContenedorContenido({ setPagina, pagina }) {
   const [empleadoEditar, setEmpleadoEditar] = useState(null)
   const [guardiaEditar, setGuardiaEditar] = useState(null)
 
   return (
-    <div className="contenedor-contenido">
+    <div className="common-contenedor-contenido">
       {pagina === 'INICIO' && (
-        <h3>Bienvenido al Panel</h3>
+        <PanelPrincipal />
       )}
 
       {pagina === 'CALENDARIO' && (
