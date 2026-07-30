@@ -21,6 +21,15 @@ public class GuardiaContoller {
         return guardiaService.obtenerTodas();
     }
 
+    /**
+     * Devuelve las guardias activas en este momento
+     * (fecha = hoy, hora actual dentro del rango horario).
+     */
+    @GetMapping("/activas")
+    public List<Guardia> listarGuardiasActivas() {
+        return guardiaService.obtenerGuardiasActivas();
+    }
+
     @PostMapping
     public Guardia crearGuardia(@RequestBody Guardia guardia) {
         return guardiaService.guardarGuardia(guardia);

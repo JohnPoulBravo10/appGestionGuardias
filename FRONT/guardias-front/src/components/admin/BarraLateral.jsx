@@ -1,17 +1,16 @@
-import { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
-
-import ModalConfirmacion from '../common/ui/ModalConfirmacion'
+import { cerrarSesion } from '../../utils/authUtils'
 import UserIcon from '../common/icons/UserIcon'
 import LogoutIcon from '../common/icons/LogoutIcon'
-
+import ModalConfirmacion from '../common/ui/ModalConfirmacion'
 import useUsuarioActual from '../../hooks/useUsuarioActual'
-import { cerrarSesion } from '../../utils/authUtils'
 
-function BarraLateralEmpleado() {
+function BarraLateral() {
   const navigate = useNavigate()
-
   const [mostrarModal, setMostrarModal] = useState(false)
+
+
 
   const {
     empleado,
@@ -19,7 +18,7 @@ function BarraLateralEmpleado() {
     error,
   } = useUsuarioActual()
 
-  const confirmarCierreSesion = () => {
+  const handleCerrarSesion = () => {
     cerrarSesion()
     setMostrarModal(false)
 
@@ -28,16 +27,16 @@ function BarraLateralEmpleado() {
     })
   }
 
-  const claseMenu = ({ isActive }) =>
-    `common-btn-menu ${isActive ? 'activo' : ''}`
-
   const nombre = empleado?.nombre || ''
   const apellido = empleado?.apellido || ''
 
   const rol =
     empleado?.rol ||
     empleado?.usuario?.rol ||
-    'ENFERMERÍA'
+    'ADMINISTRADOR'
+
+  const obtenerClaseMenu = ({ isActive }) =>
+    `common-btn-menu ${isActive ? 'activo' : ''}`
 
   return (
     <>
@@ -70,39 +69,39 @@ function BarraLateralEmpleado() {
 
         <nav className="common-menu">
           <NavLink
-            to="/empleado"
+            to="/admin"
             end
-            className={claseMenu}
+            className={obtenerClaseMenu}
           >
             INICIO
           </NavLink>
 
           <NavLink
-            to="/empleado/calendario"
-            className={claseMenu}
+            to="/admin/calendario"
+            className={obtenerClaseMenu}
           >
             CALENDARIO
           </NavLink>
 
           <NavLink
-            to="/empleado/mis-guardias"
-            className={claseMenu}
+            to="/admin/empleados"
+            className={obtenerClaseMenu}
           >
-            MIS GUARDIAS
+            GESTIÓN EMPLEADOS
           </NavLink>
 
           <NavLink
-            to="/empleado/solicitar-cambio"
-            className={claseMenu}
+            to="/admin/guardias"
+            className={obtenerClaseMenu}
           >
-            SOLICITAR CAMBIO
+            GESTIÓN GUARDIAS
           </NavLink>
 
           <NavLink
-            to="/empleado/historial"
-            className={claseMenu}
+            to="/admin/solicitudes"
+            className={obtenerClaseMenu}
           >
-            HISTORIAL
+            SOLICITUDES
           </NavLink>
         </nav>
 
@@ -125,11 +124,11 @@ function BarraLateralEmpleado() {
         visible={mostrarModal}
         titulo="Cerrar sesión"
         mensaje="¿Está seguro de que desea cerrar sesión?"
-        onConfirmar={confirmarCierreSesion}
+        onConfirmar={handleCerrarSesion}
         onCancelar={() => setMostrarModal(false)}
       />
     </>
   )
 }
 
-export default BarraLateralEmpleado
+export default BarraLateral
