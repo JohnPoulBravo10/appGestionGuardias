@@ -307,8 +307,10 @@
 }
 
 /* =========================================================
-   MODAL DE CONFIRMACIÓN
-   Usado por: ModalConfirmacion
+   MODALES COMUNES
+   Usado por:
+   - ModalConfirmacion
+   - ModalMensaje
    ========================================================= */
 
 .common-modal-overlay {
@@ -320,7 +322,10 @@
   justify-content: center;
   align-items: center;
 
-  background: rgba(0, 0, 0, 0.65);
+  padding: 20px;
+
+  background: rgba(0, 0, 0, 0.68);
+
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 
@@ -328,14 +333,14 @@
 }
 
 .common-modal-dialogo {
-  width: 90%;
+  width: 100%;
   max-width: 400px;
 
   padding: 28px 30px 24px;
 
   background: #1a1a1a;
 
-  border: 1px solid #2a2a2a;
+  border: 1px solid #2f2f2f;
   border-radius: 14px;
 
   box-shadow:
@@ -345,6 +350,50 @@
   animation: common-slideUp 0.25s ease;
 }
 
+/* =========================================================
+   ÍCONOS DEL MODAL MENSAJE
+   ========================================================= */
+
+.common-modal-icono {
+  width: 54px;
+  height: 54px;
+
+  margin: 0 auto 18px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border: 2px solid currentColor;
+  border-radius: 50%;
+
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.common-modal-icono-exito {
+  color: #4caf50;
+
+  background: rgba(76, 175, 80, 0.08);
+}
+
+.common-modal-icono-error {
+  color: #ef5350;
+
+  background: rgba(239, 83, 80, 0.08);
+}
+
+.common-modal-icono-advertencia {
+  color: #ffb74d;
+
+  background: rgba(255, 183, 77, 0.08);
+}
+
+/* =========================================================
+   TEXTOS
+   ========================================================= */
+
 .common-modal-titulo {
   margin: 0 0 10px;
 
@@ -352,6 +401,14 @@
 
   font-size: 1.15rem;
   font-weight: 700;
+}
+
+/*
+ * ModalMensaje incluye un ícono.
+ * En ese caso centramos título y mensaje.
+ */
+.common-modal-icono + .common-modal-titulo {
+  text-align: center;
 }
 
 .common-modal-mensaje {
@@ -363,13 +420,37 @@
   line-height: 1.5;
 }
 
+/*
+ * Si el modal tiene ícono, centramos también
+ * el texto del mensaje.
+ */
+.common-modal-dialogo:has(.common-modal-icono)
+.common-modal-mensaje {
+  text-align: center;
+}
+
+/* =========================================================
+   BOTONES
+   ========================================================= */
+
 .common-modal-acciones {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
 }
 
+/*
+ * En ModalMensaje existe un solo botón.
+ * Lo centramos y permitimos que tenga un ancho cómodo.
+ */
+.common-modal-dialogo:has(.common-modal-icono)
+.common-modal-acciones {
+  justify-content: center;
+}
+
 .common-modal-btn {
+  min-width: 110px;
+
   padding: 10px 20px;
 
   border: none;
@@ -383,12 +464,21 @@
   transition:
     background-color 0.2s ease,
     color 0.2s ease,
-    transform 0.15s ease;
+    border-color 0.2s ease,
+    transform 0.15s ease,
+    opacity 0.2s ease;
 }
 
 .common-modal-btn:active {
   transform: translateY(1px);
 }
+
+.common-modal-btn:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
+/* Cancelar */
 
 .common-modal-btn-cancelar {
   background: #252525;
@@ -400,8 +490,15 @@
 .common-modal-btn-cancelar:hover {
   background: #333333;
   color: #ffffff;
+
   border-color: #4a4a4a;
 }
+
+/*
+ * Este botón se usa en ModalConfirmacion.
+ * Lo dejamos rojo porque confirma una acción delicada,
+ * como eliminar.
+ */
 
 .common-modal-btn-confirmar {
   background: #c0392b;
@@ -412,7 +509,30 @@
   background: #e74c3c;
 }
 
-/* ── Animaciones del modal ── */
+/*
+ * En ModalMensaje el mismo botón "confirmar"
+ * debe funcionar como Aceptar, no como eliminar.
+ *
+ * Como ModalMensaje tiene un ícono, aprovechamos
+ * esa estructura para cambiar el botón.
+ */
+
+.common-modal-dialogo:has(.common-modal-icono)
+.common-modal-btn-confirmar {
+  min-width: 140px;
+
+  background: #f2f2f2;
+  color: #151515;
+}
+
+.common-modal-dialogo:has(.common-modal-icono)
+.common-modal-btn-confirmar:hover {
+  background: #ffffff;
+}
+
+/* =========================================================
+   ANIMACIONES
+   ========================================================= */
 
 @keyframes common-fadeIn {
   from {
@@ -427,12 +547,36 @@
 @keyframes common-slideUp {
   from {
     opacity: 0;
-    transform: translateY(16px) scale(0.97);
+
+    transform:
+      translateY(16px)
+      scale(0.97);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 500px) {
+  .common-modal-dialogo {
+    padding: 24px 20px 20px;
+  }
+
+  .common-modal-acciones {
+    flex-direction: column-reverse;
+  }
+
+  .common-modal-btn {
+    width: 100%;
   }
 }
 

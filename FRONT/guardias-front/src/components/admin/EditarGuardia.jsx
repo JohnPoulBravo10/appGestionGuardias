@@ -1,299 +1,327 @@
-import React, { useEffect, useState } from "react";
+import React, {
+  useEffect,
+  useState,
+} from 'react'
 
-function EditarGuardia({ setPagina, guardiaEditar, setGuardiaEditar }) {
+import ModalMensaje from '../common/ui/ModalMensaje'
 
-    const [empleados, setEmpleados] = useState([]);
+const API_BASE_URL = 'http://localhost:8090'
 
+function EditarGuardia({
+  setPagina,
+  guardiaEditar,
+  setGuardiaEditar,
+}) {
+  const [empleados, setEmpleados] =
+    useState([])
 
+  const [modal, setModal] = useState({
+    visible: false,
+    tipo: 'exito',
+    titulo: '',
+    mensaje: '',
+    volver: false,
+  })
 
-    const cargarEmpleadosPorRol = async (rol) => {
-
-        if (rol === "") {
-            setEmpleados([]);
-            return;
-        }
-
-        try {
-
-            const response = await fetch(
-                `http://localhost:8090/api/empleados?rol=${rol}`
-            );
-
-            if (!response.ok) {
-                throw new Error("Error al obtener empleados");
-            }
-
-            const data = await response.json();
-
-            setEmpleados(data);
-
-        } catch (error) {
-            console.error(error);
-        }
-
-    };
-
-
-
-    useEffect(() => {
-
-        if (guardiaEditar?.rol) {
-            cargarEmpleadosPorRol(guardiaEditar.rol);
-        }
-
-    }, [guardiaEditar]);
-
-
-
-    const guardarGuardia = async (e) => {
-
-        e.preventDefault();
-
-        try {
-
-            const response = await fetch(
-
-                `http://localhost:8090/api/guardias/${guardiaEditar.id}`,
-
-                {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(guardiaEditar)
-                }
-
-            );
-
-            if (!response.ok) {
-                throw new Error("No se pudo guardar la guardia");
-            }
-
-            alert("Guardia editada correctamente");
-
-            setPagina("GESTION GUARDIAS");
-
-        } catch (error) {
-
-            console.error(error);
-            alert("Ocurrió un error");
-
-        }
-
-    };
-
-
-
-    if (!guardiaEditar) {
-        return <p>Cargando...</p>;
+  const cargarEmpleadosPorRol = async (
+    rol
+  ) => {
+    if (!rol) {
+      setEmpleados([])
+      return
     }
 
-    return (
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/empleados?rol=${rol}`
+      )
 
-        <div className="admin-form-container">
+      if (!response.ok) {
+        throw new Error(
+          'Error al obtener empleados'
+        )
+      }
 
-            <button
-                type="button"
-                className="admin-btn-volver"
-                onClick={() => setPagina("GESTION GUARDIAS")}
+      const data = await response.json()
+
+      setEmpleados(
+        Array.isArray(data) ? data : []
+      )
+    } catch (error) {
+      console.error(
+        'Error al cargar empleados:',
+        error
+      )
+    }
+  }
+
+  useEffect(() => {
+    if (guardiaEditar?.rol) {
+      cargarEmpleadosPorRol(
+        guardiaEditar.rol
+      )
+    }
+  }, [guardiaEditar?.rol])
+
+  const cerrarModal = () => {
+    const debeVolver = modal.volver
+
+    setModal({
+      visible: false,
+      tipo: 'exito',
+      titulo: '',
+      mensaje: '',
+      volver: false,
+    })
+
+    if (debeVolver) {
+      setGuardiaEditar(null)
+      setPagina('GESTION GUARDIAS')
+    }
+  }
+
+  const guardarGuardia = async (
+    event
+  ) => {
+    event.preventDefault()
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/guardias/${guardiaEditar.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type':
+              'application/json',
+          },
+          body: JSON.stringify(
+            guardiaEditar
+          ),
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error(
+          'No se pudo modificar la guardia'
+        )
+      }
+
+      setModal({
+        visible: true,
+        tipo: 'exito',
+        titulo: 'Guardia modificada',
+        mensaje:
+          'La guardia se modificó con éxito.',
+        volver: true,
+      })
+    } catch (error) {
+      console.error(
+        'Error al modificar guardia:',
+        error
+      )
+
+      setModal({
+        visible: true,
+        tipo: 'error',
+        titulo: 'Error',
+        mensaje:
+          'No se pudo modificar la guardia.',
+        volver: false,
+      })
+    }
+  }
+
+  const volverAGestion = () => {
+    setGuardiaEditar(null)
+    setPagina('GESTION GUARDIAS')
+  }
+
+  if (!guardiaEditar) {
+    return <p>Cargando...</p>
+  }
+
+  return (
+    <>
+      <div className="admin-form-container">
+        <button
+          type="button"
+          className="admin-btn-volver"
+          onClick={volverAGestion}
+        >
+          ← Volver
+        </button>
+
+        <h3 className="admin-titulo-formulario">
+          Editar Guardia
+        </h3>
+
+        <form
+          className="admin-form-generico"
+          onSubmit={guardarGuardia}
+        >
+          <div className="admin-form-group">
+            <label>
+              Fecha de la Guardia
+            </label>
+
+            <input
+              type="date"
+              className="admin-input-estilo"
+              value={guardiaEditar.fecha}
+              onChange={(event) =>
+                setGuardiaEditar({
+                  ...guardiaEditar,
+                  fecha: event.target.value,
+                })
+              }
+              required
+            />
+          </div>
+
+          <div className="admin-form-row">
+            <div className="admin-form-group">
+              <label>Hora Inicio</label>
+
+              <input
+                type="time"
+                className="admin-input-estilo"
+                value={
+                  guardiaEditar.horaInicio
+                }
+                onChange={(event) =>
+                  setGuardiaEditar({
+                    ...guardiaEditar,
+                    horaInicio:
+                      event.target.value,
+                  })
+                }
+                required
+              />
+            </div>
+
+            <div className="admin-form-group">
+              <label>Hora Fin</label>
+
+              <input
+                type="time"
+                className="admin-input-estilo"
+                value={
+                  guardiaEditar.horaFin
+                }
+                onChange={(event) =>
+                  setGuardiaEditar({
+                    ...guardiaEditar,
+                    horaFin:
+                      event.target.value,
+                  })
+                }
+                required
+              />
+            </div>
+          </div>
+
+          <div className="admin-form-group">
+            <label>Área</label>
+
+            <select
+              className="admin-input-estilo"
+              value={guardiaEditar.rol}
+              onChange={(event) => {
+                const rol =
+                  event.target.value
+
+                setGuardiaEditar({
+                  ...guardiaEditar,
+                  rol,
+                  empleadoId: null,
+                })
+
+                cargarEmpleadosPorRol(rol)
+              }}
+              required
             >
-                ← Volver
-            </button>
+              <option value="">
+                Seleccione un área
+              </option>
 
-            <h3 className="admin-titulo-formulario">
-                Editar Guardia
-            </h3>
+              <option value="ENFERMERIA">
+                Enfermería
+              </option>
 
-            <form
-                className="admin-form-generico"
-                onSubmit={guardarGuardia}
+              <option value="LIMPIEZA">
+                Limpieza
+              </option>
+
+              <option value="MANTENIMIENTO">
+                Mantenimiento
+              </option>
+
+              <option value="ADMINISTRADOR">
+                Administrador
+              </option>
+            </select>
+          </div>
+
+          <div className="admin-form-group">
+            <label>
+              Personal Asignado
+            </label>
+
+            <select
+              className="admin-input-estilo"
+              value={
+                guardiaEditar.empleadoId ??
+                ''
+              }
+              onChange={(event) =>
+                setGuardiaEditar({
+                  ...guardiaEditar,
+
+                  empleadoId:
+                    event.target.value === ''
+                      ? null
+                      : Number(
+                          event.target.value
+                        ),
+                })
+              }
             >
-
-
-
-                <div className="admin-form-group">
-
-                    <label>Fecha de la Guardia</label>
-
-                    <input
-                        type="date"
-                        className="admin-input-estilo"
-                        value={guardiaEditar.fecha}
-                        onChange={(e) =>
-                            setGuardiaEditar({
-                                ...guardiaEditar,
-                                fecha: e.target.value
-                            })
-                        }
-                        required
-                    />
-
-                </div>
-
-
-
-                <div className="admin-form-row">
-
-                    <div className="admin-form-group">
-
-                        <label>Hora Inicio</label>
-
-                        <input
-                            type="time"
-                            className="admin-input-estilo"
-                            value={guardiaEditar.horaInicio}
-                            onChange={(e) =>
-                                setGuardiaEditar({
-                                    ...guardiaEditar,
-                                    horaInicio: e.target.value
-                                })
-                            }
-                            required
-                        />
-
-                    </div>
-
-                    <div className="admin-form-group">
-
-                        <label>Hora Fin</label>
-
-                        <input
-                            type="time"
-                            className="admin-input-estilo"
-                            value={guardiaEditar.horaFin}
-                            onChange={(e) =>
-                                setGuardiaEditar({
-                                    ...guardiaEditar,
-                                    horaFin: e.target.value
-                                })
-                            }
-                            required
-                        />
-
-                    </div>
-
-                </div>
-
-
-
-                <div className="admin-form-group">
-
-                    <label>Área</label>
-
-                    <select
-
-                        className="admin-input-estilo"
-
-                        value={guardiaEditar.rol}
-
-                        onChange={async (e) => {
-
-                            const rol = e.target.value;
-
-                            await cargarEmpleadosPorRol(rol);
-
-                            setGuardiaEditar({
-
-                                ...guardiaEditar,
-                                rol,
-                                empleadoId: null
-
-                            });
-
-                        }}
-
-                        required
-                    >
-
-                        <option value="">
-                            Seleccione un área
-                        </option>
-
-                        <option value="ENFERMERIA">
-                            Enfermería
-                        </option>
-
-                        <option value="LIMPIEZA">
-                            Limpieza
-                        </option>
-
-                        <option value="MANTENIMIENTO">
-                            Mantenimiento
-                        </option>
-
-                        <option value="ADMINISTRADOR">
-                            Administrador
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-
-                <div className="admin-form-group">
-
-                    <label>Personal Asignado</label>
-
-                    <select
-
-                        className="admin-input-estilo"
-
-                        value={guardiaEditar.empleadoId ?? ""}
-
-                        onChange={(e) =>
-                            setGuardiaEditar({
-
-                                ...guardiaEditar,
-
-                                empleadoId:
-                                    e.target.value === ""
-                                        ? null
-                                        : Number(e.target.value)
-
-                            })
-                        }
-
-                    >
-
-                        <option value="">
-                            Dejar sin asignar
-                        </option>
-
-                        {
-
-                            empleados.map((emp) => (
-
-                                <option
-                                    key={emp.dni}
-                                    value={emp.dni}
-                                >
-
-                                    {emp.nombre} {emp.apellido}
-
-                                </option>
-
-                            ))
-
-                        }
-
-                    </select>
-
-                </div>
-
-                <button
-                    type="submit"
-                    className="admin-btn-guardar"
-                >
-                    Guardar Guardia
-                </button>
-
-            </form>
-
-        </div>
-
-    );
-
+              <option value="">
+                Dejar sin asignar
+              </option>
+
+              {empleados.map(
+                (empleado) => (
+                  <option
+                    key={empleado.dni}
+                    value={empleado.dni}
+                  >
+                    {empleado.nombre}{' '}
+                    {empleado.apellido}
+                  </option>
+                )
+              )}
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            className="admin-btn-guardar"
+          >
+            Guardar Guardia
+          </button>
+        </form>
+      </div>
+
+      <ModalMensaje
+        visible={modal.visible}
+        tipo={modal.tipo}
+        titulo={modal.titulo}
+        mensaje={modal.mensaje}
+        onCerrar={cerrarModal}
+      />
+    </>
+  )
 }
 
-export default EditarGuardia;
+export default EditarGuardia

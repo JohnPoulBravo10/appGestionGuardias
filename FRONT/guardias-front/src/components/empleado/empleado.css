@@ -386,7 +386,100 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+.estado-proxima {
+  color: #64b5f6;
+  background: rgba(100, 181, 246, 0.12);
+  border-color: rgba(100, 181, 246, 0.35);
+}
 
+.estado-en-curso {
+  color: #66bb6a;
+  background: rgba(102, 187, 106, 0.12);
+  border-color: rgba(102, 187, 106, 0.35);
+}
+
+.estado-terminada {
+  color: #aaaaaa;
+  background: rgba(170, 170, 170, 0.1);
+  border-color: rgba(170, 170, 170, 0.3);
+}
+
+.estado-sin-asignar {
+  color: #ef5350;
+  background: rgba(239, 83, 80, 0.12);
+  border-color: rgba(239, 83, 80, 0.35);
+}
+
+.empleado-filtros-guardias {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  margin: 18px 0 10px;
+}
+
+.empleado-input-filtro {
+  min-width: 180px;
+  min-height: 44px;
+
+  padding: 10px 12px;
+
+  border: 1px solid #383838;
+  border-radius: 8px;
+
+  background: #111111;
+  color: #ffffff;
+
+  font-size: 14px;
+  font-family: inherit;
+
+  outline: none;
+  cursor: pointer;
+}
+
+.empleado-input-filtro:focus {
+  border-color: #666666;
+}
+
+.empleado-btn-limpiar-filtros {
+  min-height: 44px;
+
+  padding: 0 16px;
+
+  border: 1px solid #424242;
+  border-radius: 8px;
+
+  background: #222222;
+  color: #ffffff;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.empleado-btn-limpiar-filtros:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.empleado-contador-guardias {
+  margin: 0 0 14px;
+
+  color: #8f8f8f;
+  font-size: 13px;
+}
+
+@media (max-width: 700px) {
+  .empleado-filtros-guardias {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .empleado-input-filtro,
+  .empleado-btn-limpiar-filtros {
+    width: 100%;
+  }
+}
 /* =========================================================
    RESPONSIVE — PANEL EMPLEADO
    ========================================================= */
