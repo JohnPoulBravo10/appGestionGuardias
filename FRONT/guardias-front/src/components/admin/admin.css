@@ -546,7 +546,7 @@ select.admin-input-estilo {
 
 .admin-accion-editar,
 .admin-accion-eliminar {
-  padding: 0;
+  padding: 14px;
 
   background: transparent;
   color: #aaaaaa;
@@ -873,5 +873,186 @@ select.admin-input-estilo {
 
   .admin-panel-tabla {
     min-width: 500px;
+  }
+}
+
+/* =========================================================
+   TABLA DE SOLICITUDES
+   Usado por: GestionSolicitudes
+   ========================================================= */
+
+.admin-tabla-solicitudes {
+  width: 100%;
+
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+.admin-tabla-solicitudes th {
+  padding: 14px;
+
+  color: #888888;
+
+  border-bottom: 1px solid #2a2a2a;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.admin-tabla-solicitudes td {
+  padding: 14px;
+
+  color: #ffffff;
+
+  border-bottom: 1px solid #222222;
+
+  font-size: 13px;
+}
+
+.admin-tabla-solicitudes tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.admin-tabla-solicitudes tbody tr:hover {
+  background: #1e1e1e;
+}
+
+/* ── Botones circulares de acción (aprobar / rechazar) ── */
+
+.admin-btn-accion-aprobar,
+.admin-btn-accion-rechazar {
+  width: 32px;
+  height: 32px;
+
+  padding: 0;
+
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  border: 2px solid;
+  border-radius: 50%;
+
+  cursor: pointer;
+
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.admin-btn-accion-aprobar {
+  background: transparent;
+  color: #4caf50;
+  border-color: #4caf50;
+}
+
+.admin-btn-accion-aprobar:hover {
+  background: rgba(76, 175, 80, 0.15);
+  color: #66bb6a;
+  border-color: #66bb6a;
+}
+
+.admin-btn-accion-rechazar {
+  background: transparent;
+  color: #f44336;
+  border-color: #f44336;
+}
+
+.admin-btn-accion-rechazar:hover {
+  background: rgba(244, 67, 54, 0.15);
+  color: #ef5350;
+  border-color: #ef5350;
+}
+
+.admin-btn-accion-aprobar:active,
+.admin-btn-accion-rechazar:active {
+  transform: scale(0.92);
+}
+
+/* =========================================================
+   MODAL DE RESOLUCIÓN
+   Usado por: ModalResolucionSolicitud
+   ========================================================= */
+
+.admin-modal-resolucion {
+  max-width: 480px;
+}
+
+.admin-modal-campo {
+  margin-bottom: 18px;
+}
+
+.admin-modal-campo label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #cccccc;
+
+  font-size: 0.9rem;
+}
+
+.admin-modal-error {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+
+  color: #f44336;
+
+  background: rgba(244, 67, 54, 0.08);
+
+  border: 1px solid rgba(244, 67, 54, 0.25);
+  border-radius: 8px;
+
+  font-size: 0.85rem;
+}
+
+.admin-modal-btn-aprobar {
+  background: #2e7d32;
+  color: #ffffff;
+}
+
+.admin-modal-btn-aprobar:hover {
+  background: #388e3c;
+}
+
+/* ── Botón cerrar error en la tabla ── */
+
+.admin-btn-cerrar-error {
+  margin-left: 12px;
+  padding: 2px 6px;
+
+  background: transparent;
+  color: #f44336;
+
+  border: none;
+
+  cursor: pointer;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  transition: color 0.2s ease;
+}
+
+.admin-btn-cerrar-error:hover {
+  color: #ff6659;
+}
+
+/* =========================================================
+   RESPONSIVE — SOLICITUDES
+   ========================================================= */
+
+@media (max-width: 1100px) {
+  .admin-tabla-solicitudes {
+    min-width: 750px;
   }
 }

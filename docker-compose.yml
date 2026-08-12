@@ -24,6 +24,24 @@ services:
       retries: 10
       start_period: 30s
 
+  # ==================== MONGO DB (SOLICITUDES) ====================
+  mongo-solicitudes:
+    image: mongo:6.0
+    container_name: mongo-solicitudes
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-solicitudes-data:/data/db
+    networks:
+      - guardias-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
   # ==================== CONFIG SERVER ====================
   config-server:
     build:
@@ -143,6 +161,29 @@ services:
     networks:
       - guardias-network
 
+  # ==================== SOLICITUDES SERVICE ====================
+  solicitudes-service:
+    build:
+      context: ./MICROSERVICIOS/solicitudes-service
+      dockerfile: Dockerfile
+    container_name: solicitudes-service
+    restart: unless-stopped
+    ports:
+      - "8084:8084"
+    environment:
+      TZ: America/Argentina/Buenos_Aires
+      SPRING_PROFILES_ACTIVE: docker, native
+      SERVER_PORT: 8084
+      SPRING_DATA_MONGODB_URI: mongodb://mongo-solicitudes:27017/solicitudes_service
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+      mongo-solicitudes:
+        condition: service_healthy
+    networks:
+      - guardias-network
+
   # ==================== API GATEWAY ====================
   api-gateway:
     build:
@@ -198,6 +239,7 @@ services:
 
 volumes:
   mysql-data:
+  mongo-solicitudes-data:
 
 networks:
   guardias-network:

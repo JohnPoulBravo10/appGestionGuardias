@@ -69,8 +69,10 @@ OTROS COMANDOS ÚTILES
   Empleado Service                  http://localhost:8080
   Guardia Service                   http://localhost:8081
   Autenticación Service             http://localhost:8083
+  Solicitudes Service               http://localhost:8084
   PhpMyAdmin                        http://localhost:8082 (usuario: root / pass: rootpassword)
   MySQL (Base de Datos)             localhost:3307
+  MongoDB (Base de Datos)           localhost:27017
 
 
 ================================================================================
@@ -80,15 +82,16 @@ OTROS COMANDOS ÚTILES
 Los servicios se levantan automáticamente en el siguiente orden gracias a las
 dependencias configuradas en docker-compose.yml:
 
-  1. MySQL (mysql-db)
+  1. Bases de Datos (mysql-db, mongo-solicitudes)
   2. Config Server (config-server)
   3. Discovery Server / Eureka (discovery-server)   — espera a Config Server
   4. Empleado Service (empleado-service)            — espera a Eureka y MySQL
   5. Guardia Service (guardia-service)              — espera a Eureka y MySQL
   6. Autenticación Service (autenticacion-service)  — espera a Eureka y MySQL
-  7. API Gateway (api-gateway)                      — espera a Eureka
-  8. Frontend (frontend)                            — espera a API Gateway
-  9. PhpMyAdmin (phpmyadmin)                        — espera a MySQL
+  7. Solicitudes Service (solicitudes-service)      — espera a Eureka y Mongo
+  8. API Gateway (api-gateway)                      — espera a Eureka
+  9. Frontend (frontend)                            — espera a API Gateway
+  10. PhpMyAdmin (phpmyadmin)                       — espera a MySQL
 
 NOTA: El arranque completo puede tardar varios minutos debido a los healthchecks.
 
@@ -97,7 +100,7 @@ NOTA: El arranque completo puede tardar varios minutos debido a los healthchecks
 
 para programar 
 
-docker compose up -d mysql-db config-server discovery-server empleado-service guardia-service api-gateway autenticacion-service
+docker compose up -d mysql-db mongo-solicitudes config-server discovery-server empleado-service guardia-service api-gateway autenticacion-service solicitudes-service
 
 cd FRONT/guardias-front
 npm run dev
@@ -106,3 +109,5 @@ npm run dev
 docker compose up -d --build guardia-service
 
 docker compose up -d --build empleado-service
+
+docker compose up -d --build solicitudes-service

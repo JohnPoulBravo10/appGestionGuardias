@@ -23,6 +23,7 @@ import FormularioCrearGuardias from './components/admin/FormularioCrearGuardias'
 import CalendarioGuardias from './components/admin/CalendarioGuardias'
 import EditarGuardia from './components/admin/EditarGuardia'
 import PanelPrincipal from './components/admin/PanelPrincipal'
+import GestionSolicitudes from './components/admin/GestionSolicitudes'
 
 import PanelEmpleado from './components/empleado/PanelEmpleado'
 import MisGuardias from './components/empleado/MisGuardias'
@@ -163,7 +164,7 @@ function App() {
 
         <Route
           path="solicitudes"
-          element={<h3>Solicitudes</h3>}
+          element={<GestionSolicitudes />}
         />
       </Route>
 
