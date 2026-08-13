@@ -97,7 +97,7 @@ NOTA: El arranque completo puede tardar varios minutos debido a los healthchecks
 
 para programar 
 
-docker compose up -d mysql-db config-server discovery-server empleado-service guardia-service api-gateway autenticacion-service
+docker compose up -d mysql-db mongo-db kafka config-server discovery-server empleado-service guardia-service autenticacion-service notification-service api-gateway   
 
 cd FRONT/guardias-front
 npm run dev

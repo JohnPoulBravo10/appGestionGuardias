@@ -1,12 +1,11 @@
 .git
 .gitignore
 FRONT/
-*.md
-docker-compose.yml
-init-db.sql
-ejecucion.txt
-**/target/
-**/.idea
+*.md*
+*docker-compose.yml*
+*init-db.sql*
+*ejecucion.txt*
+**/.idea*
 **/*.iml
 **/.mvn
 **/mvnw
