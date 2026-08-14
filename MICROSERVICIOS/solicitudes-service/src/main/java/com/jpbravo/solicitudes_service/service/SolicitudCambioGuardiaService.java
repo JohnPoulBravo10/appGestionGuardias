@@ -1,5 +1,6 @@
 package com.jpbravo.solicitudes_service.service;
 
+import com.jpbravo.solicitudes_service.client.GuardiaServiceClient;
 import com.jpbravo.solicitudes_service.dto.SolicitudRequestDto;
 import com.jpbravo.solicitudes_service.dto.SolicitudResponseDto;
 import com.jpbravo.solicitudes_service.exception.InvalidStateTransitionException;
@@ -22,9 +23,13 @@ import java.util.List;
 public class SolicitudCambioGuardiaService {
 
     private final SolicitudCambioGuardiaRepository repository;
+    private final GuardiaServiceClient guardiaServiceClient;
 
-    public SolicitudCambioGuardiaService(SolicitudCambioGuardiaRepository repository) {
+    public SolicitudCambioGuardiaService(
+            SolicitudCambioGuardiaRepository repository,
+            GuardiaServiceClient guardiaServiceClient) {
         this.repository = repository;
+        this.guardiaServiceClient = guardiaServiceClient;
     }
 
     /**
@@ -101,53 +106,84 @@ public class SolicitudCambioGuardiaService {
     }
 
     /**
-     * Aprueba una solicitud pendiente. Solo se permite la transición
-     * PENDIENTE → APROBADA.
+     * Aprueba una solicitud pendiente y reasigna la guardia correspondiente.
      *
-     * @param id          identificador de la solicitud
-     * @param observacion comentario del administrador (puede ser null)
+     * Flujo:
+     * 1. Valida que la solicitud esté en estado PENDIENTE.
+     * 2. Si el admin proporcionó un empleado de reemplazo, actualiza los datos.
+     * 3. Comunica al guardia-service para reasignar la guardia al nuevo empleado
+     *    (o dejarla sin asignar si no hay reemplazo).
+     * 4. Solo si la reasignación fue exitosa, marca la solicitud como APROBADA.
+     *
+     * @param id                      identificador de la solicitud
+     * @param observacion             comentario del administrador (puede ser null)
+     * @param empleadoReemplazoDni    DNI del empleado de reemplazo enviado por el admin (puede ser null)
+     * @param nombreEmpleadoReemplazo nombre del empleado de reemplazo (puede ser null)
      * @return DTO de respuesta con la solicitud aprobada
-     * @throws SolicitudNotFoundException si no se encuentra la solicitud
-     * @throws InvalidStateTransitionException si la solicitud no está PENDIENTE
+     * @throws SolicitudNotFoundException          si no se encuentra la solicitud
+     * @throws InvalidStateTransitionException     si la solicitud no está PENDIENTE
+     * @throws com.jpbravo.solicitudes_service.exception.GuardiaCommunicationException si falla la comunicación con guardia-service
      */
-    public SolicitudResponseDto aprobarSolicitud(String id, String observacion) {
-        return resolverSolicitud(id, EstadoSolicitud.APROBADA, observacion);
-    }
+    public SolicitudResponseDto aprobarSolicitud(
+            String id,
+            String observacion,
+            Long empleadoReemplazoDni,
+            String nombreEmpleadoReemplazo) {
 
-    /**
-     * Rechaza una solicitud pendiente. Solo se permite la transición
-     * PENDIENTE → RECHAZADA.
-     *
-     * @param id          identificador de la solicitud
-     * @param observacion comentario del administrador (puede ser null)
-     * @return DTO de respuesta con la solicitud rechazada
-     * @throws SolicitudNotFoundException si no se encuentra la solicitud
-     * @throws InvalidStateTransitionException si la solicitud no está PENDIENTE
-     */
-    public SolicitudResponseDto rechazarSolicitud(String id, String observacion) {
-        return resolverSolicitud(id, EstadoSolicitud.RECHAZADA, observacion);
-    }
-
-    // ======================== Métodos privados ========================
-
-    /**
-     * Resuelve una solicitud cambiando su estado y registrando la fecha
-     * de resolución. Valida que la solicitud esté en estado PENDIENTE
-     * antes de permitir la transición.
-     */
-    private SolicitudResponseDto resolverSolicitud(String id, EstadoSolicitud nuevoEstado, String observacion) {
         SolicitudCambioGuardia solicitud = buscarSolicitudOFallar(id);
+        validarEstadoPendiente(solicitud, EstadoSolicitud.APROBADA);
 
-        if (solicitud.getEstado() != EstadoSolicitud.PENDIENTE) {
-            throw new InvalidStateTransitionException(solicitud.getEstado(), nuevoEstado);
+        // Actualizar datos de reemplazo si el admin los modificó en el modal
+        if (empleadoReemplazoDni != null) {
+            solicitud.setEmpleadoReemplazoDni(empleadoReemplazoDni);
+            solicitud.setNombreEmpleadoReemplazo(nombreEmpleadoReemplazo);
         }
 
-        solicitud.setEstado(nuevoEstado);
+        // Reasignar la guardia ANTES de marcar como aprobada (garantiza consistencia)
+        Long guardiaId = solicitud.getInfoGuardia().getGuardiaId();
+        Long nuevoEmpleadoId = solicitud.getEmpleadoReemplazoDni();
+        guardiaServiceClient.reasignarEmpleado(guardiaId, nuevoEmpleadoId);
+
+        // Marcar como aprobada solo si la reasignación fue exitosa
+        solicitud.setEstado(EstadoSolicitud.APROBADA);
         solicitud.setFechaResolucion(LocalDateTime.now());
         solicitud.setObservacionAdmin(observacion);
 
         SolicitudCambioGuardia actualizada = repository.save(solicitud);
         return convertirAResponseDto(actualizada);
+    }
+
+    /**
+     * Rechaza una solicitud pendiente. La guardia no se modifica.
+     *
+     * @param id          identificador de la solicitud
+     * @param observacion comentario del administrador (puede ser null)
+     * @return DTO de respuesta con la solicitud rechazada
+     * @throws SolicitudNotFoundException      si no se encuentra la solicitud
+     * @throws InvalidStateTransitionException si la solicitud no está PENDIENTE
+     */
+    public SolicitudResponseDto rechazarSolicitud(String id, String observacion) {
+        SolicitudCambioGuardia solicitud = buscarSolicitudOFallar(id);
+        validarEstadoPendiente(solicitud, EstadoSolicitud.RECHAZADA);
+
+        solicitud.setEstado(EstadoSolicitud.RECHAZADA);
+        solicitud.setFechaResolucion(LocalDateTime.now());
+        solicitud.setObservacionAdmin(observacion);
+
+        SolicitudCambioGuardia actualizada = repository.save(solicitud);
+        return convertirAResponseDto(actualizada);
+    }
+
+    // ======================== Métodos privados ========================
+
+    /**
+     * Valida que la solicitud esté en estado PENDIENTE.
+     * Lanza excepción si ya fue resuelta.
+     */
+    private void validarEstadoPendiente(SolicitudCambioGuardia solicitud, EstadoSolicitud estadoDeseado) {
+        if (solicitud.getEstado() != EstadoSolicitud.PENDIENTE) {
+            throw new InvalidStateTransitionException(solicitud.getEstado(), estadoDeseado);
+        }
     }
 
     /**

@@ -1,6 +1,7 @@
 
 package com.jpbravo.guardia_service.controller;
 
+import com.jpbravo.guardia_service.dto.AsignacionEmpleadoDto;
 import com.jpbravo.guardia_service.model.Guardia;
 import com.jpbravo.guardia_service.service.GuardiaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +62,24 @@ public class GuardiaContoller {
     public ResponseEntity<?> actualizarGuardia(@PathVariable Long id, @RequestBody Guardia guardia) {
             Guardia actualizada = guardiaService.actualizarGuardia(id, guardia);
             return ResponseEntity.ok(actualizada);
+    }
+
+    /**
+     * Reasigna el empleado de una guardia existente.
+     * Si {@code empleadoId} es {@code null}, la guardia queda sin asignar.
+     * Endpoint dedicado para la resolución de solicitudes de cambio de guardia.
+     *
+     * @param id   identificador de la guardia
+     * @param dto  datos de reasignación con el nuevo empleadoId (puede ser null)
+     * @return guardia actualizada
+     */
+    @PatchMapping("/{id}/reasignar")
+    public ResponseEntity<Guardia> reasignarEmpleado(
+            @PathVariable Long id,
+            @RequestBody AsignacionEmpleadoDto dto) {
+
+        Guardia actualizada = guardiaService.reasignarEmpleado(id, dto.getEmpleadoId());
+        return ResponseEntity.ok(actualizada);
     }
 
 }

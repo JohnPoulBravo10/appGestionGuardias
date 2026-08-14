@@ -1,5 +1,6 @@
 package com.jpbravo.solicitudes_service.controller;
 
+import com.jpbravo.solicitudes_service.dto.ResolucionRequestDto;
 import com.jpbravo.solicitudes_service.dto.SolicitudRequestDto;
 import com.jpbravo.solicitudes_service.dto.SolicitudResponseDto;
 import com.jpbravo.solicitudes_service.model.EstadoSolicitud;
@@ -10,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Controlador REST para la gestión de solicitudes de cambio de guardia.
@@ -93,44 +93,46 @@ public class SolicitudCambioGuardiaController {
 
     /**
      * Aprueba una solicitud pendiente.
-     * Recibe opcionalmente una observación del administrador.
+     * Recibe opcionalmente una observación del administrador y los datos
+     * del empleado de reemplazo. Al aprobar, la guardia se reasigna
+     * al empleado indicado (o queda sin asignar si no hay reemplazo).
      *
      * @param id   identificador de la solicitud
-     * @param body mapa con la clave "observacion" (opcional)
+     * @param body datos de resolución (observación, empleado de reemplazo)
      * @return solicitud aprobada
      */
     @PatchMapping("/{id}/aprobar")
     public ResponseEntity<SolicitudResponseDto> aprobarSolicitud(
             @PathVariable String id,
-            @RequestBody(required = false) Map<String, String> body) {
+            @RequestBody(required = false) ResolucionRequestDto body) {
 
-        String observacion = extraerObservacion(body);
-        SolicitudResponseDto aprobada = solicitudService.aprobarSolicitud(id, observacion);
+        SolicitudResponseDto aprobada = solicitudService.aprobarSolicitud(
+                id,
+                body != null ? body.getObservacion() : null,
+                body != null ? body.getEmpleadoReemplazoDni() : null,
+                body != null ? body.getNombreEmpleadoReemplazo() : null
+        );
         return ResponseEntity.ok(aprobada);
     }
 
     /**
      * Rechaza una solicitud pendiente.
      * Recibe opcionalmente una observación del administrador.
+     * La guardia no se modifica al rechazar.
      *
      * @param id   identificador de la solicitud
-     * @param body mapa con la clave "observacion" (opcional)
+     * @param body datos de resolución (solo observación es relevante)
      * @return solicitud rechazada
      */
     @PatchMapping("/{id}/rechazar")
     public ResponseEntity<SolicitudResponseDto> rechazarSolicitud(
             @PathVariable String id,
-            @RequestBody(required = false) Map<String, String> body) {
+            @RequestBody(required = false) ResolucionRequestDto body) {
 
-        String observacion = extraerObservacion(body);
-        SolicitudResponseDto rechazada = solicitudService.rechazarSolicitud(id, observacion);
+        SolicitudResponseDto rechazada = solicitudService.rechazarSolicitud(
+                id,
+                body != null ? body.getObservacion() : null
+        );
         return ResponseEntity.ok(rechazada);
-    }
-
-    /**
-     * Extrae la observación del mapa del body, tolerando body nulo.
-     */
-    private String extraerObservacion(Map<String, String> body) {
-        return (body != null) ? body.get("observacion") : null;
     }
 }

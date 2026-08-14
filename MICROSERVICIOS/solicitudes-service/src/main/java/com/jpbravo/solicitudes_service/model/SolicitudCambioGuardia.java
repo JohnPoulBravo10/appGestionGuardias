@@ -44,7 +44,7 @@ public class SolicitudCambioGuardia {
     private String nombreEmpleadoReemplazo;
 
     /** (Opcional) DNI del empleado propuesto como reemplazo. */
-    private String empleadoReemplazoDni;
+    private Long empleadoReemplazoDni;
 
     /** Fecha y hora en que se creó la solicitud. */
     private LocalDateTime fechaCreacion;

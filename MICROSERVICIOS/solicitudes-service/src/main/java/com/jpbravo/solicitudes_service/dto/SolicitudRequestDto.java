@@ -43,7 +43,7 @@ public class SolicitudRequestDto {
     private String nombreEmpleadoReemplazo;
 
     /** (Opcional) DNI del empleado propuesto como reemplazo. */
-    private String empleadoReemplazoDni;
+    private Long empleadoReemplazoDni;
 
     /**
      * DTO anidado con la información de la guardia.

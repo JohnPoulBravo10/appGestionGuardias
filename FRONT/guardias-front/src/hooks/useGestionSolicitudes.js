@@ -193,6 +193,26 @@ export default function useGestionSolicitudes() {
           body.observacion = datos.observacion.trim()
         }
 
+        /*
+         * Si el admin seleccionó un empleado de reemplazo,
+         * incluir su DNI (como número) y su nombre completo.
+         */
+        if (datos.empleadoPropuestoDni) {
+          body.empleadoReemplazoDni = Number(
+            datos.empleadoPropuestoDni
+          )
+
+          const emp = empleados.find(
+            (e) =>
+              String(e.dni) ===
+              String(datos.empleadoPropuestoDni)
+          )
+
+          if (emp) {
+            body.nombreEmpleadoReemplazo = `${emp.nombre} ${emp.apellido}`
+          }
+        }
+
         const response = await fetch(endpoint, {
           method: 'PATCH',
           headers: buildHeaders(true),

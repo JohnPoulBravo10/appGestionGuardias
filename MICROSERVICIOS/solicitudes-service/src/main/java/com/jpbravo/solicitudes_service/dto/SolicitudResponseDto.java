@@ -41,7 +41,7 @@ public class SolicitudResponseDto {
     private String nombreEmpleadoReemplazo;
 
     /** (Opcional) DNI del empleado propuesto como reemplazo. */
-    private String empleadoReemplazoDni;
+    private Long empleadoReemplazoDni;
 
     /** Fecha y hora de creación de la solicitud. */
     private LocalDateTime fechaCreacion;

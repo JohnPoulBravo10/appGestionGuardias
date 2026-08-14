@@ -69,6 +69,21 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Maneja errores de comunicación con el guardia-service.
+     * Devuelve un HTTP 502 Bad Gateway.
+     */
+    @ExceptionHandler(GuardiaCommunicationException.class)
+    public ResponseEntity<Map<String, Object>> handleGuardiaCommunication(GuardiaCommunicationException ex) {
+        Map<String, Object> body = buildResponseBody(
+                HttpStatus.BAD_GATEWAY,
+                ex.getMessage(),
+                null
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(body);
+    }
+
+    /**
      * Construye el cuerpo de respuesta estándar para errores.
      *
      * @param status  código HTTP del error
