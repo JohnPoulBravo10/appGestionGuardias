@@ -7,6 +7,7 @@ import FormularioCrearGuardias from './FormularioCrearGuardias'
 import CalendarioGuardias from './CalendarioGuardias'
 import EditarGuardia from './EditarGuardia'
 import PanelPrincipal from './PanelPrincipal'
+import GestionSolicitudes from './GestionSolicitudes'
 
 function ContenedorContenido({ setPagina, pagina }) {
   const [empleadoEditar, setEmpleadoEditar] = useState(null)
@@ -59,7 +60,7 @@ function ContenedorContenido({ setPagina, pagina }) {
       )}
 
       {pagina === 'SOLICITUDES' && (
-        <h3>Solicitudes</h3>
+        <GestionSolicitudes />
       )}
     </div>
   )

@@ -224,6 +224,62 @@
 }
 
 /* =========================================================
+   ACCIONES DE TABLA
+   Usado por: MisGuardias (columna "Acciones")
+   ========================================================= */
+
+.empleado-acciones {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+/* ── Botón "Solicitar Cambio" (activo) ── */
+
+.empleado-btn-solicitar-cambio {
+  padding: 14px;
+
+  background: transparent;
+  color: #aaaaaa;
+
+  border: none;
+
+  cursor: pointer;
+
+  font: inherit;
+  line-height: 1;
+
+  transition:
+    color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.empleado-btn-solicitar-cambio:hover {
+  color: #ffffff;
+}
+
+.empleado-btn-solicitar-cambio:active {
+  transform: translateY(1px);
+}
+
+/* ── Botón "Solicitud realizada" (inhabilitado) ── */
+
+.empleado-btn-solicitud-realizada {
+  padding: 14px;
+
+  background: transparent;
+  color: #777777;
+
+  border: none;
+
+  cursor: not-allowed;
+
+  font: inherit;
+  line-height: 1;
+  font-weight: 500;
+}
+
+/* =========================================================
    BADGES
    Usado por: MisGuardias
    ========================================================= */
@@ -386,6 +442,7 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
 .estado-proxima {
   color: #64b5f6;
   background: rgba(100, 181, 246, 0.12);
@@ -640,7 +697,6 @@
 .empleado-notificacion-sin-accion {
   color: #555;
 }
-
 /* =========================================================
    RESPONSIVE — PANEL EMPLEADO
    ========================================================= */

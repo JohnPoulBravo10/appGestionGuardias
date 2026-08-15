@@ -1,33 +1,76 @@
-import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
+import useSolicitarCambio from '../../hooks/useSolicitarCambio'
+
+/**
+ * Formulario para que un empleado solicite un cambio de guardia.
+ *
+ * - El dropdown de guardias muestra las guardias próximas
+ *   asignadas al empleado autenticado (estado PROXIMA, fecha ≥ hoy),
+ *   excluyendo aquellas que ya tienen una solicitud pendiente.
+ * - El dropdown de compañeros lista empleados del mismo rol,
+ *   excluyendo al propio empleado.
+ * - Al enviar, se crea una solicitud en el solicitudes-service.
+ * - Si se navega desde "Mis Guardias" con un guardiaId en el state,
+ *   esa guardia se pre-selecciona automáticamente.
+ */
 function SolicitarCambio() {
-  const [guardiaSeleccionada, setGuardiaSeleccionada] =
-    useState('')
+  const location = useLocation()
 
-  const [companeroPropuesto, setCompaneroPropuesto] =
-    useState('')
+  /*
+   * Leemos el guardiaId pasado como state de navegación
+   * desde la pantalla "Mis Guardias" (o vacío si se accede directamente).
+   */
+  const guardiaIdDesdeNavegacion =
+    location.state?.guardiaId || ''
 
-  const [motivo, setMotivo] = useState('')
+  const {
+    guardias,
+    companeros,
 
-  const handleSubmit = (event) => {
-    event.preventDefault()
+    guardiaSeleccionada,
+    setGuardiaSeleccionada,
 
-    console.log({
-      guardiaSeleccionada,
-      companeroPropuesto,
-      motivo,
-    })
-  }
+    companeroPropuesto,
+    setCompaneroPropuesto,
+
+    motivo,
+    setMotivo,
+
+    enviarSolicitud,
+    formatearOpcionGuardia,
+
+    isLoading,
+    enviando,
+    error,
+    exito,
+  } = useSolicitarCambio({
+    initialGuardiaId: guardiaIdDesdeNavegacion,
+  })
 
   return (
     <form
       className="empleado-solicitar-cambio"
-      onSubmit={handleSubmit}
+      onSubmit={enviarSolicitud}
     >
       <h2 className="empleado-titulo-formulario">
         Solicitar Cambio de Guardia
       </h2>
 
+      {/* ── Mensajes de error y éxito ── */}
+      {error && (
+        <p className="empleado-mensaje-error">
+          {error}
+        </p>
+      )}
+
+      {exito && (
+        <p className="empleado-mensaje-exito">
+          {exito}
+        </p>
+      )}
+
+      {/* ── Dropdown: Guardia a cambiar ── */}
       <label
         className="empleado-label-form"
         htmlFor="guardia-cambiar"
@@ -42,17 +85,28 @@ function SolicitarCambio() {
         onChange={(event) =>
           setGuardiaSeleccionada(event.target.value)
         }
+        disabled={isLoading || enviando}
         required
       >
         <option value="">
-          Seleccione una guardia
+          {isLoading
+            ? 'Cargando guardias…'
+            : guardias.length === 0
+              ? 'No tenés guardias próximas'
+              : 'Seleccione una guardia'}
         </option>
 
-        <option value="guardia-temporal">
-          Mañana, 28/05/2026 (08:00 - 16:00) - UTI
-        </option>
+        {guardias.map((guardia) => (
+          <option
+            key={guardia.id}
+            value={guardia.id}
+          >
+            {formatearOpcionGuardia(guardia)}
+          </option>
+        ))}
       </select>
 
+      {/* ── Dropdown: Compañero propuesto ── */}
       <label
         className="empleado-label-form"
         htmlFor="companero-propuesto"
@@ -67,10 +121,24 @@ function SolicitarCambio() {
         onChange={(event) =>
           setCompaneroPropuesto(event.target.value)
         }
+        disabled={isLoading || enviando}
       >
         <option value="">
-          Seleccione un compañero (opcional)
+          {isLoading
+            ? 'Cargando compañeros…'
+            : companeros.length === 0
+              ? 'No hay compañeros disponibles'
+              : 'Seleccione un compañero (opcional)'}
         </option>
+
+        {companeros.map((companero) => (
+          <option
+            key={companero.dni}
+            value={companero.dni}
+          >
+            {companero.nombre} {companero.apellido}
+          </option>
+        ))}
       </select>
 
       <p className="empleado-texto-ayuda">
@@ -79,6 +147,7 @@ function SolicitarCambio() {
         la asigne.
       </p>
 
+      {/* ── Textarea: Motivo del cambio ── */}
       <label
         className="empleado-label-form"
         htmlFor="motivo-cambio"
@@ -94,19 +163,24 @@ function SolicitarCambio() {
         onChange={(event) =>
           setMotivo(event.target.value)
         }
+        disabled={enviando}
         required
       />
 
+      {/* ── Botón de envío ── */}
       <div className="empleado-contenedor-boton">
         <button
           type="submit"
           className="empleado-btn-enviar"
+          disabled={isLoading || enviando}
         >
-          ✈️ Enviar Solicitud
+          {enviando
+            ? '⏳ Enviando…'
+            : '✈️ Enviar Solicitud'}
         </button>
       </div>
     </form>
   )
 }
 
-export default SolicitarCambio
+export default SolicitarCambio

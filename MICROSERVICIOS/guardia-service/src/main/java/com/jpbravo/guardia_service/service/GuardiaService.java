@@ -23,204 +23,221 @@ import java.util.Optional;
 @Service
 public class GuardiaService {
 
-        @Autowired
-        private GuardiaRepository repository;
+    @Autowired
+    private GuardiaRepository repository;
 
-        @Autowired
-        private EmpleadoClient empleadoClient;
+    @Autowired
+    private EmpleadoClient empleadoClient;
 
-        @Autowired
-        private GuardiaEventProducer guardiaEventProducer;
+    @Autowired
+    private GuardiaEventProducer guardiaEventProducer;
 
-        public List<Guardia> obtenerTodas() {
-                return repository.findAll();
-        }
-
-        public List<Guardia> obtenerGuardiasActivas() {
-                return repository.findGuardiasActivas();
-        }
-
-        public Optional<Guardia> obtenerPorId(Long id) {
-                return repository.findById(id);
-        }
-
-        public Guardia guardarGuardia(Guardia guardia) {
-
-                if (guardia.getEmpleadoId() == null) {
-                        guardia.setEstado(
-                                        EstadoGuardia.ABIERTA);
-                } else {
-                        guardia.setEstado(
-                                        EstadoGuardia.PROXIMA);
-                }
-
-                Guardia guardiaGuardada = repository.save(guardia);
-
-                if (guardiaGuardada.getEmpleadoId() != null) {
-                        GuardiaEvent evento = GuardiaEvent.builder().tipoEvento(TipoGuardiaEvent.GUARDIA_ASIGNADA)
-                                        .guardiaId(guardiaGuardada.getId())
-                                        .empleadoId(guardiaGuardada.getEmpleadoId())
-                                        .fecha(guardiaGuardada.getFecha())
-                                        .horaInicio(guardiaGuardada.getHoraInicio())
-                                        .horaFin(guardiaGuardada.getHoraFin())
-                                        .rol(guardiaGuardada.getRol())
-                                        .fechaEvento(
-                                                        LocalDateTime.now())
-                                        .build();
-
-                        guardiaEventProducer
-                                        .publicarEvento(evento);
-                }
-
-                return guardiaGuardada;
-        }
-
-        public void eliminarGuardia(Long id) {
-
-    Guardia guardia = repository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Guardia no encontrada"));
-
-    repository.deleteById(id);
-
-    if (guardia.getEmpleadoId() != null) {
-
-        GuardiaEvent evento = GuardiaEvent.builder()
-                .tipoEvento(TipoGuardiaEvent.GUARDIA_ELIMINADA)
-                .guardiaId(guardia.getId())
-                .empleadoId(guardia.getEmpleadoId())
-                .fecha(guardia.getFecha())
-                .horaInicio(guardia.getHoraInicio())
-                .horaFin(guardia.getHoraFin())
-                .rol(guardia.getRol())
-                .fechaEvento(LocalDateTime.now())
-                .build();
-
-        System.out.println("PUBLICANDO GUARDIA_ELIMINADA: " + evento);
-
-        guardiaEventProducer.publicarEvento(evento);
+    public List<Guardia> obtenerTodas() {
+        return repository.findAll();
     }
-}
-        public List<Guardia> obtenerGuardiasEmpleado(Long idEmpleado) {
-                return repository.findByEmpleadoId(idEmpleado);
+
+    public List<Guardia> obtenerGuardiasActivas() {
+        return repository.findGuardiasActivas();
+    }
+
+    public Optional<Guardia> obtenerPorId(Long id) {
+        return repository.findById(id);
+    }
+
+    public Guardia guardarGuardia(Guardia guardia) {
+
+        if (guardia.getEmpleadoId() == null) {
+            guardia.setEstado(EstadoGuardia.ABIERTA);
+        } else {
+            guardia.setEstado(EstadoGuardia.PROXIMA);
         }
 
-        public List<Guardia> obtenerGuardiasPorArea(Rol rol) {
-                return repository.findByRol(rol);
+        Guardia guardiaGuardada = repository.save(guardia);
+
+        if (guardiaGuardada.getEmpleadoId() != null) {
+
+            GuardiaEvent evento = GuardiaEvent.builder()
+                    .tipoEvento(TipoGuardiaEvent.GUARDIA_ASIGNADA)
+                    .guardiaId(guardiaGuardada.getId())
+                    .empleadoId(guardiaGuardada.getEmpleadoId())
+                    .fecha(guardiaGuardada.getFecha())
+                    .horaInicio(guardiaGuardada.getHoraInicio())
+                    .horaFin(guardiaGuardada.getHoraFin())
+                    .rol(guardiaGuardada.getRol())
+                    .fechaEvento(LocalDateTime.now())
+                    .build();
+
+            guardiaEventProducer.publicarEvento(evento);
         }
 
-        public Guardia actualizarGuardia(Long id,Guardia guardiaActualizada) {
+        return guardiaGuardada;
+    }
 
-                Guardia guardia = repository.findById(id) .orElseThrow(() -> new RuntimeException("Guardia no encontrada"));
+    public void eliminarGuardia(Long id) {
 
-                guardia.setFecha(guardiaActualizada.getFecha());
+        Guardia guardia = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Guardia no encontrada"));
 
-                guardia.setHoraInicio(guardiaActualizada.getHoraInicio());
+        repository.deleteById(id);
 
-                guardia.setHoraFin( guardiaActualizada.getHoraFin());
+        if (guardia.getEmpleadoId() != null) {
 
-                guardia.setRol(guardiaActualizada.getRol());
+            GuardiaEvent evento = GuardiaEvent.builder()
+                    .tipoEvento(TipoGuardiaEvent.GUARDIA_ELIMINADA)
+                    .guardiaId(guardia.getId())
+                    .empleadoId(guardia.getEmpleadoId())
+                    .fecha(guardia.getFecha())
+                    .horaInicio(guardia.getHoraInicio())
+                    .horaFin(guardia.getHoraFin())
+                    .rol(guardia.getRol())
+                    .fechaEvento(LocalDateTime.now())
+                    .build();
 
-                guardia.setEmpleadoId( guardiaActualizada.getEmpleadoId());
+            guardiaEventProducer.publicarEvento(evento);
+        }
+    }
 
-                if (guardiaActualizada.getEmpleadoId() == null) {
-                        guardia.setEstado(EstadoGuardia.ABIERTA);
-                } else {
-                        guardia.setEstado( EstadoGuardia.PROXIMA);
-                }
+    public List<Guardia> obtenerGuardiasEmpleado(Long idEmpleado) {
+        return repository.findByEmpleadoId(idEmpleado);
+    }
 
-                Guardia guardiaGuardada = repository.save(guardia);
+    public List<Guardia> obtenerGuardiasPorArea(Rol rol) {
+        return repository.findByRol(rol);
+    }
 
-               
-                if (guardiaGuardada.getEmpleadoId() != null) {
+    /*
+     * Método agregado para solicitudes-service.
+     * Permite cambiar solamente el empleado de una guardia.
+     */
+    public Guardia reasignarEmpleado(Long guardiaId, Long empleadoId) {
 
-                        GuardiaEvent evento = GuardiaEvent.builder()
-                                        .tipoEvento( TipoGuardiaEvent.GUARDIA_MODIFICADA)
-                                        .guardiaId(guardiaGuardada.getId())
-                                        .empleadoId( guardiaGuardada.getEmpleadoId())
-                                        .fecha(guardiaGuardada.getFecha())
-                                        .horaInicio(guardiaGuardada.getHoraInicio())
-                                        .horaFin(guardiaGuardada.getHoraFin())
-                                        .rol(guardiaGuardada.getRol())
-                                        .fechaEvento(LocalDateTime.now())
-                                        .build();
+        Guardia guardia = repository.findById(guardiaId)
+                .orElseThrow(() -> new RuntimeException(
+                        "Guardia no encontrada con id: " + guardiaId
+                ));
 
-                        guardiaEventProducer
-                                        .publicarEvento(evento);
-                }
+        guardia.setEmpleadoId(empleadoId);
 
-                return guardiaGuardada;
+        if (empleadoId == null) {
+            guardia.setEstado(EstadoGuardia.ABIERTA);
+        } else {
+            guardia.setEstado(EstadoGuardia.PROXIMA);
         }
 
-        public List<GuardiaResponseDto> obtenerTodasConEmpleado() {
+        return repository.save(guardia);
+    }
 
-                return convertirGuardiasConEmpleado(repository.findAll());
+    public Guardia actualizarGuardia(Long id, Guardia guardiaActualizada) {
+
+        Guardia guardia = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Guardia no encontrada"));
+
+        guardia.setFecha(guardiaActualizada.getFecha());
+        guardia.setHoraInicio(guardiaActualizada.getHoraInicio());
+        guardia.setHoraFin(guardiaActualizada.getHoraFin());
+        guardia.setRol(guardiaActualizada.getRol());
+        guardia.setEmpleadoId(guardiaActualizada.getEmpleadoId());
+
+        if (guardiaActualizada.getEmpleadoId() == null) {
+            guardia.setEstado(EstadoGuardia.ABIERTA);
+        } else {
+            guardia.setEstado(EstadoGuardia.PROXIMA);
         }
 
-        public List<GuardiaResponseDto> obtenerPorAreaConEmpleado(Rol rol) {
-                return convertirGuardiasConEmpleado(repository.findByRol(rol));
+        Guardia guardiaGuardada = repository.save(guardia);
+
+        if (guardiaGuardada.getEmpleadoId() != null) {
+
+            GuardiaEvent evento = GuardiaEvent.builder()
+                    .tipoEvento(TipoGuardiaEvent.GUARDIA_MODIFICADA)
+                    .guardiaId(guardiaGuardada.getId())
+                    .empleadoId(guardiaGuardada.getEmpleadoId())
+                    .fecha(guardiaGuardada.getFecha())
+                    .horaInicio(guardiaGuardada.getHoraInicio())
+                    .horaFin(guardiaGuardada.getHoraFin())
+                    .rol(guardiaGuardada.getRol())
+                    .fechaEvento(LocalDateTime.now())
+                    .build();
+
+            guardiaEventProducer.publicarEvento(evento);
         }
 
-        private List<GuardiaResponseDto> convertirGuardiasConEmpleado(List<Guardia> guardias) {
+        return guardiaGuardada;
+    }
 
-                Map<Long, String> nombresEmpleados = new HashMap<>();
+    public List<GuardiaResponseDto> obtenerTodasConEmpleado() {
+        return convertirGuardiasConEmpleado(repository.findAll());
+    }
 
-                return guardias.stream()
-                                .map(guardia -> {
+    public List<GuardiaResponseDto> obtenerPorAreaConEmpleado(Rol rol) {
+        return convertirGuardiasConEmpleado(repository.findByRol(rol));
+    }
 
-                                        String empleadoNombre = "Sin asignar";
+    private List<GuardiaResponseDto> convertirGuardiasConEmpleado(List<Guardia> guardias) {
 
-                                        Long empleadoId = guardia
-                                                        .getEmpleadoId();
+        Map<Long, String> nombresEmpleados = new HashMap<>();
 
-                                        if (empleadoId != null) {
+        return guardias.stream()
+                .map(guardia -> {
 
-                                                empleadoNombre = nombresEmpleados
-                                                                .computeIfAbsent(empleadoId,
-                                                                                dni -> obtenerNombreEmpleado(dni));
-                                        }
+                    String empleadoNombre = "Sin asignar";
+                    Long empleadoId = guardia.getEmpleadoId();
 
-                                        return GuardiaResponseDto
-                                                        .builder()
-                                                        .id(guardia.getId())
-                                                        .fecha(guardia.getFecha())
-                                                        .horaInicio(guardia.getHoraInicio())
-                                                        .horaFin(guardia.getHoraFin())
-                                                        .empleadoId(guardia.getEmpleadoId())
-                                                        .empleadoNombre(empleadoNombre)
-                                                        .rol(guardia.getRol())
-                                                        .estado(guardia.getEstado())
-                                                        .build();
-                                })
-                                .toList();
+                    if (empleadoId != null) {
+                        empleadoNombre = nombresEmpleados.computeIfAbsent(
+                                empleadoId,
+                                dni -> obtenerNombreEmpleado(dni)
+                        );
+                    }
+
+                    return GuardiaResponseDto.builder()
+                            .id(guardia.getId())
+                            .fecha(guardia.getFecha())
+                            .horaInicio(guardia.getHoraInicio())
+                            .horaFin(guardia.getHoraFin())
+                            .empleadoId(guardia.getEmpleadoId())
+                            .empleadoNombre(empleadoNombre)
+                            .rol(guardia.getRol())
+                            .estado(guardia.getEstado())
+                            .build();
+                })
+                .toList();
+    }
+
+    private String obtenerNombreEmpleado(Long dni) {
+
+        try {
+
+            EmpleadoDTO empleado = empleadoClient.obtenerEmpleadoPorDni(dni);
+
+            if (empleado == null) {
+                return "Empleado no encontrado";
+            }
+
+            String nombre = empleado.getNombre() != null
+                    ? empleado.getNombre()
+                    : "";
+
+            String apellido = empleado.getApellido() != null
+                    ? empleado.getApellido()
+                    : "";
+
+            String nombreCompleto = (nombre + " " + apellido).trim();
+
+            return nombreCompleto.isEmpty()
+                    ? "Empleado sin nombre"
+                    : nombreCompleto;
+
+        } catch (Exception error) {
+
+            System.err.println(
+                    "No se pudo obtener el empleado "
+                            + dni
+                            + ": "
+                            + error.getMessage()
+            );
+
+            return "Empleado no encontrado";
         }
-
-        private String obtenerNombreEmpleado(Long dni) {
-
-                try {
-                        EmpleadoDTO empleado = empleadoClient.obtenerEmpleadoPorDni(dni);
-
-                        if (empleado == null) {
-                                return "Empleado no encontrado";
-                        }
-
-                        String nombre = empleado.getNombre() != null ? empleado.getNombre() : "";
-
-                        String apellido = empleado.getApellido() != null
-                                        ? empleado.getApellido()
-                                        : "";
-
-                        String nombreCompleto = (nombre + " " + apellido)
-                                        .trim();
-
-                        return nombreCompleto.isEmpty()
-                                        ? "Empleado sin nombre"
-                                        : nombreCompleto;
-
-                } catch (Exception error) {
-
-                        System.err.println("No se pudo obtener el empleado " + dni + ": " + error.getMessage());
-
-                        return "Empleado no encontrado";
-                }
-        }
+    }
 }
