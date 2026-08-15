@@ -756,6 +756,166 @@ select.admin-input-estilo {
   color: #f44336;
 }
 
+.estado-proxima {
+  color: #64b5f6;
+  background: rgba(100, 181, 246, 0.12);
+  border-color: rgba(100, 181, 246, 0.35);
+}
+
+.estado-en-curso {
+  color: #66bb6a;
+  background: rgba(102, 187, 106, 0.12);
+  border-color: rgba(102, 187, 106, 0.35);
+}
+
+.estado-terminada {
+  color: #aaaaaa;
+  background: rgba(170, 170, 170, 0.1);
+  border-color: rgba(170, 170, 170, 0.3);
+}
+
+.estado-sin-asignar {
+  color: #ef5350;
+  background: rgba(239, 83, 80, 0.12);
+  border-color: rgba(239, 83, 80, 0.35);
+}
+.admin-empleado-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.admin-empleado-dni {
+  font-weight: 700;
+}
+
+.admin-empleado-nombre {
+  color: #a8a8a8;
+  font-size: 12px;
+}
+
+/* =========================================================
+   FILTROS DE GUARDIAS
+========================================================= */
+
+.admin-filtros-guardias {
+  width: 100%;
+  margin: 20px 0 10px;
+
+  display: grid;
+  grid-template-columns:
+    minmax(300px, 1fr)
+    180px
+    180px
+    165px
+    auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-input-busqueda,
+.admin-input-filtro {
+  width: 100%;
+  min-height: 46px;
+  box-sizing: border-box;
+
+  padding: 11px 14px;
+
+  border: 1px solid #383838;
+  border-radius: 8px;
+
+  background: #111111;
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 14px;
+
+  outline: none;
+}
+
+.admin-input-busqueda::placeholder {
+  color: #777777;
+}
+
+.admin-input-busqueda:focus,
+.admin-input-filtro:focus {
+  border-color: #666666;
+}
+
+.admin-input-filtro {
+  cursor: pointer;
+}
+
+.admin-btn-limpiar-filtros {
+  min-height: 46px;
+  padding: 0 16px;
+
+  border: 1px solid #424242;
+  border-radius: 8px;
+
+  background: #222222;
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.admin-btn-limpiar-filtros:hover:not(:disabled) {
+  background: #303030;
+  border-color: #666666;
+}
+
+.admin-btn-limpiar-filtros:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.admin-contador-guardias {
+  margin: 0 0 14px;
+
+  color: #8f8f8f;
+
+  font-size: 13px;
+}
+
+@media (max-width: 1250px) {
+  .admin-filtros-guardias {
+    grid-template-columns:
+      minmax(280px, 1fr)
+      170px
+      170px;
+
+    align-items: stretch;
+  }
+
+  .admin-filtro-fecha {
+    grid-column: 1 / 2;
+  }
+
+  .admin-btn-limpiar-filtros {
+    width: max-content;
+  }
+}
+
+@media (max-width: 800px) {
+  .admin-filtros-guardias {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-btn-limpiar-filtros {
+    width: 100%;
+  }
+}
+
 /* =========================================================
    RESPONSIVE — CALENDARIO
    ========================================================= */

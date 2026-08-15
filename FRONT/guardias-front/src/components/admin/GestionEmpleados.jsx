@@ -1,33 +1,77 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
+
+import ModalConfirmacion from '../common/ui/ModalConfirmacion'
+import ModalMensaje from '../common/ui/ModalMensaje'
+
+const API_BASE_URL = 'http://localhost:8090'
 
 function GestionEmpleados({
   setPagina,
   setEmpleadoEditar,
 }) {
-  const [empleados, setEmpleados] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [empleados, setEmpleados] =
+    useState([])
 
-  const [textoBusqueda, setTextoBusqueda] = useState('')
-  const [orden, setOrden] = useState('dniAsc')
-  const [filtroRol, setFiltroRol] = useState('TODOS')
+  const [loading, setLoading] =
+    useState(true)
+
+  const [textoBusqueda, setTextoBusqueda] =
+    useState('')
+
+  const [orden, setOrden] =
+    useState('dniAsc')
+
+  const [filtroRol, setFiltroRol] =
+    useState('TODOS')
+
+  const [
+    empleadoAEliminar,
+    setEmpleadoAEliminar,
+  ] = useState(null)
+
+  const [modal, setModal] = useState({
+    visible: false,
+    tipo: 'exito',
+    titulo: '',
+    mensaje: '',
+  })
 
   const fetchEmpleados = async () => {
     try {
       setLoading(true)
 
       const response = await fetch(
-        'http://localhost:8090/api/empleados'
+        `${API_BASE_URL}/api/empleados`
       )
 
       if (!response.ok) {
-        throw new Error('Error al obtener empleados')
+        throw new Error(
+          'Error al obtener empleados'
+        )
       }
 
       const data = await response.json()
-      setEmpleados(data)
+
+      setEmpleados(
+        Array.isArray(data) ? data : []
+      )
     } catch (error) {
-      console.error('Error:', error)
-      alert('No se pudo conectar con el servidor')
+      console.error(
+        'Error al obtener empleados:',
+        error
+      )
+
+      setModal({
+        visible: true,
+        tipo: 'error',
+        titulo: 'Error',
+        mensaje:
+          'No se pudieron cargar los empleados.',
+      })
     } finally {
       setLoading(false)
     }
@@ -38,72 +82,94 @@ function GestionEmpleados({
   }, [])
 
   const empleadosVisibles = useMemo(() => {
-    const textoNormalizado = textoBusqueda
-      .trim()
-      .toLowerCase()
+    const textoNormalizado =
+      textoBusqueda
+        .trim()
+        .toLowerCase()
 
-    const empleadosFiltrados = empleados.filter(
-      (empleado) => {
+    const empleadosFiltrados =
+      empleados.filter((empleado) => {
         const nombreCompleto =
-          `${empleado.nombre} ${empleado.apellido}`.toLowerCase()
+          `${empleado.nombre} ${empleado.apellido}`
+            .toLowerCase()
 
-        const dni = String(empleado.dni)
+        const dni = String(
+          empleado.dni
+        )
 
         const coincideBusqueda =
           !textoNormalizado ||
-          nombreCompleto.includes(textoNormalizado) ||
-          dni.includes(textoNormalizado)
+          nombreCompleto.includes(
+            textoNormalizado
+          ) ||
+          dni.includes(
+            textoNormalizado
+          )
 
         const coincideRol =
           filtroRol === 'TODOS' ||
           empleado.rol === filtroRol
 
-        return coincideBusqueda && coincideRol
+        return (
+          coincideBusqueda &&
+          coincideRol
+        )
+      })
+
+    return [...empleadosFiltrados].sort(
+      (a, b) => {
+        const nombreCompletoA =
+          `${a.nombre} ${a.apellido}`
+
+        const nombreCompletoB =
+          `${b.nombre} ${b.apellido}`
+
+        switch (orden) {
+          case 'dniAsc':
+            return (
+              Number(a.dni) -
+              Number(b.dni)
+            )
+
+          case 'dniDesc':
+            return (
+              Number(b.dni) -
+              Number(a.dni)
+            )
+
+          case 'nombreAsc':
+            return nombreCompletoA.localeCompare(
+              nombreCompletoB,
+              'es'
+            )
+
+          case 'nombreDesc':
+            return nombreCompletoB.localeCompare(
+              nombreCompletoA,
+              'es'
+            )
+
+          case 'rolAsc':
+            return String(
+              a.rol
+            ).localeCompare(
+              String(b.rol),
+              'es'
+            )
+
+          case 'rolDesc':
+            return String(
+              b.rol
+            ).localeCompare(
+              String(a.rol),
+              'es'
+            )
+
+          default:
+            return 0
+        }
       }
     )
-
-    return [...empleadosFiltrados].sort((a, b) => {
-      const nombreCompletoA =
-        `${a.nombre} ${a.apellido}`
-
-      const nombreCompletoB =
-        `${b.nombre} ${b.apellido}`
-
-      switch (orden) {
-        case 'dniAsc':
-          return Number(a.dni) - Number(b.dni)
-
-        case 'dniDesc':
-          return Number(b.dni) - Number(a.dni)
-
-        case 'nombreAsc':
-          return nombreCompletoA.localeCompare(
-            nombreCompletoB,
-            'es'
-          )
-
-        case 'nombreDesc':
-          return nombreCompletoB.localeCompare(
-            nombreCompletoA,
-            'es'
-          )
-
-        case 'rolAsc':
-          return String(a.rol).localeCompare(
-            String(b.rol),
-            'es'
-          )
-
-        case 'rolDesc':
-          return String(b.rol).localeCompare(
-            String(a.rol),
-            'es'
-          )
-
-        default:
-          return 0
-      }
-    })
   }, [
     empleados,
     textoBusqueda,
@@ -111,210 +177,311 @@ function GestionEmpleados({
     orden,
   ])
 
-  const editarEmpleado = (empleado) => {
+  const editarEmpleado = (
+    empleado
+  ) => {
     setEmpleadoEditar(empleado)
     setPagina('CREAR EMPLEADO')
   }
 
-  const eliminarEmpleado = async (dni) => {
-    const confirmar = window.confirm(
-      '¿Está seguro que desea eliminar este empleado?'
-    )
+  const solicitarEliminarEmpleado = (
+    empleado
+  ) => {
+    setEmpleadoAEliminar(empleado)
+  }
 
-    if (!confirmar) {
-      return
-    }
+  const cancelarEliminacion = () => {
+    setEmpleadoAEliminar(null)
+  }
 
-    try {
-      const response = await fetch(
-        `http://localhost:8090/api/empleados/${dni}`,
-        {
-          method: 'DELETE',
-        }
-      )
-
-      if (!response.ok) {
-        throw new Error('Error al eliminar empleado')
+  const confirmarEliminacion =
+    async () => {
+      if (!empleadoAEliminar) {
+        return
       }
 
-      alert('Empleado eliminado correctamente')
+      const dni =
+        empleadoAEliminar.dni
 
-      /*
-       * Lo sacamos directamente del estado para evitar
-       * hacer otra petición completa al backend.
-       */
-      setEmpleados((empleadosActuales) =>
-        empleadosActuales.filter(
-          (empleado) => empleado.dni !== dni
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/api/empleados/${dni}`,
+          {
+            method: 'DELETE',
+          }
         )
-      )
-    } catch (error) {
-      console.error('Error:', error)
-      alert('No se pudo eliminar el empleado')
+
+        if (!response.ok) {
+          throw new Error(
+            'Error al eliminar empleado'
+          )
+        }
+
+        setEmpleadoAEliminar(null)
+
+        setEmpleados(
+          (empleadosActuales) =>
+            empleadosActuales.filter(
+              (empleado) =>
+                empleado.dni !== dni
+            )
+        )
+
+        setModal({
+          visible: true,
+          tipo: 'exito',
+          titulo: 'Empleado eliminado',
+          mensaje:
+            'El empleado se eliminó con éxito.',
+        })
+      } catch (error) {
+        console.error(
+          'Error al eliminar empleado:',
+          error
+        )
+
+        setEmpleadoAEliminar(null)
+
+        setModal({
+          visible: true,
+          tipo: 'error',
+          titulo: 'Error',
+          mensaje:
+            'No se pudo eliminar el empleado.',
+        })
+      }
     }
+
+  const cerrarModalMensaje = () => {
+    setModal((modalActual) => ({
+      ...modalActual,
+      visible: false,
+    }))
   }
 
   return (
-    <div className="admin-tabla-container">
-      <div className="admin-header-tabla">
-        <h3>Gestión de Empleados</h3>
+    <>
+      <div className="admin-tabla-container">
+        <div className="admin-header-tabla">
+          <h3>
+            Gestión de Empleados
+          </h3>
 
-        <button
-          type="button"
-          className="admin-btn-nuevo"
-          onClick={() => {
-            setEmpleadoEditar(null)
-            setPagina('CREAR EMPLEADO')
-          }}
-        >
-          + Nuevo Empleado
-        </button>
-      </div>
+          <button
+            type="button"
+            className="admin-btn-nuevo"
+            onClick={() => {
+              setEmpleadoEditar(null)
+              setPagina(
+                'CREAR EMPLEADO'
+              )
+            }}
+          >
+            + Nuevo Empleado
+          </button>
+        </div>
 
-      <div className="admin-filtros-orden">
-        <input
-          type="text"
-          className="admin-input-busqueda"
-          placeholder="🔍 Buscar por nombre o DNI..."
-          value={textoBusqueda}
-          onChange={(event) =>
-            setTextoBusqueda(event.target.value)
-          }
-        />
+        <div className="admin-filtros-orden">
+          <input
+            type="text"
+            className="admin-input-busqueda"
+            placeholder="🔍 Buscar por nombre o DNI..."
+            value={textoBusqueda}
+            onChange={(event) =>
+              setTextoBusqueda(
+                event.target.value
+              )
+            }
+          />
 
-        <select
-          value={filtroRol}
-          onChange={(event) =>
-            setFiltroRol(event.target.value)
-          }
-          className="admin-input-estilo"
-          aria-label="Filtrar empleados por área"
-        >
-          <option value="TODOS">
-            Todas las áreas
-          </option>
+          <select
+            value={filtroRol}
+            onChange={(event) =>
+              setFiltroRol(
+                event.target.value
+              )
+            }
+            className="admin-input-estilo"
+            aria-label="Filtrar empleados por área"
+          >
+            <option value="TODOS">
+              Todas las áreas
+            </option>
 
-          <option value="ADMINISTRADOR">
-            Administrador
-          </option>
+            <option value="ADMINISTRADOR">
+              Administrador
+            </option>
 
-          <option value="ENFERMERIA">
-            Enfermería
-          </option>
+            <option value="ENFERMERIA">
+              Enfermería
+            </option>
 
-          <option value="LIMPIEZA">
-            Limpieza
-          </option>
+            <option value="LIMPIEZA">
+              Limpieza
+            </option>
 
-          <option value="SERVICIO_GENERAL">
-            Servicio General
-          </option>
-        </select>
+            <option value="SERVICIO_GENERAL">
+              Servicio General
+            </option>
+          </select>
 
-        <select
-          value={orden}
-          onChange={(event) =>
-            setOrden(event.target.value)
-          }
-          className="admin-input-estilo"
-          aria-label="Ordenar empleados"
-        >
-          <option value="dniAsc">
-            DNI menor a mayor
-          </option>
+          <select
+            value={orden}
+            onChange={(event) =>
+              setOrden(
+                event.target.value
+              )
+            }
+            className="admin-input-estilo"
+            aria-label="Ordenar empleados"
+          >
+            <option value="dniAsc">
+              DNI menor a mayor
+            </option>
 
-          <option value="dniDesc">
-            DNI mayor a menor
-          </option>
+            <option value="dniDesc">
+              DNI mayor a menor
+            </option>
 
-          <option value="nombreAsc">
-            Nombre A-Z
-          </option>
+            <option value="nombreAsc">
+              Nombre A-Z
+            </option>
 
-          <option value="nombreDesc">
-            Nombre Z-A
-          </option>
+            <option value="nombreDesc">
+              Nombre Z-A
+            </option>
 
-          <option value="rolAsc">
-            Área A-Z
-          </option>
+            <option value="rolAsc">
+              Área A-Z
+            </option>
 
-          <option value="rolDesc">
-            Área Z-A
-          </option>
-        </select>
-      </div>
+            <option value="rolDesc">
+              Área Z-A
+            </option>
+          </select>
+        </div>
 
-      {!loading && (
-        <p className="admin-contador-empleados">
-          Mostrando {empleadosVisibles.length} de{' '}
-          {empleados.length} empleados
-        </p>
-      )}
+        {!loading && (
+          <p className="admin-contador-empleados">
+            Mostrando{' '}
+            {empleadosVisibles.length} de{' '}
+            {empleados.length} empleados
+          </p>
+        )}
 
-      {loading ? (
-        <p>Cargando empleados...</p>
-      ) : empleadosVisibles.length === 0 ? (
-        <p>No se encontraron empleados.</p>
-      ) : (
-        <table className="admin-tabla-empleados">
-          <thead>
-            <tr>
-              <th>DNI</th>
-              <th>NOMBRE</th>
-              <th>ROL</th>
-              <th>EMAIL</th>
-              <th>TELÉFONO</th>
-              <th>DIRECCIÓN</th>
-              <th>ACCIONES</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {empleadosVisibles.map((empleado) => (
-              <tr key={empleado.dni}>
-                <td>{empleado.dni}</td>
-
-                <td>
-                  {empleado.nombre}{' '}
-                  {empleado.apellido}
-                </td>
-
-                <td>{empleado.rol}</td>
-
-                <td>{empleado.email}</td>
-
-                <td>{empleado.telefono}</td>
-
-                <td>{empleado.direccion}</td>
-
-                <td className="admin-acciones">
-                  <button
-                    type="button"
-                    className="admin-accion-editar"
-                    onClick={() =>
-                      editarEmpleado(empleado)
-                    }
-                  >
-                    ✎ Editar
-                  </button>
-
-                  <button
-                    type="button"
-                    className="admin-accion-eliminar"
-                    onClick={() =>
-                      eliminarEmpleado(empleado.dni)
-                    }
-                  >
-                    Eliminar
-                  </button>
-                </td>
+        {loading ? (
+          <p>
+            Cargando empleados...
+          </p>
+        ) : empleadosVisibles.length ===
+          0 ? (
+          <p>
+            No se encontraron empleados.
+          </p>
+        ) : (
+          <table className="admin-tabla-empleados">
+            <thead>
+              <tr>
+                <th>DNI</th>
+                <th>NOMBRE</th>
+                <th>ROL</th>
+                <th>EMAIL</th>
+                <th>TELÉFONO</th>
+                <th>DIRECCIÓN</th>
+                <th>ACCIONES</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </div>
+            </thead>
+
+            <tbody>
+              {empleadosVisibles.map(
+                (empleado) => (
+                  <tr
+                    key={empleado.dni}
+                  >
+                    <td>
+                      {empleado.dni}
+                    </td>
+
+                    <td>
+                      {empleado.nombre}{' '}
+                      {empleado.apellido}
+                    </td>
+
+                    <td>
+                      {empleado.rol}
+                    </td>
+
+                    <td>
+                      {empleado.email}
+                    </td>
+
+                    <td>
+                      {empleado.telefono}
+                    </td>
+
+                    <td>
+                      {empleado.direccion}
+                    </td>
+
+                    <td className="admin-acciones">
+                      <button
+                        type="button"
+                        className="admin-accion-editar"
+                        onClick={() =>
+                          editarEmpleado(
+                            empleado
+                          )
+                        }
+                      >
+                        ✎ Editar
+                      </button>
+
+                      <button
+                        type="button"
+                        className="admin-accion-eliminar"
+                        onClick={() =>
+                          solicitarEliminarEmpleado(
+                            empleado
+                          )
+                        }
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                )
+              )}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      <ModalConfirmacion
+        visible={
+          empleadoAEliminar !== null
+        }
+        titulo="Eliminar empleado"
+        mensaje={
+          empleadoAEliminar
+            ? `¿Desea eliminar a ${empleadoAEliminar.nombre} ${empleadoAEliminar.apellido}, DNI ${empleadoAEliminar.dni}?`
+            : ''
+        }
+        onConfirmar={
+          confirmarEliminacion
+        }
+        onCancelar={
+          cancelarEliminacion
+        }
+      />
+
+      <ModalMensaje
+        visible={modal.visible}
+        tipo={modal.tipo}
+        titulo={modal.titulo}
+        mensaje={modal.mensaje}
+        onCerrar={cerrarModalMensaje}
+      />
+    </>
   )
 }
 
