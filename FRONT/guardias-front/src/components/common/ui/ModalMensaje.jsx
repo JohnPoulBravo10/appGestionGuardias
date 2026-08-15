@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 
-import '../Common.css'
+import '../common.css'
 
 function ModalMensaje({
   visible,

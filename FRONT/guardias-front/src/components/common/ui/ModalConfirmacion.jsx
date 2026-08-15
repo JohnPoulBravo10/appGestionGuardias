@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import '../Common.css'
+import '../common.css'
 
 function ModalConfirmacion({
   visible,

@@ -15,7 +15,8 @@ import java.util.List;
 
 /**
  * Inicializador de datos de prueba para el servicio de guardias.
- * Crea 3 guardias realistas basadas en la fecha actual:
+ * Crea 4 guardias realistas basadas en la fecha actual:
+ * - 1 guardia para hoy (turno de 12 horas).
  * - 2 guardias para mañana (turnos de 8 horas, roles distintos).
  * - 1 guardia para pasado mañana (turno de 12 horas, rol distinto).
  * Todas sin empleado asignado y en estado ABIERTA.

@@ -56,6 +56,31 @@ public class GuardiaService {
         return repository.findByEmpleadoId(idEmpleado);
     }
 
+    /**
+     * Reasigna el empleado de una guardia existente.
+     * Si {@code empleadoId} es {@code null}, la guardia queda sin asignar
+     * y su estado cambia a {@link EstadoGuardia#ABIERTA}.
+     *
+     * @param guardiaId  identificador de la guardia a reasignar
+     * @param empleadoId nuevo empleado a asignar, o {@code null} para liberar la guardia
+     * @return guardia actualizada
+     * @throws RuntimeException si la guardia no existe
+     */
+    public Guardia reasignarEmpleado(Long guardiaId, Long empleadoId) {
+        Guardia guardia = repository.findById(guardiaId)
+                .orElseThrow(() -> new RuntimeException("Guardia no encontrada con id: " + guardiaId));
+
+        guardia.setEmpleadoId(empleadoId);
+
+        if (empleadoId == null) {
+            guardia.setEstado(EstadoGuardia.ABIERTA);
+        } else {
+            guardia.setEstado(EstadoGuardia.PROXIMA);
+        }
+
+        return repository.save(guardia);
+    }
+
     public List<Guardia> obtenerGuardiasPorArea(
             Rol rol
     ) {
