@@ -18,13 +18,13 @@ services:
     networks:
       - guardias-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword" ]
       interval: 10s
       timeout: 10s
       retries: 15
       start_period: 60s
 
-   # ==================== MONGO DB (SOLICITUDES) ====================
+  # ==================== MONGO DB (SOLICITUDES) ====================
   mongo-solicitudes:
     image: mongo:6.0
     container_name: mongo-solicitudes
@@ -42,27 +42,27 @@ services:
       retries: 15
       start_period: 60s
 
-  # ==================== MONGODB NOTIFICACIONES ====================
-  mongo-db:
-    image: mongo:7
-    container_name: mongo-db
+  # ==================== MONGO DB (NOTIFICACIONES) ====================
+  mongo-notificaciones:
+    image: mongo:6.0
+    container_name: mongo-notificaciones
     restart: unless-stopped
     environment:
       TZ: America/Argentina/Buenos_Aires
     ports:
       - "27018:27017"
     volumes:
-      - mongo-data:/data/db
+      - mongo-notificaciones-data:/data/db
     networks:
       - guardias-network
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
       interval: 10s
       timeout: 10s
       retries: 15
       start_period: 60s
 
-        # ==================== KAFKA ====================
+  # ==================== KAFKA ====================
   kafka:
     image: apache/kafka:3.9.1
     container_name: kafka
@@ -98,7 +98,7 @@ services:
     networks:
       - guardias-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
       interval: 15s
       timeout: 10s
       retries: 40
@@ -122,7 +122,7 @@ services:
     networks:
       - guardias-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8761/actuator/health" ]
       interval: 15s
       timeout: 10s
       retries: 40
@@ -207,10 +207,6 @@ services:
     networks:
       - guardias-network
 
-  
-
-  
-
   # ==================== NOTIFICATION SERVICE ====================
   notification-service:
     build:
@@ -225,7 +221,7 @@ services:
       SPRING_PROFILES_ACTIVE: docker,native
       SERVER_PORT: 8084
       CONFIG_SERVER_URL: http://config-server:8888
-      SPRING_DATA_MONGODB_URI: mongodb://mongo-db:27017/notification_service
+      SPRING_DATA_MONGODB_URI: mongodb://mongo-notificaciones:27017/notification_service
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SPRING_KAFKA_CONSUMER_GROUP_ID: notification-service-group
@@ -239,7 +235,7 @@ services:
         condition: service_healthy
       discovery-server:
         condition: service_healthy
-      mongo-db:
+      mongo-notificaciones:
         condition: service_healthy
       kafka:
         condition: service_started
@@ -269,7 +265,6 @@ services:
     networks:
       - guardias-network
 
-
   # ==================== API GATEWAY ====================
   api-gateway:
     build:
@@ -288,7 +283,6 @@ services:
         condition: service_healthy
     networks:
       - guardias-network
-   
 
   # ==================== FRONTEND (SPA UNIFICADA) ====================
   frontend:
@@ -326,8 +320,8 @@ services:
 
 volumes:
   mysql-data:
-  mongo-data:
   mongo-solicitudes-data:
+  mongo-notificaciones-data:
 
 networks:
   guardias-network:
