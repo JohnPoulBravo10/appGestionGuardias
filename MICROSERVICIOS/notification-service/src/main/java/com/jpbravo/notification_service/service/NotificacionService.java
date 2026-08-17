@@ -17,17 +17,16 @@ public class NotificacionService {
         this.repository = repository;
     }
 
-    public Notificacion crear(  Notificacion notificacion ) {
+    public Notificacion crear(Notificacion notificacion) {
+
         notificacion.setId(null);
         notificacion.setLeida(false);
-        notificacion.setFechaCreacion(
-                LocalDateTime.now()
-        );
+        notificacion.setFechaCreacion(LocalDateTime.now());
 
         return repository.save(notificacion);
     }
 
-    public List<Notificacion> obtenerPorEmpleado(Long empleadoDni ) {
+    public List<Notificacion> obtenerPorEmpleado(Long empleadoDni) {
         return repository.findByEmpleadoDniOrderByFechaCreacionDesc(empleadoDni);
     }
 
@@ -35,28 +34,28 @@ public class NotificacionService {
         return repository.findByEmpleadoDniAndLeidaFalseOrderByFechaCreacionDesc(empleadoDni);
     }
 
+    public List<Notificacion> obtenerPorRol(String rolDestinatario) {
+        return repository.findByRolDestinatarioOrderByFechaCreacionDesc(rolDestinatario);
+    }
+
+    public List<Notificacion> obtenerNoLeidasPorRol(String rolDestinatario) {
+        return repository.findByRolDestinatarioAndLeidaFalseOrderByFechaCreacionDesc(rolDestinatario);
+    }
+
     public Notificacion marcarComoLeida(String id) {
-        Notificacion notificacion =
-                repository.findById(id)
-                        .orElseThrow(
-                                () ->
-                                        new RuntimeException(
-                                                "Notificación no encontrada"
-                                        )
-                        );
+
+        Notificacion notificacion = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Notificación no encontrada"));
 
         notificacion.setLeida(true);
 
-        return repository.save(
-                notificacion
-        );
+        return repository.save(notificacion);
     }
 
     public void eliminar(String id) {
+
         if (!repository.existsById(id)) {
-            throw new RuntimeException(
-                    "Notificación no encontrada"
-            );
+            throw new RuntimeException("Notificación no encontrada");
         }
 
         repository.deleteById(id);

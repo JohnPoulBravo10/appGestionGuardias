@@ -32,4 +32,6 @@ public class Notificacion {
     private boolean leida;
 
     private LocalDateTime fechaCreacion;
+
+    private String rolDestinatario;
 }

@@ -13,15 +13,15 @@ import java.util.List;
 @RequestMapping("/api/notificaciones")
 public class NotificacionController {
 
-
     private final NotificacionService service;
 
-    public NotificacionController(NotificacionService service ) {
+    public NotificacionController(NotificacionService service) {
         this.service = service;
     }
 
     @PostMapping
     public ResponseEntity<Notificacion> crear(@RequestBody Notificacion notificacion) {
+
         Notificacion creada = service.crear(notificacion);
 
         return ResponseEntity
@@ -39,13 +39,24 @@ public class NotificacionController {
         return ResponseEntity.ok(service.obtenerNoLeidasPorEmpleado(empleadoDni));
     }
 
+    @GetMapping("/rol/{rol}")
+    public ResponseEntity<List<Notificacion>> obtenerPorRol(@PathVariable String rol) {
+        return ResponseEntity.ok(service.obtenerPorRol(rol));
+    }
+
+    @GetMapping("/rol/{rol}/no-leidas")
+    public ResponseEntity<List<Notificacion>> obtenerNoLeidasPorRol(@PathVariable String rol) {
+        return ResponseEntity.ok(service.obtenerNoLeidasPorRol(rol));
+    }
+
     @PatchMapping("/{id}/leida")
-    public ResponseEntity<Notificacion>  marcarComoLeida(@PathVariable String id ) {
+    public ResponseEntity<Notificacion> marcarComoLeida(@PathVariable String id) {
         return ResponseEntity.ok(service.marcarComoLeida(id));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable String id) {
+
         service.eliminar(id);
 
         return ResponseEntity

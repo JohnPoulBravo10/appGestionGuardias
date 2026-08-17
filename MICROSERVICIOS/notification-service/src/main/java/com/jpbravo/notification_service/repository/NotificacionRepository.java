@@ -10,8 +10,11 @@ import java.util.List;
 @Repository
 public interface NotificacionRepository extends MongoRepository<Notificacion, String> {
 
-    List<Notificacion> findByEmpleadoDniOrderByFechaCreacionDesc(Long empleadoDni );
+    List<Notificacion> findByEmpleadoDniOrderByFechaCreacionDesc(Long empleadoDni);
 
-    List<Notificacion>findByEmpleadoDniAndLeidaFalseOrderByFechaCreacionDesc(Long empleadoDni);
-    
+    List<Notificacion> findByEmpleadoDniAndLeidaFalseOrderByFechaCreacionDesc(Long empleadoDni);
+
+    List<Notificacion> findByRolDestinatarioOrderByFechaCreacionDesc(String rolDestinatario);
+
+    List<Notificacion> findByRolDestinatarioAndLeidaFalseOrderByFechaCreacionDesc(String rolDestinatario);
 }

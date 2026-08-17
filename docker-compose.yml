@@ -18,13 +18,13 @@ services:
     networks:
       - guardias-network
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword" ]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
       interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
+      timeout: 10s
+      retries: 15
+      start_period: 60s
 
-  # ==================== MONGO DB (SOLICITUDES) ====================
+   # ==================== MONGO DB (SOLICITUDES) ====================
   mongo-solicitudes:
     image: mongo:6.0
     container_name: mongo-solicitudes
@@ -38,9 +38,50 @@ services:
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
       interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
+      timeout: 10s
+      retries: 15
+      start_period: 60s
+
+  # ==================== MONGODB NOTIFICACIONES ====================
+  mongo-db:
+    image: mongo:7
+    container_name: mongo-db
+    restart: unless-stopped
+    environment:
+      TZ: America/Argentina/Buenos_Aires
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - guardias-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 10s
+      retries: 15
+      start_period: 60s
+
+        # ==================== KAFKA ====================
+  kafka:
+    image: apache/kafka:3.9.1
+    container_name: kafka
+    restart: unless-stopped
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+    networks:
+      - guardias-network
 
   # ==================== CONFIG SERVER ====================
   config-server:
@@ -57,11 +98,11 @@ services:
     networks:
       - guardias-network
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
+      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 40
+      start_period: 300s
 
   # ==================== DISCOVERY SERVER (EUREKA) ====================
   discovery-server:
@@ -81,11 +122,11 @@ services:
     networks:
       - guardias-network
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8761/actuator/health" ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 40
+      start_period: 500s
 
   # ==================== EMPLEADO SERVICE ====================
   empleado-service:
@@ -166,46 +207,9 @@ services:
     networks:
       - guardias-network
 
-  # ==================== MONGODB NOTIFICACIONES ====================
-  mongo-db:
-    image: mongo:7
-    container_name: mongo-db
-    restart: unless-stopped
-    environment:
-      TZ: America/Argentina/Buenos_Aires
-    ports:
-      - "27018:27017"
-    volumes:
-      - mongo-data:/data/db
-    networks:
-      - guardias-network
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 20s
+  
 
-  # ==================== KAFKA ====================
-  kafka:
-    image: apache/kafka:3.9.1
-    container_name: kafka
-    restart: unless-stopped
-    ports:
-      - "9092:9092"
-    environment:
-      KAFKA_NODE_ID: 1
-      KAFKA_PROCESS_ROLES: broker,controller
-      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-    networks:
-      - guardias-network
+  
 
   # ==================== NOTIFICATION SERVICE ====================
   notification-service:
@@ -245,12 +249,12 @@ services:
   # ==================== SOLICITUDES SERVICE ====================
   solicitudes-service:
     build:
-     context: ./MICROSERVICIOS/solicitudes-service
-     dockerfile: Dockerfile
+      context: ./MICROSERVICIOS/solicitudes-service
+      dockerfile: Dockerfile
     container_name: solicitudes-service
     restart: unless-stopped
     ports:
-    - "8085:8085"
+      - "8085:8085"
     environment:
       TZ: America/Argentina/Buenos_Aires
       SPRING_PROFILES_ACTIVE: docker,native
@@ -263,7 +267,7 @@ services:
       mongo-solicitudes:
         condition: service_healthy
     networks:
-     - guardias-network
+      - guardias-network
 
 
   # ==================== API GATEWAY ====================
