@@ -3,13 +3,18 @@ package com.jpbravo.guardia_service.service;
 import com.jpbravo.guardia_service.DTO.EmpleadoDTO;
 import com.jpbravo.guardia_service.DTO.GuardiaResponseDto;
 import com.jpbravo.guardia_service.client.EmpleadoClient;
+import com.jpbravo.guardia_service.event.GuardiaEvent;
+import com.jpbravo.guardia_service.event.TipoGuardiaEvent;
 import com.jpbravo.guardia_service.model.EstadoGuardia;
 import com.jpbravo.guardia_service.model.Guardia;
 import com.jpbravo.guardia_service.model.Rol;
+import com.jpbravo.guardia_service.producer.GuardiaEventProducer;
 import com.jpbravo.guardia_service.repository.GuardiaRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +29,9 @@ public class GuardiaService {
     @Autowired
     private EmpleadoClient empleadoClient;
 
+    @Autowired
+    private GuardiaEventProducer guardiaEventProducer;
+
     public List<Guardia> obtenerTodas() {
         return repository.findAll();
     }
@@ -37,38 +45,76 @@ public class GuardiaService {
     }
 
     public Guardia guardarGuardia(Guardia guardia) {
+
         if (guardia.getEmpleadoId() == null) {
             guardia.setEstado(EstadoGuardia.ABIERTA);
         } else {
             guardia.setEstado(EstadoGuardia.PROXIMA);
         }
 
-        return repository.save(guardia);
+        Guardia guardiaGuardada = repository.save(guardia);
+
+        if (guardiaGuardada.getEmpleadoId() != null) {
+
+            GuardiaEvent evento = GuardiaEvent.builder()
+                    .tipoEvento(TipoGuardiaEvent.GUARDIA_ASIGNADA)
+                    .guardiaId(guardiaGuardada.getId())
+                    .empleadoId(guardiaGuardada.getEmpleadoId())
+                    .fecha(guardiaGuardada.getFecha())
+                    .horaInicio(guardiaGuardada.getHoraInicio())
+                    .horaFin(guardiaGuardada.getHoraFin())
+                    .rol(guardiaGuardada.getRol())
+                    .fechaEvento(LocalDateTime.now())
+                    .build();
+
+            guardiaEventProducer.publicarEvento(evento);
+        }
+
+        return guardiaGuardada;
     }
 
     public void eliminarGuardia(Long id) {
+
+        Guardia guardia = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Guardia no encontrada"));
+
         repository.deleteById(id);
+
+        if (guardia.getEmpleadoId() != null) {
+
+            GuardiaEvent evento = GuardiaEvent.builder()
+                    .tipoEvento(TipoGuardiaEvent.GUARDIA_ELIMINADA)
+                    .guardiaId(guardia.getId())
+                    .empleadoId(guardia.getEmpleadoId())
+                    .fecha(guardia.getFecha())
+                    .horaInicio(guardia.getHoraInicio())
+                    .horaFin(guardia.getHoraFin())
+                    .rol(guardia.getRol())
+                    .fechaEvento(LocalDateTime.now())
+                    .build();
+
+            guardiaEventProducer.publicarEvento(evento);
+        }
     }
 
-    public List<Guardia> obtenerGuardiasEmpleado(
-            Long idEmpleado
-    ) {
+    public List<Guardia> obtenerGuardiasEmpleado(Long idEmpleado) {
         return repository.findByEmpleadoId(idEmpleado);
     }
 
-    /**
-     * Reasigna el empleado de una guardia existente.
-     * Si {@code empleadoId} es {@code null}, la guardia queda sin asignar
-     * y su estado cambia a {@link EstadoGuardia#ABIERTA}.
-     *
-     * @param guardiaId  identificador de la guardia a reasignar
-     * @param empleadoId nuevo empleado a asignar, o {@code null} para liberar la guardia
-     * @return guardia actualizada
-     * @throws RuntimeException si la guardia no existe
+    public List<Guardia> obtenerGuardiasPorArea(Rol rol) {
+        return repository.findByRol(rol);
+    }
+
+    /*
+     * Método agregado para solicitudes-service.
+     * Permite cambiar solamente el empleado de una guardia.
      */
     public Guardia reasignarEmpleado(Long guardiaId, Long empleadoId) {
+
         Guardia guardia = repository.findById(guardiaId)
-                .orElseThrow(() -> new RuntimeException("Guardia no encontrada con id: " + guardiaId));
+                .orElseThrow(() -> new RuntimeException(
+                        "Guardia no encontrada con id: " + guardiaId
+                ));
 
         guardia.setEmpleadoId(empleadoId);
 
@@ -81,176 +127,109 @@ public class GuardiaService {
         return repository.save(guardia);
     }
 
-    public List<Guardia> obtenerGuardiasPorArea(
-            Rol rol
-    ) {
-        return repository.findByRol(rol);
-    }
+    public Guardia actualizarGuardia(Long id, Guardia guardiaActualizada) {
 
-    public Guardia actualizarGuardia(
-            Long id,
-            Guardia guardiaActualizada
-    ) {
-        Guardia guardia = repository
-                .findById(id)
-                .orElseThrow(
-                    () -> new RuntimeException(
-                        "Guardia no encontrada"
-                    )
-                );
+        Guardia guardia = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Guardia no encontrada"));
 
-        guardia.setFecha(
-                guardiaActualizada.getFecha()
-        );
+        guardia.setFecha(guardiaActualizada.getFecha());
+        guardia.setHoraInicio(guardiaActualizada.getHoraInicio());
+        guardia.setHoraFin(guardiaActualizada.getHoraFin());
+        guardia.setRol(guardiaActualizada.getRol());
+        guardia.setEmpleadoId(guardiaActualizada.getEmpleadoId());
 
-        guardia.setHoraInicio(
-                guardiaActualizada.getHoraInicio()
-        );
-
-        guardia.setHoraFin(
-                guardiaActualizada.getHoraFin()
-        );
-
-        guardia.setRol(
-                guardiaActualizada.getRol()
-        );
-
-        guardia.setEmpleadoId(
-                guardiaActualizada.getEmpleadoId()
-        );
-
-        if (
-            guardiaActualizada.getEmpleadoId()
-                    == null
-        ) {
-            guardia.setEstado(
-                    EstadoGuardia.ABIERTA
-            );
+        if (guardiaActualizada.getEmpleadoId() == null) {
+            guardia.setEstado(EstadoGuardia.ABIERTA);
         } else {
-            guardia.setEstado(
-                    EstadoGuardia.PROXIMA
-            );
+            guardia.setEstado(EstadoGuardia.PROXIMA);
         }
 
-        return repository.save(guardia);
+        Guardia guardiaGuardada = repository.save(guardia);
+
+        if (guardiaGuardada.getEmpleadoId() != null) {
+
+            GuardiaEvent evento = GuardiaEvent.builder()
+                    .tipoEvento(TipoGuardiaEvent.GUARDIA_MODIFICADA)
+                    .guardiaId(guardiaGuardada.getId())
+                    .empleadoId(guardiaGuardada.getEmpleadoId())
+                    .fecha(guardiaGuardada.getFecha())
+                    .horaInicio(guardiaGuardada.getHoraInicio())
+                    .horaFin(guardiaGuardada.getHoraFin())
+                    .rol(guardiaGuardada.getRol())
+                    .fechaEvento(LocalDateTime.now())
+                    .build();
+
+            guardiaEventProducer.publicarEvento(evento);
+        }
+
+        return guardiaGuardada;
     }
 
-    
-    public List<GuardiaResponseDto>
-            obtenerTodasConEmpleado() {
-
-        return convertirGuardiasConEmpleado(
-                repository.findAll()
-        );
+    public List<GuardiaResponseDto> obtenerTodasConEmpleado() {
+        return convertirGuardiasConEmpleado(repository.findAll());
     }
 
-    /**
-     * Devuelve las guardias de un área incluyendo
-     * el nombre del empleado asignado.
-     */
-    public List<GuardiaResponseDto>
-            obtenerPorAreaConEmpleado(
-                    Rol rol
-            ) {
-
-        return convertirGuardiasConEmpleado(
-                repository.findByRol(rol)
-        );
+    public List<GuardiaResponseDto> obtenerPorAreaConEmpleado(Rol rol) {
+        return convertirGuardiasConEmpleado(repository.findByRol(rol));
     }
 
-    private List<GuardiaResponseDto>
-            convertirGuardiasConEmpleado(
-                    List<Guardia> guardias
-            ) {
+    private List<GuardiaResponseDto> convertirGuardiasConEmpleado(List<Guardia> guardias) {
 
-        /*
-         * Este mapa evita consultar varias veces
-         * al mismo empleado.
-         *
-         * Ejemplo:
-         * si Juan tiene cinco guardias, Feign consulta
-         * una sola vez sus datos.
-         */
-        Map<Long, String> nombresEmpleados =
-                new HashMap<>();
+        Map<Long, String> nombresEmpleados = new HashMap<>();
 
         return guardias.stream()
                 .map(guardia -> {
-                    String empleadoNombre =
-                            "Sin asignar";
 
-                    Long empleadoId =
-                            guardia.getEmpleadoId();
+                    String empleadoNombre = "Sin asignar";
+                    Long empleadoId = guardia.getEmpleadoId();
 
                     if (empleadoId != null) {
-                        empleadoNombre =
-                                nombresEmpleados.computeIfAbsent(
-                                        empleadoId,
-                                        dni -> obtenerNombreEmpleado(
-                                                dni
-                                        )
-                                );
+                        empleadoNombre = nombresEmpleados.computeIfAbsent(
+                                empleadoId,
+                                dni -> obtenerNombreEmpleado(dni)
+                        );
                     }
 
-                    return GuardiaResponseDto
-                            .builder()
+                    return GuardiaResponseDto.builder()
                             .id(guardia.getId())
                             .fecha(guardia.getFecha())
-                            .horaInicio(
-                                    guardia.getHoraInicio()
-                            )
-                            .horaFin(
-                                    guardia.getHoraFin()
-                            )
-                            .empleadoId(
-                                    guardia.getEmpleadoId()
-                            )
-                            .empleadoNombre(
-                                    empleadoNombre
-                            )
+                            .horaInicio(guardia.getHoraInicio())
+                            .horaFin(guardia.getHoraFin())
+                            .empleadoId(guardia.getEmpleadoId())
+                            .empleadoNombre(empleadoNombre)
                             .rol(guardia.getRol())
-                            .estado(
-                                    guardia.getEstado()
-                            )
+                            .estado(guardia.getEstado())
                             .build();
                 })
                 .toList();
     }
 
-    
-    private String obtenerNombreEmpleado(
-            Long dni
-    ) {
+    private String obtenerNombreEmpleado(Long dni) {
+
         try {
-            EmpleadoDTO empleado =
-                    empleadoClient
-                            .obtenerEmpleadoPorDni(
-                                    dni
-                            );
+
+            EmpleadoDTO empleado = empleadoClient.obtenerEmpleadoPorDni(dni);
 
             if (empleado == null) {
                 return "Empleado no encontrado";
             }
 
-            String nombre =
-                    empleado.getNombre() != null
-                            ? empleado.getNombre()
-                            : "";
+            String nombre = empleado.getNombre() != null
+                    ? empleado.getNombre()
+                    : "";
 
-            String apellido =
-                    empleado.getApellido() != null
-                            ? empleado.getApellido()
-                            : "";
+            String apellido = empleado.getApellido() != null
+                    ? empleado.getApellido()
+                    : "";
 
-            String nombreCompleto =
-                    (nombre + " " + apellido)
-                            .trim();
+            String nombreCompleto = (nombre + " " + apellido).trim();
 
             return nombreCompleto.isEmpty()
                     ? "Empleado sin nombre"
                     : nombreCompleto;
 
         } catch (Exception error) {
+
             System.err.println(
                     "No se pudo obtener el empleado "
                             + dni

@@ -7,10 +7,6 @@ import {
 
 const API_BASE_URL = 'http://localhost:8090'
 
-/**
- * Mapeo de roles internos a etiquetas legibles para el usuario.
- * Centraliza las traducciones y evita lógica dispersa.
- */
 const ETIQUETA_ROL = {
   ENFERMERIA: 'Enfermería',
   LIMPIEZA: 'Limpieza',
@@ -18,39 +14,32 @@ const ETIQUETA_ROL = {
   ADMINISTRADOR: 'Administración',
 }
 
-/**
- * Panel principal del empleado (sección "Inicio").
- *
- * Muestra:
- * - Tarjeta "Próxima Guardia": la guardia más cercana asignada al empleado.
- * - Tarjeta "Horas este mes": horas trabajadas en el mes actual (estado COMPLETADA).
- * - Tarjeta "Solicitudes Activas": valor fijo (servicio pendiente de implementar).
- * - Sección de notificaciones recientes (placeholder hasta implementar el servicio).
- */
 function PanelEmpleado() {
+
   const [guardias, setGuardias] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  const [notificaciones, setNotificaciones] = useState([])
+  const [loadingNotificaciones, setLoadingNotificaciones] = useState(true)
+  const [errorNotificaciones, setErrorNotificaciones] = useState(null)
+
   useEffect(() => {
     cargarGuardiasEmpleado()
+    cargarNotificacionesEmpleado()
   }, [])
 
-  /**
-   * Obtiene todas las guardias asignadas al empleado autenticado.
-   * A partir de ellas se derivan la próxima guardia y las horas del mes.
-   */
   const cargarGuardiasEmpleado = async () => {
+
     try {
+
       setLoading(true)
       setError(null)
 
       const empleadoId = getEmpleadoIdFromToken()
 
       if (!empleadoId) {
-        throw new Error(
-          'No se pudo identificar al empleado autenticado.'
-        )
+        throw new Error('No se pudo identificar al empleado autenticado.')
       }
 
       const token = getToken()
@@ -71,32 +60,123 @@ function PanelEmpleado() {
       )
 
       if (!response.ok) {
-        throw new Error(
-          `Error al obtener guardias (${response.status})`
-        )
+        throw new Error(`Error al obtener guardias (${response.status})`)
       }
 
       const data = await response.json()
 
       setGuardias(Array.isArray(data) ? data : [])
+
     } catch (err) {
-      console.error(
-        'Error al cargar guardias del empleado:',
-        err
-      )
+
+      console.error('Error al cargar guardias del empleado:', err)
       setError(err.message)
+
     } finally {
+
       setLoading(false)
     }
   }
 
-  /**
-   * Calcula la próxima guardia futura del empleado.
-   * Filtra guardias cuya fecha sea igual o posterior a hoy y ordena por fecha + hora.
-   * Devuelve null si no hay guardias futuras.
-   */
+  const cargarNotificacionesEmpleado = async () => {
+
+    try {
+
+      setLoadingNotificaciones(true)
+      setErrorNotificaciones(null)
+
+      const empleadoId = getEmpleadoIdFromToken()
+
+      if (!empleadoId) {
+        throw new Error('No se pudo identificar al empleado autenticado.')
+      }
+
+      const token = getToken()
+
+      if (!token) {
+        throw new Error('No hay una sesión iniciada.')
+      }
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/notificaciones/empleado/${empleadoId}`,
+        {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error(
+          `Error al obtener notificaciones (${response.status})`
+        )
+      }
+
+      const data = await response.json()
+
+      setNotificaciones(Array.isArray(data) ? data : [])
+
+    } catch (err) {
+
+      console.error('Error al cargar notificaciones:', err)
+      setErrorNotificaciones(err.message)
+
+    } finally {
+
+      setLoadingNotificaciones(false)
+    }
+  }
+
+  const marcarComoLeida = async (id) => {
+
+    try {
+
+      const token = getToken()
+
+      if (!token) {
+        throw new Error('No hay una sesión iniciada.')
+      }
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/notificaciones/${id}/leida`,
+        {
+          method: 'PATCH',
+          headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error(
+          `No se pudo marcar la notificación como leída (${response.status})`
+        )
+      }
+
+      const notificacionActualizada = await response.json()
+
+      setNotificaciones((notificacionesActuales) =>
+        notificacionesActuales.map((notificacion) =>
+          notificacion.id === id
+            ? notificacionActualizada
+            : notificacion
+        )
+      )
+
+    } catch (err) {
+
+      console.error('Error al marcar notificación como leída:', err)
+      setErrorNotificaciones('No se pudo marcar la notificación como leída.')
+    }
+  }
+
   const calcularProximaGuardia = () => {
+
     const ahora = new Date()
+
     const hoy = new Date(
       ahora.getFullYear(),
       ahora.getMonth(),
@@ -105,15 +185,24 @@ function PanelEmpleado() {
 
     const futuras = guardias
       .filter((g) => {
-        if (!g.fecha) return false
+
+        if (!g.fecha) {
+          return false
+        }
 
         const fechaGuardia = new Date(g.fecha + 'T00:00:00')
 
         return fechaGuardia >= hoy
       })
       .sort((a, b) => {
-        const fechaA = new Date(a.fecha + 'T' + (a.horaInicio || '00:00'))
-        const fechaB = new Date(b.fecha + 'T' + (b.horaInicio || '00:00'))
+
+        const fechaA = new Date(
+          a.fecha + 'T' + (a.horaInicio || '00:00')
+        )
+
+        const fechaB = new Date(
+          b.fecha + 'T' + (b.horaInicio || '00:00')
+        )
 
         return fechaA - fechaB
       })
@@ -121,17 +210,15 @@ function PanelEmpleado() {
     return futuras.length > 0 ? futuras[0] : null
   }
 
-  /**
-   * Calcula las horas trabajadas en el mes actual.
-   * Solo cuenta guardias con estado COMPLETADA cuya fecha esté en el mes corriente.
-   */
   const calcularHorasMesActual = () => {
+
     const ahora = new Date()
     const mesActual = ahora.getMonth()
     const anioActual = ahora.getFullYear()
 
     return guardias
       .filter((g) => {
+
         if (!g.fecha || g.estado !== 'COMPLETADA') {
           return false
         }
@@ -144,7 +231,10 @@ function PanelEmpleado() {
         )
       })
       .reduce((total, g) => {
-        if (!g.horaInicio || !g.horaFin) return total
+
+        if (!g.horaInicio || !g.horaFin) {
+          return total
+        }
 
         const [hIni, mIni] = g.horaInicio.split(':').map(Number)
         const [hFin, mFin] = g.horaFin.split(':').map(Number)
@@ -152,38 +242,37 @@ function PanelEmpleado() {
         const minutosInicio = hIni * 60 + mIni
         const minutosFin = hFin * 60 + mFin
 
-        /* Si la hora de fin es menor, asumimos que la guardia cruza la medianoche */
         const diferencia =
           minutosFin >= minutosInicio
             ? minutosFin - minutosInicio
             : 1440 - minutosInicio + minutosFin
 
         return total + diferencia / 60
+
       }, 0)
   }
 
-  /**
-   * Formatea el nombre del rol para mostrarlo de forma legible.
-   * Si no existe en el mapeo, devuelve el valor original capitalizado.
-   */
-  const formatearRol = (rol) => ETIQUETA_ROL[rol] ?? rol
+  const formatearRol = (rol) => {
+    return ETIQUETA_ROL[rol] ?? rol
+  }
 
-  /**
-   * Formatea "HH:MM:SS" o "HH:MM" a "HH:MM" para mostrar en las tarjetas.
-   */
   const formatearHora = (hora) => {
-    if (!hora) return '--:--'
+
+    if (!hora) {
+      return '--:--'
+    }
+
     return hora.substring(0, 5)
   }
 
-  /**
-   * Devuelve una etiqueta relativa para la fecha de la próxima guardia
-   * (e.g. "HOY", "MAÑANA", o la fecha formateada).
-   */
   const formatearFechaRelativa = (fechaStr) => {
-    if (!fechaStr) return ''
+
+    if (!fechaStr) {
+      return ''
+    }
 
     const ahora = new Date()
+
     const hoy = new Date(
       ahora.getFullYear(),
       ahora.getMonth(),
@@ -193,10 +282,17 @@ function PanelEmpleado() {
     const fecha = new Date(fechaStr + 'T00:00:00')
 
     const diffMs = fecha - hoy
-    const diffDias = Math.round(diffMs / (1000 * 60 * 60 * 24))
+    const diffDias = Math.round(
+      diffMs / (1000 * 60 * 60 * 24)
+    )
 
-    if (diffDias === 0) return 'HOY'
-    if (diffDias === 1) return 'MAÑANA'
+    if (diffDias === 0) {
+      return 'HOY'
+    }
+
+    if (diffDias === 1) {
+      return 'MAÑANA'
+    }
 
     return fecha.toLocaleDateString('es-AR', {
       day: '2-digit',
@@ -204,43 +300,84 @@ function PanelEmpleado() {
     })
   }
 
-  /** Solicitudes activas — hardcodeado hasta implementar el servicio */
+  const formatearFechaNotificacion = (fecha) => {
+
+    if (!fecha) {
+      return ''
+    }
+
+    return new Date(fecha).toLocaleString('es-AR', {
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  }
+
   const SOLICITUDES_ACTIVAS = 0
 
-  const proximaGuardia = loading ? null : calcularProximaGuardia()
-  const horasMes = loading ? 0 : calcularHorasMesActual()
+  const proximaGuardia = loading
+    ? null
+    : calcularProximaGuardia()
+
+  const horasMes = loading
+    ? 0
+    : calcularHorasMesActual()
+
+  const cantidadNoLeidas = notificaciones.filter(
+    (notificacion) => !notificacion.leida
+  ).length
 
   return (
     <div className="empleado-panel-principal">
-      <h2 className="empleado-panel-titulo">Mi Resumen</h2>
 
-      {/* ── Tarjetas de resumen ── */}
+      <h2 className="empleado-panel-titulo">
+        Mi Resumen
+      </h2>
+
       <div className="empleado-panel-tarjetas">
-        {/* Próxima Guardia */}
+
         <div className="empleado-panel-tarjeta">
-          <span className="empleado-tarjeta-label">Próxima guardia</span>
+
+          <span className="empleado-tarjeta-label">
+            Próxima guardia
+          </span>
+
           <div className="empleado-tarjeta-contenido">
+
             {loading ? (
+
               <span className="empleado-tarjeta-cargando">
                 Cargando…
               </span>
+
             ) : proximaGuardia ? (
+
               <div className="empleado-proxima-guardia-info">
+
                 <span className="empleado-proxima-guardia-horario">
                   {formatearFechaRelativa(proximaGuardia.fecha)},{' '}
                   {formatearHora(proximaGuardia.horaInicio)} h
                 </span>
+
                 <span className="empleado-proxima-guardia-area">
                   {formatearRol(proximaGuardia.rol)}
                 </span>
+
               </div>
+
             ) : (
+
               <span className="empleado-tarjeta-sin-datos">
                 Sin guardias asignadas
               </span>
+
             )}
-            <span className="empleado-tarjeta-icono" aria-hidden="true">
-              {/* Icono de reloj */}
+
+            <span
+              className="empleado-tarjeta-icono"
+              aria-hidden="true"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="22"
@@ -256,18 +393,28 @@ function PanelEmpleado() {
                 <polyline points="12 6 12 12 16 14" />
               </svg>
             </span>
+
           </div>
         </div>
 
-        {/* Horas este mes */}
         <div className="empleado-panel-tarjeta">
-          <span className="empleado-tarjeta-label">Horas este mes</span>
+
+          <span className="empleado-tarjeta-label">
+            Horas este mes
+          </span>
+
           <div className="empleado-tarjeta-contenido">
+
             <span className="empleado-tarjeta-valor">
-              {loading ? '…' : `${Math.round(horasMes)} h`}
+              {loading
+                ? '…'
+                : `${Math.round(horasMes)} h`}
             </span>
-            <span className="empleado-tarjeta-icono" aria-hidden="true">
-              {/* Icono de calendario */}
+
+            <span
+              className="empleado-tarjeta-icono"
+              aria-hidden="true"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="22"
@@ -279,24 +426,39 @@ function PanelEmpleado() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <rect
+                  x="3"
+                  y="4"
+                  width="18"
+                  height="18"
+                  rx="2"
+                  ry="2"
+                />
                 <line x1="16" y1="2" x2="16" y2="6" />
                 <line x1="8" y1="2" x2="8" y2="6" />
                 <line x1="3" y1="10" x2="21" y2="10" />
               </svg>
             </span>
+
           </div>
         </div>
 
-        {/* Solicitudes Activas */}
         <div className="empleado-panel-tarjeta">
-          <span className="empleado-tarjeta-label">Solicitudes activas</span>
+
+          <span className="empleado-tarjeta-label">
+            Solicitudes activas
+          </span>
+
           <div className="empleado-tarjeta-contenido">
+
             <span className="empleado-tarjeta-valor">
               {SOLICITUDES_ACTIVAS}
             </span>
-            <span className="empleado-tarjeta-icono" aria-hidden="true">
-              {/* Icono de documento/solicitud */}
+
+            <span
+              className="empleado-tarjeta-icono"
+              aria-hidden="true"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="22"
@@ -308,32 +470,161 @@ function PanelEmpleado() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <rect
+                  x="3"
+                  y="3"
+                  width="18"
+                  height="18"
+                  rx="2"
+                  ry="2"
+                />
                 <line x1="8" y1="8" x2="16" y2="8" />
                 <line x1="8" y1="12" x2="16" y2="12" />
                 <line x1="8" y1="16" x2="12" y2="16" />
               </svg>
             </span>
+
           </div>
         </div>
+
       </div>
 
-      {/* ── Notificaciones recientes ── */}
       <div className="empleado-panel-tabla-container">
-        <h3 className="empleado-panel-tabla-titulo">
-          Mis notificaciones recientes
-        </h3>
 
-        {error && (
-          <p className="empleado-panel-error">
-            No se pudieron cargar los datos del panel.
+        <div className="empleado-notificaciones-header">
+
+          <div>
+
+            <h3 className="empleado-panel-tabla-titulo">
+              Mis notificaciones recientes
+            </h3>
+
+            <p className="empleado-notificaciones-subtitulo">
+              Novedades sobre tus guardias y solicitudes
+            </p>
+
+          </div>
+
+          {!loadingNotificaciones && (
+            <span className="empleado-notificaciones-contador">
+              {cantidadNoLeidas}{' '}
+              {cantidadNoLeidas === 1
+                ? 'nueva'
+                : 'nuevas'}
+            </span>
+          )}
+
+        </div>
+
+        {loadingNotificaciones ? (
+
+          <p className="empleado-panel-vacio">
+            Cargando notificaciones...
           </p>
+
+        ) : errorNotificaciones ? (
+
+          <p className="empleado-panel-error">
+            {errorNotificaciones}
+          </p>
+
+        ) : notificaciones.length === 0 ? (
+
+          <p className="empleado-panel-vacio">
+            No hay notificaciones por el momento.
+          </p>
+
+        ) : (
+
+          <div className="empleado-notificaciones-lista">
+
+            {notificaciones.map((notificacion) => (
+
+              <div
+                key={notificacion.id}
+                className={`empleado-notificacion-item ${
+                  !notificacion.leida
+                    ? 'empleado-notificacion-item-nueva'
+                    : ''
+                }`}
+              >
+
+                <div className="empleado-notificacion-principal">
+
+                  {!notificacion.leida && (
+                    <span className="empleado-notificacion-punto" />
+                  )}
+
+                  <div className="empleado-notificacion-texto">
+
+                    <strong className="empleado-notificacion-titulo">
+                      {notificacion.titulo}
+                    </strong>
+
+                    <span className="empleado-notificacion-mensaje">
+                      {notificacion.mensaje}
+                    </span>
+
+                  </div>
+
+                </div>
+
+                <div className="empleado-notificacion-fecha">
+                  {formatearFechaNotificacion(
+                    notificacion.fechaCreacion
+                  )}
+                </div>
+
+                <div>
+
+                  <span
+                    className={
+                      notificacion.leida
+                        ? 'empleado-notificacion-estado empleado-notificacion-estado-leida'
+                        : 'empleado-notificacion-estado empleado-notificacion-estado-nueva'
+                    }
+                  >
+                    {notificacion.leida
+                      ? 'Leída'
+                      : 'Nueva'}
+                  </span>
+
+                </div>
+
+                <div className="empleado-notificacion-accion">
+
+                  {!notificacion.leida ? (
+
+                    <button
+                      type="button"
+                      className="empleado-btn-marcar-leida"
+                      onClick={() =>
+                        marcarComoLeida(notificacion.id)
+                      }
+                    >
+                      Marcar leída
+                    </button>
+
+                  ) : (
+
+                    <span className="empleado-notificacion-sin-accion">
+                      —
+                    </span>
+
+                  )}
+
+                </div>
+
+              </div>
+
+            ))}
+
+          </div>
+
         )}
 
-        <p className="empleado-panel-vacio">
-          No hay notificaciones por el momento.
-        </p>
       </div>
+
     </div>
   )
 }
