@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
 
-  # ==================== BASE DE DATOS ====================
+  # ==================== BASE DE DATOS MySQL ====================
   mysql-db:
     image: mysql:8.0
     container_name: mysql-db
@@ -94,7 +92,7 @@ services:
       - "8888:8888"
     environment:
       TZ: America/Argentina/Buenos_Aires
-      SPRING_PROFILES_ACTIVE: docker, native
+      SPRING_PROFILES_ACTIVE: native
     networks:
       - guardias-network
     healthcheck:
@@ -115,7 +113,10 @@ services:
       - "8761:8761"
     environment:
       TZ: America/Argentina/Buenos_Aires
-      SPRING_PROFILES_ACTIVE: docker, native
+      SPRING_PROFILES_ACTIVE: native
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
+      EUREKA_INSTANCE_HOSTNAME: discovery-server
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
     depends_on:
       config-server:
         condition: service_healthy
@@ -139,12 +140,15 @@ services:
       - "8080:8080"
     environment:
       TZ: America/Argentina/Buenos_Aires
-      SPRING_PROFILES_ACTIVE: docker, native
+      SPRING_PROFILES_ACTIVE: native
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/empleado_service?createDatabaseIfNotExist=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: rootpassword
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
     depends_on:
+      config-server:
+        condition: service_healthy
       discovery-server:
         condition: service_healthy
       mysql-db:
@@ -163,7 +167,8 @@ services:
       - "8081:8081"
     environment:
       TZ: America/Argentina/Buenos_Aires
-      SPRING_PROFILES_ACTIVE: docker, native
+      SPRING_PROFILES_ACTIVE: native
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
       SERVER_PORT: 8081
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/guardia_service?createDatabaseIfNotExist=true
       SPRING_DATASOURCE_USERNAME: root
@@ -173,6 +178,8 @@ services:
       SPRING_KAFKA_PRODUCER_KEY_SERIALIZER: org.apache.kafka.common.serialization.StringSerializer
       SPRING_KAFKA_PRODUCER_VALUE_SERIALIZER: org.springframework.kafka.support.serializer.JsonSerializer
     depends_on:
+      config-server:
+        condition: service_healthy
       discovery-server:
         condition: service_healthy
       mysql-db:
@@ -193,13 +200,16 @@ services:
       - "8083:8083"
     environment:
       TZ: America/Argentina/Buenos_Aires
-      SPRING_PROFILES_ACTIVE: docker, native
+      SPRING_PROFILES_ACTIVE: native
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
       SERVER_PORT: 8083
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/autenticacion_service?createDatabaseIfNotExist=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: rootpassword
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
     depends_on:
+      config-server:
+        condition: service_healthy
       discovery-server:
         condition: service_healthy
       mysql-db:
@@ -218,9 +228,9 @@ services:
       - "8084:8084"
     environment:
       TZ: America/Argentina/Buenos_Aires
-      SPRING_PROFILES_ACTIVE: docker,native
+      SPRING_PROFILES_ACTIVE: native
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
       SERVER_PORT: 8084
-      CONFIG_SERVER_URL: http://config-server:8888
       SPRING_DATA_MONGODB_URI: mongodb://mongo-notificaciones:27017/notification_service
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
@@ -253,11 +263,17 @@ services:
       - "8085:8085"
     environment:
       TZ: America/Argentina/Buenos_Aires
-      SPRING_PROFILES_ACTIVE: docker,native
+      SPRING_PROFILES_ACTIVE: native
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
       SERVER_PORT: 8085
       SPRING_DATA_MONGODB_URI: mongodb://mongo-solicitudes:27017/solicitudes_service
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_KAFKA_PRODUCER_KEY_SERIALIZER: org.apache.kafka.common.serialization.StringSerializer
+      SPRING_KAFKA_PRODUCER_VALUE_SERIALIZER: org.springframework.kafka.support.serializer.JsonSerializer
     depends_on:
+      config-server:
+        condition: service_healthy
       discovery-server:
         condition: service_healthy
       mongo-solicitudes:
@@ -276,9 +292,12 @@ services:
       - "8090:8090"
     environment:
       TZ: America/Argentina/Buenos_Aires
-      SPRING_PROFILES_ACTIVE: docker, native
+      SPRING_PROFILES_ACTIVE: native
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
     depends_on:
+      config-server:
+        condition: service_healthy
       discovery-server:
         condition: service_healthy
     networks:
