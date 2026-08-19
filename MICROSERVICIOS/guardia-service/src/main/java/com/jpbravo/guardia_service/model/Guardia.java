@@ -1,4 +1,3 @@
-
 package com.jpbravo.guardia_service.model;
 
 import jakarta.persistence.*;

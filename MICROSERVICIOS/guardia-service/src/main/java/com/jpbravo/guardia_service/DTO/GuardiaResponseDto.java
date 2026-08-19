@@ -1,4 +1,4 @@
-package com.jpbravo.guardia_service.DTO;
+package com.jpbravo.guardia_service.dto;
 
 import com.jpbravo.guardia_service.model.EstadoGuardia;
 import com.jpbravo.guardia_service.model.Rol;
@@ -17,7 +17,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 public class GuardiaResponseDto {
     
-     private Long id;
+    private Long id;
     private LocalDate fecha;
     private LocalTime horaInicio;
     private LocalTime horaFin;
