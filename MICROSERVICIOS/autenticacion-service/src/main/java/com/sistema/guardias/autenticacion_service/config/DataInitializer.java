@@ -18,7 +18,7 @@ public class DataInitializer {
                 if (repository.findByUsuario("admin").isEmpty()) {
                     RegistroRequestDto adminDto = new RegistroRequestDto();
                     adminDto.setUsuario("admin");
-                    adminDto.setPassword("admin123");
+                    adminDto.setPassword("admin");
                     adminDto.setRolUsuario(Rol.ADMINISTRADOR);
                     adminDto.setRolEmpleado("ADMINISTRADOR");
                     adminDto.setDni(10000001L);
@@ -32,21 +32,55 @@ public class DataInitializer {
                     System.out.println("✓ Usuario de prueba creado: admin (rol: ADMINISTRADOR)");
                 }
 
-                if (repository.findByUsuario("empleado").isEmpty()) {
-                    RegistroRequestDto empDto = new RegistroRequestDto();
-                    empDto.setUsuario("empleado");
-                    empDto.setPassword("emp123");
-                    empDto.setRolUsuario(Rol.EMPLEADO);
-                    empDto.setRolEmpleado("ENFERMERIA");
-                    empDto.setDni(20000001L);
-                    empDto.setNombre("Ana");
-                    empDto.setApellido("Martínez");
-                    empDto.setEmail("ana@hospital.com");
-                    empDto.setTelefono(3425000002L);
-                    empDto.setDireccion("Calle Salud 200");
+                if (repository.findByUsuario("enfermeria").isEmpty()) {
+                    RegistroRequestDto enfermeriaDto = new RegistroRequestDto();
+                    enfermeriaDto.setUsuario("enfermeria");
+                    enfermeriaDto.setPassword("enfermeria");
+                    enfermeriaDto.setRolUsuario(Rol.EMPLEADO);
+                    enfermeriaDto.setRolEmpleado("ENFERMERIA");
+                    enfermeriaDto.setDni(20000001L);
+                    enfermeriaDto.setNombre("Ana");
+                    enfermeriaDto.setApellido("Martínez");
+                    enfermeriaDto.setEmail("ana@hospital.com");
+                    enfermeriaDto.setTelefono(3425000002L);
+                    enfermeriaDto.setDireccion("Calle Salud 200");
 
-                    authService.registrar(empDto);
-                    System.out.println("✓ Usuario de prueba creado: empleado (rol: EMPLEADO)");
+                    authService.registrar(enfermeriaDto);
+                    System.out.println("✓ Usuario de prueba creado: enfermeria (rol: ENFERMERIA)");
+                }
+
+                if (repository.findByUsuario("mantenimiento").isEmpty()) {
+                    RegistroRequestDto mantenimientoDto = new RegistroRequestDto();
+                    mantenimientoDto.setUsuario("mantenimiento");
+                    mantenimientoDto.setPassword("mantenimiento");
+                    mantenimientoDto.setRolUsuario(Rol.EMPLEADO);
+                    mantenimientoDto.setRolEmpleado("MANTENIMIENTO");
+                    mantenimientoDto.setDni(30000001L);
+                    mantenimientoDto.setNombre("Luis");
+                    mantenimientoDto.setApellido("Pérez");
+                    mantenimientoDto.setEmail("luis@hospital.com");
+                    mantenimientoDto.setTelefono(3425000003L);
+                    mantenimientoDto.setDireccion("Calle Herramienta 300");
+
+                    authService.registrar(mantenimientoDto);
+                    System.out.println("✓ Usuario de prueba creado: mantenimiento (rol: MANTENIMIENTO)");
+                }
+
+                if (repository.findByUsuario("limpieza").isEmpty()) {
+                    RegistroRequestDto limpiezaDto = new RegistroRequestDto();
+                    limpiezaDto.setUsuario("limpieza");
+                    limpiezaDto.setPassword("limpieza");
+                    limpiezaDto.setRolUsuario(Rol.EMPLEADO);
+                    limpiezaDto.setRolEmpleado("LIMPIEZA");
+                    limpiezaDto.setDni(40000001L);
+                    limpiezaDto.setNombre("María");
+                    limpiezaDto.setApellido("Gómez");
+                    limpiezaDto.setEmail("maria@hospital.com");
+                    limpiezaDto.setTelefono(3425000004L);
+                    limpiezaDto.setDireccion("Calle Escoba 400");
+
+                    authService.registrar(limpiezaDto);
+                    System.out.println("✓ Usuario de prueba creado: limpieza (rol: LIMPIEZA)");
                 }
             } catch (Exception e) {
                 System.err.println("Error al inicializar datos: " + e.getMessage());

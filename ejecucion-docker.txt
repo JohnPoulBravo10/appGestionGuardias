@@ -102,6 +102,26 @@ dependencias configuradas en docker-compose.yml:
 NOTA: El arranque completo puede tardar varios minutos debido a los healthchecks.
 
 ================================================================================
+                          CREDENCIALES PARA LOGIN
+================================================================================
+
+ADMINISTRADOR
+usuario: admin
+contraseña: admin
+
+ENFERMERIA
+usuario: enfermeria
+contraseña: enfermeria
+
+LIMPIEZA
+usuario: limpieza
+contraseña: limpieza
+
+MANTENIMIENTO
+usuario: mantenimiento
+contraseña: mantenimiento
+
+================================================================================
 
 
 para programar 

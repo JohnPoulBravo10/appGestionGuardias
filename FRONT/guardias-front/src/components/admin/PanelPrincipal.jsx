@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
+import { getToken } from '../../utils/authUtils'
 
 /**
  * Mapeo de roles internos a etiquetas legibles para el usuario.
- * Centraliza las traducciones y evita lógica dispersa.
  */
 const ETIQUETA_ROL = {
   ENFERMERIA: 'Enfermería',
@@ -17,7 +17,7 @@ const ETIQUETA_ROL = {
  * Muestra:
  * - Tarjeta "Guardias Activas": recuento de guardias sucediendo ahora.
  * - Tarjeta "Personal de turno": empleados asignados a esas guardias activas.
- * - Tarjeta "Solicitudes Pendientes": valor fijo (servicio pendiente de implementar).
+ * - Tarjeta "Solicitudes Pendientes": recuento real obtenido del solicitudes-service.
  * - Tabla con el detalle de las guardias activas.
  */
 function PanelPrincipal() {
@@ -25,8 +25,17 @@ function PanelPrincipal() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  /** Cantidad real de solicitudes pendientes obtenida del servicio */
+  const [solicitudesPendientes, setSolicitudesPendientes] = useState(0)
+  const [loadingSolicitudes, setLoadingSolicitudes] = useState(true)
+
+  /** Lista de empleados para resolver nombres en la tabla de guardias */
+  const [empleados, setEmpleados] = useState([])
+
   useEffect(() => {
     obtenerGuardiasActivas()
+    obtenerSolicitudesPendientes()
+    obtenerEmpleados()
   }, [])
 
   const obtenerGuardiasActivas = async () => {
@@ -47,6 +56,61 @@ function PanelPrincipal() {
     }
   }
 
+  /**
+   * Consulta al solicitudes-service la lista de solicitudes con estado
+   * PENDIENTE y almacena el recuento en el estado local.
+   */
+  const obtenerSolicitudesPendientes = async () => {
+    try {
+      const token = getToken()
+      const headers = token ? { Authorization: `Bearer ${token}` } : {}
+
+      const response = await fetch(
+        'http://localhost:8090/api/solicitudes/estado/PENDIENTE',
+        { headers }
+      )
+
+      if (!response.ok) {
+        throw new Error(
+          `Error al obtener solicitudes pendientes (${response.status})`
+        )
+      }
+
+      const data = await response.json()
+      setSolicitudesPendientes(Array.isArray(data) ? data.length : 0)
+    } catch (err) {
+      console.error('Error al cargar solicitudes pendientes:', err)
+      // En caso de fallo, se deja el contador en 0 para no bloquear el panel.
+    } finally {
+      setLoadingSolicitudes(false)
+    }
+  }
+
+  /**
+   * Carga la lista completa de empleados para resolver
+   * el nombre asociado a cada empleadoId de las guardias.
+   */
+  const obtenerEmpleados = async () => {
+    try {
+      const token = getToken()
+      const headers = token ? { Authorization: `Bearer ${token}` } : {}
+
+      const response = await fetch(
+        'http://localhost:8090/api/empleados',
+        { headers }
+      )
+
+      if (!response.ok) {
+        throw new Error(`Error al obtener empleados (${response.status})`)
+      }
+
+      const data = await response.json()
+      setEmpleados(Array.isArray(data) ? data : [])
+    } catch (err) {
+      console.error('Error al cargar empleados:', err)
+    }
+  }
+
   /** Cantidad de guardias activas en este momento */
   const cantidadGuardiasActivas = guardiasActivas.length
 
@@ -55,8 +119,20 @@ function PanelPrincipal() {
     (g) => g.empleadoId !== null && g.empleadoId !== undefined
   ).length
 
-  /** Solicitudes pendientes — hardcodeado hasta implementar el servicio */
-  const SOLICITUDES_PENDIENTES = 4
+  /**
+   * Mapa de empleadoId (dni) → nombre completo para resolución O(1).
+   * Se recalcula cuando cambia la lista de empleados.
+   */
+  const mapaEmpleados = new Map(
+    empleados.map((e) => [e.dni, `${e.nombre} ${e.apellido}`])
+  )
+
+  /**
+   * Resuelve el nombre del empleado a partir de su ID (dni).
+   * Si no se encuentra en el mapa, muestra un fallback con el ID.
+   */
+  const resolverNombreEmpleado = (empleadoId) =>
+    mapaEmpleados.get(empleadoId) ?? `Empleado #${empleadoId}`
 
   /**
    * Formatea el nombre del rol para mostrarlo de forma legible.
@@ -107,7 +183,7 @@ function PanelPrincipal() {
           <span className="admin-tarjeta-label">Solicitudes pendientes</span>
           <div className="admin-tarjeta-contenido">
             <span className="admin-tarjeta-valor">
-              {SOLICITUDES_PENDIENTES}
+              {loadingSolicitudes ? '…' : solicitudesPendientes}
             </span>
             <span className="admin-tarjeta-icono" aria-hidden="true">
               {/* Icono de flechas intercambio */}
@@ -196,7 +272,7 @@ function PanelPrincipal() {
                   <td>{formatearRol(g.rol)}</td>
                   <td>
                     {g.empleadoId != null
-                      ? `Empleado #${g.empleadoId}`
+                      ? resolverNombreEmpleado(g.empleadoId)
                       : 'Sin asignar'}
                   </td>
                   <td>
