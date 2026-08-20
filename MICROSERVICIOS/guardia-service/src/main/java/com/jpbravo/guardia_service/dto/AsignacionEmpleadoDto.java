@@ -1,4 +1,4 @@
-package com.jpbravo.guardia_service.DTO;
+package com.jpbravo.guardia_service.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

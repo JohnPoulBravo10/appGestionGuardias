@@ -1,7 +1,7 @@
 package com.jpbravo.guardia_service.service;
 
-import com.jpbravo.guardia_service.DTO.EmpleadoDTO;
-import com.jpbravo.guardia_service.DTO.GuardiaResponseDto;
+import com.jpbravo.guardia_service.dto.EmpleadoDto;
+import com.jpbravo.guardia_service.dto.GuardiaResponseDto;
 import com.jpbravo.guardia_service.client.EmpleadoClient;
 import com.jpbravo.guardia_service.event.GuardiaEvent;
 import com.jpbravo.guardia_service.event.TipoGuardiaEvent;
@@ -208,7 +208,7 @@ public class GuardiaService {
 
         try {
 
-            EmpleadoDTO empleado = empleadoClient.obtenerEmpleadoPorDni(dni);
+            EmpleadoDto empleado = empleadoClient.obtenerEmpleadoPorDni(dni);
 
             if (empleado == null) {
                 return "Empleado no encontrado";

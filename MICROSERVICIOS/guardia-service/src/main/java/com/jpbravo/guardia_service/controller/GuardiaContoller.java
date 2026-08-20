@@ -1,7 +1,7 @@
 package com.jpbravo.guardia_service.controller;
 
-import com.jpbravo.guardia_service.DTO.AsignacionEmpleadoDto;
-import com.jpbravo.guardia_service.DTO.GuardiaResponseDto;
+import com.jpbravo.guardia_service.dto.AsignacionEmpleadoDto;
+import com.jpbravo.guardia_service.dto.GuardiaResponseDto;
 import com.jpbravo.guardia_service.model.Guardia;
 import com.jpbravo.guardia_service.model.Rol;
 import com.jpbravo.guardia_service.service.GuardiaService;

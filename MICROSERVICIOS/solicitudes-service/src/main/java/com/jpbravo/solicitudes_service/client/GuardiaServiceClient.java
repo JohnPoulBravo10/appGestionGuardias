@@ -9,6 +9,8 @@ import org.springframework.web.client.RestClient;
 import java.util.HashMap;
 import java.util.Map;
 
+// Cambiar a FeignClient en algun momento
+
 /**
  * Cliente HTTP para la comunicación con el guardia-service.
  * Utiliza {@link RestClient} con balanceo de carga (Eureka)

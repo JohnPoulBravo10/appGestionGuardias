@@ -75,6 +75,8 @@ OTROS COMANDOS ÚTILES
   MySQL                             localhost:3307
   MongoDB (Solicitudes)             localhost:27017
   MongoDB (Notificaciones)          localhost:27018
+  Kafka                             localhost:9092
+
 
 
 ================================================================================
@@ -85,18 +87,39 @@ Los servicios se levantan automáticamente en el siguiente orden gracias a las
 dependencias configuradas en docker-compose.yml:
 
   1. Bases de Datos (mysql-db, mongo-solicitudes, mongo-notificaciones)
-  2. Config Server (config-server)
-  3. Discovery Server / Eureka (discovery-server)   — espera a Config Server
-  4. Empleado Service (empleado-service)            — espera a Eureka y MySQL
-  5. Guardia Service (guardia-service)              — espera a Eureka y MySQL
-  6. Autenticación Service (autenticacion-service)  — espera a Eureka y MySQL
-  7. Notification Service (notification-service)    — espera a Eureka y Mongo
-  8. Solicitudes Service (solicitudes-service)      — espera a Eureka y Mongo
-  9. API Gateway (api-gateway)                      — espera a Eureka
-  10. Frontend (frontend)                           — espera a API Gateway
-  11. PhpMyAdmin (phpmyadmin)                       — espera a MySQL
+  2. Kafka (kafka) 
+  3. Config Server (config-server)
+  4. Discovery Server / Eureka (discovery-server)   — espera a Config Server
+  5. Empleado Service (empleado-service)            — espera a Config Server, Eureka y MySQL
+  6. Guardia Service (guardia-service)              — espera a Config Server, Eureka y MySQL
+  7. Autenticación Service (autenticacion-service)  — espera a Config Server, Eureka y MySQL
+  8. Notification Service (notification-service)    — espera a Config Server, Eureka y Mongo
+  9. Solicitudes Service (solicitudes-service)      — espera a Config Server, Eureka y Mongo
+  10. API Gateway (api-gateway)                     — espera a Config Server y Eureka
+  11. Frontend (frontend)                           — espera a API Gateway
+  12. PhpMyAdmin (phpmyadmin)                       — espera a MySQL
 
 NOTA: El arranque completo puede tardar varios minutos debido a los healthchecks.
+
+================================================================================
+                          CREDENCIALES PARA LOGIN
+================================================================================
+
+ADMINISTRADOR
+usuario: admin
+contraseña: admin
+
+ENFERMERIA
+usuario: enfermeria
+contraseña: enfermeria
+
+LIMPIEZA
+usuario: limpieza
+contraseña: limpieza
+
+MANTENIMIENTO
+usuario: mantenimiento
+contraseña: mantenimiento
 
 ================================================================================
 

@@ -25,10 +25,9 @@ public class JwtProvider {
     }
 
     public String generateToken(Authentication authentication) {
-    UserDetailsImpl usuarioPrincipal =
-            (UserDetailsImpl) authentication.getPrincipal();
-
-    return Jwts.builder()
+        UserDetailsImpl usuarioPrincipal = (UserDetailsImpl) authentication.getPrincipal();
+        
+        return Jwts.builder()
             .setSubject(usuarioPrincipal.getUsername())
             .claim("id", usuarioPrincipal.getId())
             .claim("empleadoDni", usuarioPrincipal.getEmpleadoDni())
@@ -37,7 +36,7 @@ public class JwtProvider {
             .setExpiration(new Date(System.currentTimeMillis() + expiration))
             .signWith(getSigningKey(), SignatureAlgorithm.HS256)
             .compact();
-}
+    }
 
     public String getUserNameFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody().getSubject();
