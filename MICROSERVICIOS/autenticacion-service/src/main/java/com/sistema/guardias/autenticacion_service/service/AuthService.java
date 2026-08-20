@@ -5,6 +5,7 @@ import com.sistema.guardias.autenticacion_service.dto.LoginRequestDto;
 import com.sistema.guardias.autenticacion_service.dto.NuevoEmpleadoDto;
 import com.sistema.guardias.autenticacion_service.dto.RegistroRequestDto;
 import com.sistema.guardias.autenticacion_service.dto.TokenDto;
+import com.sistema.guardias.autenticacion_service.exception.CampoDuplicadoException;
 import com.sistema.guardias.autenticacion_service.model.Usuario;
 import com.sistema.guardias.autenticacion_service.repository.UsuarioRepository;
 import com.sistema.guardias.autenticacion_service.security.JwtProvider;
@@ -37,7 +38,7 @@ public class AuthService {
     @Transactional
     public Usuario registrar(RegistroRequestDto dto) {
         if (usuarioRepository.findByUsuario(dto.getUsuario()).isPresent()) {
-            throw new RuntimeException("El usuario ya existe");
+            throw new CampoDuplicadoException("usuario", "El usuario ya existe");
         }
 
         // 1. Guardar el usuario (credenciales seguras)

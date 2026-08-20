@@ -320,8 +320,8 @@ function GestionEmpleados({
               Limpieza
             </option>
 
-            <option value="SERVICIO_GENERAL">
-              Servicio General
+            <option value="MANTENIMIENTO">
+              Mantenimiento
             </option>
           </select>
 
