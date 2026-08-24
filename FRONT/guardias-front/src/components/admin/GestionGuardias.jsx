@@ -101,49 +101,65 @@ function GestionGuardias({
         .trim()
         .toLowerCase()
 
-    return guardias.filter((guardia) => {
-      const nombreEmpleado = String(
-        guardia.empleadoNombre ?? ''
-      ).toLowerCase()
+    return guardias
+      .filter((guardia) => {
+        const nombreEmpleado = String(
+          guardia.empleadoNombre ?? ''
+        ).toLowerCase()
 
-      const dniEmpleado = String(
-        guardia.empleadoId ?? ''
-      )
-
-      const estadoCalculado =
-        calcularEstadoGuardia(
-          guardia,
-          ahora
+        const dniEmpleado = String(
+          guardia.empleadoId ?? ''
         )
 
-      const coincideBusqueda =
-        !textoNormalizado ||
-        nombreEmpleado.includes(
-          textoNormalizado
-        ) ||
-        dniEmpleado.includes(
-          textoNormalizado
+        const estadoCalculado =
+          calcularEstadoGuardia(
+            guardia,
+            ahora
+          )
+
+        const coincideBusqueda =
+          !textoNormalizado ||
+          nombreEmpleado.includes(
+            textoNormalizado
+          ) ||
+          dniEmpleado.includes(
+            textoNormalizado
+          )
+
+        const coincideArea =
+          filtroArea === 'TODAS' ||
+          guardia.rol === filtroArea
+
+        const coincideEstado =
+          filtroEstado === 'TODOS' ||
+          estadoCalculado === filtroEstado
+
+        const coincideFecha =
+          !filtroFecha ||
+          guardia.fecha === filtroFecha
+
+        return (
+          coincideBusqueda &&
+          coincideArea &&
+          coincideEstado &&
+          coincideFecha
         )
+      })
+      .sort((a, b) => {
+        // Ordenar por fecha ascendente; si coinciden, por hora de inicio
+        const comparacionFecha =
+          (a.fecha ?? '').localeCompare(
+            b.fecha ?? ''
+          )
 
-      const coincideArea =
-        filtroArea === 'TODAS' ||
-        guardia.rol === filtroArea
+        if (comparacionFecha !== 0) {
+          return comparacionFecha
+        }
 
-      const coincideEstado =
-        filtroEstado === 'TODOS' ||
-        estadoCalculado === filtroEstado
-
-      const coincideFecha =
-        !filtroFecha ||
-        guardia.fecha === filtroFecha
-
-      return (
-        coincideBusqueda &&
-        coincideArea &&
-        coincideEstado &&
-        coincideFecha
-      )
-    })
+        return (a.horaInicio ?? '').localeCompare(
+          b.horaInicio ?? ''
+        )
+      })
   }, [
     guardias,
     textoBusqueda,
@@ -297,10 +313,6 @@ function GestionGuardias({
             <option value="MANTENIMIENTO">
               Mantenimiento
             </option>
-
-            <option value="SERVICIO_GENERAL">
-              Servicio General
-            </option>
           </select>
 
           <select
@@ -331,10 +343,6 @@ function GestionGuardias({
 
             <option value="SIN ASIGNAR">
               Sin asignar
-            </option>
-
-            <option value="SIN DATOS">
-              Sin datos
             </option>
           </select>
 
@@ -381,7 +389,6 @@ function GestionGuardias({
           <table className="admin-tabla-guardias">
             <thead>
               <tr>
-                <th>ID</th>
                 <th>FECHA</th>
                 <th>HORARIO</th>
                 <th>ÁREA</th>
@@ -405,10 +412,13 @@ function GestionGuardias({
                       estadoCalculado
                     )
 
+                  // Las guardias terminadas o en curso no pueden modificarse ni eliminarse
+                  const esInmodificable =
+                    estadoCalculado === 'TERMINADA' ||
+                    estadoCalculado === 'EN CURSO'
+
                   return (
                     <tr key={guardia.id}>
-                      <td>{guardia.id}</td>
-
                       <td>{guardia.fecha}</td>
 
                       <td>
@@ -452,6 +462,12 @@ function GestionGuardias({
                         <button
                           type="button"
                           className="admin-accion-editar"
+                          disabled={esInmodificable}
+                          title={
+                            esInmodificable
+                              ? 'No se puede editar una guardia terminada o en curso'
+                              : ''
+                          }
                           onClick={() =>
                             editarGuardia(
                               guardia
@@ -464,6 +480,12 @@ function GestionGuardias({
                         <button
                           type="button"
                           className="admin-accion-eliminar"
+                          disabled={esInmodificable}
+                          title={
+                            esInmodificable
+                              ? 'No se puede eliminar una guardia terminada o en curso'
+                              : ''
+                          }
                           onClick={() =>
                             solicitarEliminarGuardia(
                               guardia
@@ -487,7 +509,7 @@ function GestionGuardias({
         titulo="Eliminar guardia"
         mensaje={
           guardiaAEliminar
-            ? `¿Desea eliminar la guardia con ID ${guardiaAEliminar.id} del día ${guardiaAEliminar.fecha}?`
+            ? `¿Desea eliminar la guardia del día ${guardiaAEliminar.fecha} (${guardiaAEliminar.horaInicio} - ${guardiaAEliminar.horaFin})?`
             : ''
         }
         onConfirmar={confirmarEliminacion}
