@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 
 import ModalMensaje from '../common/ui/ModalMensaje'
+import { validarGuardia } from '../../utils/validacionesGuardia'
 
 const API_BASE_URL = 'http://localhost:8090'
 
@@ -10,6 +11,16 @@ const guardiaInicial = {
   horaFin: '',
   rol: '',
   empleadoId: '',
+}
+
+/**
+ * Determina la clase CSS del input según si tiene error de validación.
+ * Concatena la clase base con la clase de error cuando corresponde.
+ */
+function claseInput(errorCampo) {
+  return errorCampo
+    ? 'admin-input-estilo admin-input-error'
+    : 'admin-input-estilo'
 }
 
 function FormularioCrearGuardias({
@@ -24,6 +35,10 @@ function FormularioCrearGuardias({
   const [guardando, setGuardando] =
     useState(false)
 
+  /** Errores de validación: { campo: mensajeError } */
+  const [errores, setErrores] =
+    useState({})
+
   const [modal, setModal] = useState({
     visible: false,
     tipo: 'exito',
@@ -31,6 +46,31 @@ function FormularioCrearGuardias({
     mensaje: '',
     volver: false,
   })
+
+  /**
+   * Actualiza un campo del formulario y limpia
+   * su error de validación asociado si existía.
+   */
+  const actualizarCampo = (
+    campo,
+    valor
+  ) => {
+    setGuardia((guardiaActual) => ({
+      ...guardiaActual,
+      [campo]: valor,
+    }))
+
+    /* Limpiar el error del campo que se está corrigiendo */
+    if (errores[campo]) {
+      setErrores((erroresActuales) => {
+        const nuevosErrores = {
+          ...erroresActuales,
+        }
+        delete nuevosErrores[campo]
+        return nuevosErrores
+      })
+    }
+  }
 
   const cargarEmpleadosPorRol = async (
     rol
@@ -82,6 +122,41 @@ function FormularioCrearGuardias({
     }
   }
 
+  /**
+   * Procesa la respuesta de error del backend y extrae
+   * errores de campo para mostrarlos inline.
+   *
+   * @param {Response} response - respuesta HTTP del backend
+   * @returns {boolean} true si se encontraron errores de campo
+   */
+  const procesarErroresBackend = async (
+    response
+  ) => {
+    try {
+      const contentType =
+        response.headers.get('content-type')
+
+      if (
+        !contentType?.includes(
+          'application/json'
+        )
+      ) {
+        return false
+      }
+
+      const data = await response.json()
+
+      if (data.errores) {
+        setErrores(data.errores)
+        return true
+      }
+    } catch {
+      /* Si no se puede parsear la respuesta, no hay errores de campo */
+    }
+
+    return false
+  }
+
   const guardarGuardia = async (
     event
   ) => {
@@ -90,6 +165,18 @@ function FormularioCrearGuardias({
     if (guardando) {
       return
     }
+
+    /* ── Validación frontend ── */
+    const erroresValidacion =
+      validarGuardia(guardia)
+
+    if (erroresValidacion) {
+      setErrores(erroresValidacion)
+      return
+    }
+
+    /* Limpiar errores previos antes de enviar */
+    setErrores({})
 
     try {
       setGuardando(true)
@@ -107,19 +194,33 @@ function FormularioCrearGuardias({
 
             empleadoId:
               guardia.empleadoId === '' ||
-              guardia.empleadoId === null
+                guardia.empleadoId === null
                 ? null
                 : Number(
-                    guardia.empleadoId
-                  ),
+                  guardia.empleadoId
+                ),
           }),
         }
       )
 
       if (!response.ok) {
-        throw new Error(
-          'No se pudo crear la guardia'
-        )
+        /*
+         * Intentar extraer errores de campo del backend.
+         * Si el backend devuelve errores estructurados,
+         * se muestran inline y no se muestra el modal genérico.
+         */
+        const tieneErroresCampo =
+          await procesarErroresBackend(
+            response
+          )
+
+        if (!tieneErroresCampo) {
+          throw new Error(
+            'No se pudo crear la guardia'
+          )
+        }
+
+        return
       }
 
       setGuardia(guardiaInicial)
@@ -174,6 +275,7 @@ function FormularioCrearGuardias({
         <form
           className="admin-form-generico"
           onSubmit={guardarGuardia}
+          noValidate
         >
           <div className="admin-form-group">
             <label htmlFor="fecha-guardia">
@@ -183,17 +285,23 @@ function FormularioCrearGuardias({
             <input
               id="fecha-guardia"
               type="date"
-              className="admin-input-estilo"
+              className={claseInput(
+                errores.fecha
+              )}
               value={guardia.fecha}
               onChange={(event) =>
-                setGuardia({
-                  ...guardia,
-                  fecha:
-                    event.target.value,
-                })
+                actualizarCampo(
+                  'fecha',
+                  event.target.value
+                )
               }
-              required
             />
+
+            {errores.fecha && (
+              <span className="admin-campo-error">
+                {errores.fecha}
+              </span>
+            )}
           </div>
 
           <div className="admin-form-row">
@@ -205,19 +313,25 @@ function FormularioCrearGuardias({
               <input
                 id="hora-inicio"
                 type="time"
-                className="admin-input-estilo"
+                className={claseInput(
+                  errores.horaInicio
+                )}
                 value={
                   guardia.horaInicio
                 }
                 onChange={(event) =>
-                  setGuardia({
-                    ...guardia,
-                    horaInicio:
-                      event.target.value,
-                  })
+                  actualizarCampo(
+                    'horaInicio',
+                    event.target.value
+                  )
                 }
-                required
               />
+
+              {errores.horaInicio && (
+                <span className="admin-campo-error">
+                  {errores.horaInicio}
+                </span>
+              )}
             </div>
 
             <div className="admin-form-group">
@@ -228,17 +342,23 @@ function FormularioCrearGuardias({
               <input
                 id="hora-fin"
                 type="time"
-                className="admin-input-estilo"
+                className={claseInput(
+                  errores.horaFin
+                )}
                 value={guardia.horaFin}
                 onChange={(event) =>
-                  setGuardia({
-                    ...guardia,
-                    horaFin:
-                      event.target.value,
-                  })
+                  actualizarCampo(
+                    'horaFin',
+                    event.target.value
+                  )
                 }
-                required
               />
+
+              {errores.horaFin && (
+                <span className="admin-campo-error">
+                  {errores.horaFin}
+                </span>
+              )}
             </div>
           </div>
 
@@ -249,23 +369,30 @@ function FormularioCrearGuardias({
 
             <select
               id="rol-guardia"
-              className="admin-input-estilo"
+              className={claseInput(
+                errores.rol
+              )}
               value={guardia.rol}
               onChange={(event) => {
                 const rol =
                   event.target.value
 
-                setGuardia({
-                  ...guardia,
-                  rol,
-                  empleadoId: '',
-                })
+                actualizarCampo(
+                  'rol',
+                  rol
+                )
+
+                setGuardia(
+                  (guardiaActual) => ({
+                    ...guardiaActual,
+                    empleadoId: '',
+                  })
+                )
 
                 cargarEmpleadosPorRol(
                   rol
                 )
               }}
-              required
             >
               <option value="">
                 Seleccione un área
@@ -282,11 +409,13 @@ function FormularioCrearGuardias({
               <option value="MANTENIMIENTO">
                 Mantenimiento
               </option>
-
-              <option value="ADMINISTRADOR">
-                Administrador
-              </option>
             </select>
+
+            {errores.rol && (
+              <span className="admin-campo-error">
+                {errores.rol}
+              </span>
+            )}
           </div>
 
           <div className="admin-form-group">
@@ -301,16 +430,14 @@ function FormularioCrearGuardias({
                 guardia.empleadoId ?? ''
               }
               onChange={(event) =>
-                setGuardia({
-                  ...guardia,
-
-                  empleadoId:
-                    event.target.value === ''
-                      ? ''
-                      : Number(
-                          event.target.value
-                        ),
-                })
+                actualizarCampo(
+                  'empleadoId',
+                  event.target.value === ''
+                    ? ''
+                    : Number(
+                      event.target.value
+                    )
+                )
               }
             >
               <option value="">

@@ -4,8 +4,19 @@ import React, {
 } from 'react'
 
 import ModalMensaje from '../common/ui/ModalMensaje'
+import { validarGuardia } from '../../utils/validacionesGuardia'
 
 const API_BASE_URL = 'http://localhost:8090'
+
+/**
+ * Determina la clase CSS del input según si tiene error de validación.
+ * Concatena la clase base con la clase de error cuando corresponde.
+ */
+function claseInput(errorCampo) {
+  return errorCampo
+    ? 'admin-input-estilo admin-input-error'
+    : 'admin-input-estilo'
+}
 
 function EditarGuardia({
   setPagina,
@@ -15,6 +26,13 @@ function EditarGuardia({
   const [empleados, setEmpleados] =
     useState([])
 
+  /** Errores de validación: { campo: mensajeError } */
+  const [errores, setErrores] =
+    useState({})
+
+  const [guardando, setGuardando] =
+    useState(false)
+
   const [modal, setModal] = useState({
     visible: false,
     tipo: 'exito',
@@ -22,6 +40,33 @@ function EditarGuardia({
     mensaje: '',
     volver: false,
   })
+
+  /**
+   * Actualiza un campo del formulario y limpia
+   * su error de validación asociado si existía.
+   */
+  const actualizarCampo = (
+    campo,
+    valor
+  ) => {
+    setGuardiaEditar(
+      (guardiaActual) => ({
+        ...guardiaActual,
+        [campo]: valor,
+      })
+    )
+
+    /* Limpiar el error del campo que se está corrigiendo */
+    if (errores[campo]) {
+      setErrores((erroresActuales) => {
+        const nuevosErrores = {
+          ...erroresActuales,
+        }
+        delete nuevosErrores[campo]
+        return nuevosErrores
+      })
+    }
+  }
 
   const cargarEmpleadosPorRol = async (
     rol
@@ -80,12 +125,65 @@ function EditarGuardia({
     }
   }
 
+  /**
+   * Procesa la respuesta de error del backend y extrae
+   * errores de campo para mostrarlos inline.
+   *
+   * @param {Response} response - respuesta HTTP del backend
+   * @returns {boolean} true si se encontraron errores de campo
+   */
+  const procesarErroresBackend = async (
+    response
+  ) => {
+    try {
+      const contentType =
+        response.headers.get('content-type')
+
+      if (
+        !contentType?.includes(
+          'application/json'
+        )
+      ) {
+        return false
+      }
+
+      const data = await response.json()
+
+      if (data.errores) {
+        setErrores(data.errores)
+        return true
+      }
+    } catch {
+      /* Si no se puede parsear la respuesta, no hay errores de campo */
+    }
+
+    return false
+  }
+
   const guardarGuardia = async (
     event
   ) => {
     event.preventDefault()
 
+    if (guardando) {
+      return
+    }
+
+    /* ── Validación frontend ── */
+    const erroresValidacion =
+      validarGuardia(guardiaEditar)
+
+    if (erroresValidacion) {
+      setErrores(erroresValidacion)
+      return
+    }
+
+    /* Limpiar errores previos antes de enviar */
+    setErrores({})
+
     try {
+      setGuardando(true)
+
       const response = await fetch(
         `${API_BASE_URL}/api/guardias/${guardiaEditar.id}`,
         {
@@ -101,9 +199,23 @@ function EditarGuardia({
       )
 
       if (!response.ok) {
-        throw new Error(
-          'No se pudo modificar la guardia'
-        )
+        /*
+         * Intentar extraer errores de campo del backend.
+         * Si el backend devuelve errores estructurados,
+         * se muestran inline y no se muestra el modal genérico.
+         */
+        const tieneErroresCampo =
+          await procesarErroresBackend(
+            response
+          )
+
+        if (!tieneErroresCampo) {
+          throw new Error(
+            'No se pudo modificar la guardia'
+          )
+        }
+
+        return
       }
 
       setModal({
@@ -128,6 +240,8 @@ function EditarGuardia({
           'No se pudo modificar la guardia.',
         volver: false,
       })
+    } finally {
+      setGuardando(false)
     }
   }
 
@@ -158,87 +272,124 @@ function EditarGuardia({
         <form
           className="admin-form-generico"
           onSubmit={guardarGuardia}
+          noValidate
         >
           <div className="admin-form-group">
-            <label>
+            <label htmlFor="fecha-guardia">
               Fecha de la Guardia
             </label>
 
             <input
+              id="fecha-guardia"
               type="date"
-              className="admin-input-estilo"
+              className={claseInput(
+                errores.fecha
+              )}
               value={guardiaEditar.fecha}
               onChange={(event) =>
-                setGuardiaEditar({
-                  ...guardiaEditar,
-                  fecha: event.target.value,
-                })
+                actualizarCampo(
+                  'fecha',
+                  event.target.value
+                )
               }
-              required
             />
+
+            {errores.fecha && (
+              <span className="admin-campo-error">
+                {errores.fecha}
+              </span>
+            )}
           </div>
 
           <div className="admin-form-row">
             <div className="admin-form-group">
-              <label>Hora Inicio</label>
+              <label htmlFor="hora-inicio">
+                Hora de Inicio
+              </label>
 
               <input
+                id="hora-inicio"
                 type="time"
-                className="admin-input-estilo"
+                className={claseInput(
+                  errores.horaInicio
+                )}
                 value={
                   guardiaEditar.horaInicio
                 }
                 onChange={(event) =>
-                  setGuardiaEditar({
-                    ...guardiaEditar,
-                    horaInicio:
-                      event.target.value,
-                  })
+                  actualizarCampo(
+                    'horaInicio',
+                    event.target.value
+                  )
                 }
-                required
               />
+
+              {errores.horaInicio && (
+                <span className="admin-campo-error">
+                  {errores.horaInicio}
+                </span>
+              )}
             </div>
 
             <div className="admin-form-group">
-              <label>Hora Fin</label>
+              <label htmlFor="hora-fin">
+                Hora de Fin
+              </label>
 
               <input
+                id="hora-fin"
                 type="time"
-                className="admin-input-estilo"
+                className={claseInput(
+                  errores.horaFin
+                )}
                 value={
                   guardiaEditar.horaFin
                 }
                 onChange={(event) =>
-                  setGuardiaEditar({
-                    ...guardiaEditar,
-                    horaFin:
-                      event.target.value,
-                  })
+                  actualizarCampo(
+                    'horaFin',
+                    event.target.value
+                  )
                 }
-                required
               />
+
+              {errores.horaFin && (
+                <span className="admin-campo-error">
+                  {errores.horaFin}
+                </span>
+              )}
             </div>
           </div>
 
           <div className="admin-form-group">
-            <label>Área</label>
+            <label htmlFor="rol-guardia">
+              Área de Trabajo
+            </label>
 
             <select
-              className="admin-input-estilo"
+              id="rol-guardia"
+              className={claseInput(
+                errores.rol
+              )}
               value={guardiaEditar.rol}
               onChange={(event) => {
                 const rol =
                   event.target.value
 
-                setGuardiaEditar({
-                  ...guardiaEditar,
-                  rol,
-                  empleadoId: null,
-                })
+                actualizarCampo(
+                  'rol',
+                  rol
+                )
+
+                setGuardiaEditar(
+                  (guardiaActual) => ({
+                    ...guardiaActual,
+                    empleadoId: null,
+                  })
+                )
 
                 cargarEmpleadosPorRol(rol)
               }}
-              required
             >
               <option value="">
                 Seleccione un área
@@ -255,35 +406,36 @@ function EditarGuardia({
               <option value="MANTENIMIENTO">
                 Mantenimiento
               </option>
-
-              <option value="ADMINISTRADOR">
-                Administrador
-              </option>
             </select>
+
+            {errores.rol && (
+              <span className="admin-campo-error">
+                {errores.rol}
+              </span>
+            )}
           </div>
 
           <div className="admin-form-group">
-            <label>
-              Personal Asignado
+            <label htmlFor="empleado-guardia">
+              Personal Asignado (Opcional)
             </label>
 
             <select
+              id="empleado-guardia"
               className="admin-input-estilo"
               value={
                 guardiaEditar.empleadoId ??
                 ''
               }
               onChange={(event) =>
-                setGuardiaEditar({
-                  ...guardiaEditar,
-
-                  empleadoId:
-                    event.target.value === ''
-                      ? null
-                      : Number(
-                          event.target.value
-                        ),
-                })
+                actualizarCampo(
+                  'empleadoId',
+                  event.target.value === ''
+                    ? null
+                    : Number(
+                        event.target.value
+                      )
+                )
               }
             >
               <option value="">
@@ -307,8 +459,11 @@ function EditarGuardia({
           <button
             type="submit"
             className="admin-btn-guardar"
+            disabled={guardando}
           >
-            Guardar Guardia
+            {guardando
+              ? 'Guardando...'
+              : 'Guardar Guardia'}
           </button>
         </form>
       </div>

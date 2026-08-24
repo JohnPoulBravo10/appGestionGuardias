@@ -1,15 +1,21 @@
 package com.jpbravo.guardia_service.controller;
 
 import com.jpbravo.guardia_service.dto.AsignacionEmpleadoDto;
+import com.jpbravo.guardia_service.dto.CrearGuardiaDto;
 import com.jpbravo.guardia_service.dto.GuardiaResponseDto;
 import com.jpbravo.guardia_service.model.Guardia;
 import com.jpbravo.guardia_service.model.Rol;
 import com.jpbravo.guardia_service.service.GuardiaService;
+import com.jpbravo.guardia_service.validation.GuardiaValidator;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/guardias")
@@ -17,6 +23,9 @@ public class GuardiaContoller {
 
     @Autowired
     private GuardiaService guardiaService;
+
+    @Autowired
+    private GuardiaValidator guardiaValidator;
 
     @GetMapping
     public ResponseEntity<List<GuardiaResponseDto>>
@@ -82,11 +91,37 @@ public class GuardiaContoller {
     }
 
     @PostMapping
-    public Guardia crearGuardia(
-            @RequestBody Guardia guardia
+    public ResponseEntity<?> crearGuardia(
+            @Valid @RequestBody CrearGuardiaDto dto
     ) {
-        return guardiaService
-                .guardarGuardia(guardia);
+        /*
+         * Validación de reglas de negocio (coherencia de horario)
+         * que no se puede expresar con anotaciones Jakarta.
+         */
+        Map<String, String> erroresHorario =
+                guardiaValidator.validar(
+                        dto.getFecha(),
+                        dto.getHoraInicio(),
+                        dto.getHoraFin()
+                );
+
+        if (!erroresHorario.isEmpty()) {
+            Map<String, Object> respuesta = new HashMap<>();
+            respuesta.put("errores", erroresHorario);
+
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(respuesta);
+        }
+
+        Guardia guardia = convertirDtoAEntidad(dto);
+
+        Guardia guardiaCreada =
+                guardiaService.guardarGuardia(guardia);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(guardiaCreada);
     }
 
     @DeleteMapping("/{id}")
@@ -103,11 +138,33 @@ public class GuardiaContoller {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Guardia>
+    public ResponseEntity<?>
             actualizarGuardia(
                     @PathVariable Long id,
-                    @RequestBody Guardia guardia
+                    @Valid @RequestBody CrearGuardiaDto dto
             ) {
+
+        /*
+         * Validación de reglas de negocio (coherencia de horario)
+         * que no se puede expresar con anotaciones Jakarta.
+         */
+        Map<String, String> erroresHorario =
+                guardiaValidator.validar(
+                        dto.getFecha(),
+                        dto.getHoraInicio(),
+                        dto.getHoraFin()
+                );
+
+        if (!erroresHorario.isEmpty()) {
+            Map<String, Object> respuesta = new HashMap<>();
+            respuesta.put("errores", erroresHorario);
+
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(respuesta);
+        }
+
+        Guardia guardia = convertirDtoAEntidad(dto);
 
         Guardia actualizada =
                 guardiaService
@@ -137,5 +194,19 @@ public class GuardiaContoller {
 
         Guardia actualizada = guardiaService.reasignarEmpleado(id, dto.getEmpleadoId());
         return ResponseEntity.ok(actualizada);
+    }
+
+    /**
+     * Convierte un DTO de creación/edición a la entidad Guardia.
+     * El estado se determina en el service según si tiene empleado asignado.
+     */
+    private Guardia convertirDtoAEntidad(CrearGuardiaDto dto) {
+        return Guardia.builder()
+                .fecha(dto.getFecha())
+                .horaInicio(dto.getHoraInicio())
+                .horaFin(dto.getHoraFin())
+                .rol(dto.getRol())
+                .empleadoId(dto.getEmpleadoId())
+                .build();
     }
 }

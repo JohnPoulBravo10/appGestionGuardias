@@ -303,6 +303,43 @@ select.admin-input-estilo {
   resize: none;
 }
 
+/* ── Errores de validación inline ── */
+
+.admin-campo-error {
+  display: block;
+
+  margin-top: 6px;
+
+  color: #f44336;
+
+  font-size: 0.78rem;
+  line-height: 1.3;
+
+  animation: admin-error-aparecer 0.25s ease;
+}
+
+@keyframes admin-error-aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-input-estilo.admin-input-error {
+  border-color: #f44336;
+}
+
+.admin-input-estilo.admin-input-error:focus {
+  border-color: #f44336;
+  box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.12);
+}
+
+
 .admin-btn-volver {
   margin-bottom: 20px;
   padding: 7px 13px;

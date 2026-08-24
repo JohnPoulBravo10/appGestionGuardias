@@ -1,0 +1,20 @@
+Pantallas Admin:
+- Cambiar tarjeta "Personal de turno" en panel principal admin. (No es info significativa,
+y cambiar las guardias para que admitan mas de un empleado asignado es un quilombo).
+- Añadir validaciones o restricciones al crear/eliminar admins (cuestión de seguridad supongo).
+- Al eliminar un usuario habria que darlo de baja en lugar de borrarlo de la BD?
++ Guardias "Terminadas" o "En Curso" no deberian poder editarse/eliminarse.
++ Las guardias creo que se ordenan por ID, deberian poder ordenarse minimo por fecha (y alguno mas?).
++ Validaciones en la creacion de guardias.
+- Al asignar un empleado a una guardia, verificar disponibilidad.
+- No se pueden ver las notificaciones. Agregarr funcionalidad al boton de campanita?
+- Ver donde se puede usar comunicacion asincrona.
+
+Pantallas Empleado:
+- Agregar funcionalidad a la campanita? (Que "notificaciones recientes" sea "notificaciones sin leer")
+- Creo que "Horas este mes" cuenta solo guardias hasta el dia anterior. Deberia contar tambien las
+del dia de hoy que esten Terminadas?
+- "Mis guardias" se ordenan por igual que para el admin. Cambiar IDEM a admin.
+- Guardias Terminadas o En Curso no deberian permitir Solicitar Cambio.
+- Hacemos el Historial de guardias o volamos la pestaña?
+- Ver donde se puede usar comunicacion asincrona.

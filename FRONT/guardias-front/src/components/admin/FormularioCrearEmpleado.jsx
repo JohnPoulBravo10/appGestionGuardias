@@ -5,6 +5,11 @@ import React, {
 
 import ModalMensaje from '../common/ui/ModalMensaje'
 
+import {
+  validarEmpleado,
+  LIMITES,
+} from '../../utils/validacionesEmpleado'
+
 const API_BASE_URL = 'http://localhost:8090'
 
 function mapearRolUsuario(rolEmpleado) {
@@ -25,6 +30,16 @@ const empleadoVacio = {
   direccion: '',
 }
 
+/**
+ * Determina la clase CSS del input según si tiene error de validación.
+ * Concatena la clase base con la clase de error cuando corresponde.
+ */
+function claseInput(errorCampo) {
+  return errorCampo
+    ? 'admin-input-estilo admin-input-error'
+    : 'admin-input-estilo'
+}
+
 function FormularioCrearEmpleado({
   setPagina,
   empleadoEditar,
@@ -40,6 +55,10 @@ function FormularioCrearEmpleado({
 
   const [guardando, setGuardando] =
     useState(false)
+
+  /** Errores de validación: { campo: mensajeError } */
+  const [errores, setErrores] =
+    useState({})
 
   const [modal, setModal] = useState({
     visible: false,
@@ -59,8 +78,15 @@ function FormularioCrearEmpleado({
     } else {
       setEmpleado(empleadoVacio)
     }
+
+    /* Limpiar errores al cambiar entre creación y edición */
+    setErrores({})
   }, [empleadoEditar])
 
+  /**
+   * Actualiza un campo del formulario y limpia
+   * su error de validación asociado si existía.
+   */
   const actualizarCampo = (
     campo,
     valor
@@ -69,6 +95,17 @@ function FormularioCrearEmpleado({
       ...empleadoActual,
       [campo]: valor,
     }))
+
+    /* Limpiar el error del campo que se está corrigiendo */
+    if (errores[campo]) {
+      setErrores((erroresActuales) => {
+        const nuevosErrores = {
+          ...erroresActuales,
+        }
+        delete nuevosErrores[campo]
+        return nuevosErrores
+      })
+    }
   }
 
   const volverAGestion = () => {
@@ -94,6 +131,41 @@ function FormularioCrearEmpleado({
     }
   }
 
+  /**
+   * Procesa la respuesta de error del backend y extrae
+   * errores de campo para mostrarlos inline.
+   *
+   * @param {Response} response - respuesta HTTP del backend
+   * @returns {boolean} true si se encontraron errores de campo
+   */
+  const procesarErroresBackend = async (
+    response
+  ) => {
+    try {
+      const contentType =
+        response.headers.get('content-type')
+
+      if (
+        !contentType?.includes(
+          'application/json'
+        )
+      ) {
+        return false
+      }
+
+      const data = await response.json()
+
+      if (data.errores) {
+        setErrores(data.errores)
+        return true
+      }
+    } catch {
+      /* Si no se puede parsear la respuesta, no hay errores de campo */
+    }
+
+    return false
+  }
+
   const guardarEmpleado = async (
     event
   ) => {
@@ -102,6 +174,18 @@ function FormularioCrearEmpleado({
     if (guardando) {
       return
     }
+
+    /* ── Validación frontend ── */
+    const erroresValidacion =
+      validarEmpleado(empleado, esEdicion)
+
+    if (erroresValidacion) {
+      setErrores(erroresValidacion)
+      return
+    }
+
+    /* Limpiar errores previos antes de enviar */
+    setErrores({})
 
     try {
       setGuardando(true)
@@ -211,11 +295,26 @@ function FormularioCrearEmpleado({
       }
 
       if (!response.ok) {
-        throw new Error(
-          esEdicion
-            ? 'No se pudo modificar el empleado'
-            : 'No se pudo crear el empleado'
-        )
+        /*
+         * Intentar extraer errores de campo del backend
+         * (usuario duplicado, DNI duplicado, validación Jakarta).
+         * Si el backend devuelve errores estructurados,
+         * se muestran inline y no se muestra el modal genérico.
+         */
+        const tieneErroresCampo =
+          await procesarErroresBackend(
+            response
+          )
+
+        if (!tieneErroresCampo) {
+          throw new Error(
+            esEdicion
+              ? 'No se pudo modificar el empleado'
+              : 'No se pudo crear el empleado'
+          )
+        }
+
+        return
       }
 
       const contentType =
@@ -293,6 +392,7 @@ function FormularioCrearEmpleado({
         <form
           className="admin-form-empleado"
           onSubmit={guardarEmpleado}
+          noValidate
         >
           {!esEdicion && (
             <div className="admin-form-row">
@@ -304,9 +404,14 @@ function FormularioCrearEmpleado({
                 <input
                   id="usuario"
                   type="text"
-                  className="admin-input-estilo"
+                  className={claseInput(
+                    errores.usuario
+                  )}
                   placeholder="Ej: jperez"
                   value={empleado.usuario}
+                  maxLength={
+                    LIMITES.USUARIO_MAX
+                  }
                   onChange={(event) =>
                     actualizarCampo(
                       'usuario',
@@ -315,6 +420,12 @@ function FormularioCrearEmpleado({
                   }
                   required
                 />
+
+                {errores.usuario && (
+                  <span className="admin-campo-error">
+                    {errores.usuario}
+                  </span>
+                )}
               </div>
 
               <div className="admin-form-group">
@@ -325,9 +436,14 @@ function FormularioCrearEmpleado({
                 <input
                   id="password"
                   type="password"
-                  className="admin-input-estilo"
+                  className={claseInput(
+                    errores.password
+                  )}
                   placeholder="Contraseña inicial"
                   value={empleado.password}
+                  maxLength={
+                    LIMITES.PASSWORD_MAX
+                  }
                   onChange={(event) =>
                     actualizarCampo(
                       'password',
@@ -336,6 +452,12 @@ function FormularioCrearEmpleado({
                   }
                   required
                 />
+
+                {errores.password && (
+                  <span className="admin-campo-error">
+                    {errores.password}
+                  </span>
+                )}
               </div>
             </div>
           )}
@@ -349,9 +471,14 @@ function FormularioCrearEmpleado({
               <input
                 id="nombre"
                 type="text"
-                className="admin-input-estilo"
+                className={claseInput(
+                  errores.nombre
+                )}
                 placeholder="Ej: Juan"
                 value={empleado.nombre}
+                maxLength={
+                  LIMITES.NOMBRE_MAX
+                }
                 onChange={(event) =>
                   actualizarCampo(
                     'nombre',
@@ -360,6 +487,12 @@ function FormularioCrearEmpleado({
                 }
                 required
               />
+
+              {errores.nombre && (
+                <span className="admin-campo-error">
+                  {errores.nombre}
+                </span>
+              )}
             </div>
 
             <div className="admin-form-group">
@@ -370,9 +503,14 @@ function FormularioCrearEmpleado({
               <input
                 id="apellido"
                 type="text"
-                className="admin-input-estilo"
+                className={claseInput(
+                  errores.apellido
+                )}
                 placeholder="Ej: Pérez"
                 value={empleado.apellido}
+                maxLength={
+                  LIMITES.APELLIDO_MAX
+                }
                 onChange={(event) =>
                   actualizarCampo(
                     'apellido',
@@ -381,6 +519,12 @@ function FormularioCrearEmpleado({
                 }
                 required
               />
+
+              {errores.apellido && (
+                <span className="admin-campo-error">
+                  {errores.apellido}
+                </span>
+              )}
             </div>
           </div>
 
@@ -392,10 +536,16 @@ function FormularioCrearEmpleado({
 
               <input
                 id="dni"
-                type="number"
-                className="admin-input-estilo"
+                type="text"
+                inputMode="numeric"
+                className={claseInput(
+                  errores.dni
+                )}
                 placeholder="Ej: 42765715"
                 value={empleado.dni}
+                maxLength={
+                  LIMITES.DNI_MAX_DIGITOS
+                }
                 disabled={esEdicion}
                 onChange={(event) =>
                   actualizarCampo(
@@ -405,6 +555,12 @@ function FormularioCrearEmpleado({
                 }
                 required
               />
+
+              {errores.dni && (
+                <span className="admin-campo-error">
+                  {errores.dni}
+                </span>
+              )}
             </div>
 
             <div className="admin-form-group">
@@ -451,10 +607,15 @@ function FormularioCrearEmpleado({
             <input
               id="email"
               type="email"
-              className="admin-input-estilo"
+              className={claseInput(
+                errores.email
+              )}
               placeholder="email@hospital.com"
               value={
                 empleado.email ?? ''
+              }
+              maxLength={
+                LIMITES.EMAIL_MAX
               }
               onChange={(event) =>
                 actualizarCampo(
@@ -462,7 +623,14 @@ function FormularioCrearEmpleado({
                   event.target.value
                 )
               }
+              required
             />
+
+            {errores.email && (
+              <span className="admin-campo-error">
+                {errores.email}
+              </span>
+            )}
           </div>
 
           <div className="admin-form-group">
@@ -474,10 +642,15 @@ function FormularioCrearEmpleado({
               id="telefono"
               type="tel"
               inputMode="numeric"
-              className="admin-input-estilo"
+              className={claseInput(
+                errores.telefono
+              )}
               placeholder="Ej: 3425123456"
               value={
                 empleado.telefono ?? ''
+              }
+              maxLength={
+                LIMITES.TELEFONO_MAX_DIGITOS
               }
               onChange={(event) =>
                 actualizarCampo(
@@ -485,21 +658,41 @@ function FormularioCrearEmpleado({
                   event.target.value
                 )
               }
+              required
             />
+
+            {errores.telefono && (
+              <span className="admin-campo-error">
+                {errores.telefono}
+              </span>
+            )}
           </div>
 
           <div className="admin-form-group">
             <label htmlFor="direccion">
-              Dirección
+              Dirección{' '}
+              <span
+                style={{
+                  color: '#666',
+                  fontSize: '0.8rem',
+                }}
+              >
+                (opcional)
+              </span>
             </label>
 
             <input
               id="direccion"
               type="text"
-              className="admin-input-estilo"
+              className={claseInput(
+                errores.direccion
+              )}
               placeholder="Ej: San Martín 123"
               value={
                 empleado.direccion ?? ''
+              }
+              maxLength={
+                LIMITES.DIRECCION_MAX
               }
               onChange={(event) =>
                 actualizarCampo(
@@ -508,6 +701,12 @@ function FormularioCrearEmpleado({
                 )
               }
             />
+
+            {errores.direccion && (
+              <span className="admin-campo-error">
+                {errores.direccion}
+              </span>
+            )}
           </div>
 
           <button
