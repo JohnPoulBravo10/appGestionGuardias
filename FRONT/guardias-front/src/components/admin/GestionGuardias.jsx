@@ -298,10 +298,6 @@ function GestionGuardias({
               Todas las áreas
             </option>
 
-            <option value="ADMINISTRADOR">
-              Administrador
-            </option>
-
             <option value="ENFERMERIA">
               Enfermería
             </option>

@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react'
-import { getToken } from '../../utils/authUtils'
+import {
+  getToken,
+  getEmpleadoIdFromToken,
+  getRolFromToken,
+} from '../../utils/authUtils'
 
 /**
  * Mapeo de roles internos a etiquetas legibles para el usuario.
@@ -32,10 +36,29 @@ function PanelPrincipal() {
   /** Lista de empleados para resolver nombres en la tabla de guardias */
   const [empleados, setEmpleados] = useState([])
 
+  /** Cantidad real de notificaciones no leídas (personales + rol admin) */
+  const [cantidadNoLeidas, setCantidadNoLeidas] = useState(0)
+
   useEffect(() => {
     obtenerGuardiasActivas()
     obtenerSolicitudesPendientes()
     obtenerEmpleados()
+    cargarNotificacionesNoLeidas()
+  }, [])
+
+  // Escuchar cuando otro componente marca una notificación
+  // como leída, para sincronizar el conteo de la tarjeta
+  useEffect(() => {
+
+    const handleNotificacionLeida = () => {
+      cargarNotificacionesNoLeidas()
+    }
+
+    window.addEventListener('notificacion-leida', handleNotificacionLeida)
+
+    return () => {
+      window.removeEventListener('notificacion-leida', handleNotificacionLeida)
+    }
   }, [])
 
   const obtenerGuardiasActivas = async () => {
@@ -111,13 +134,77 @@ function PanelPrincipal() {
     }
   }
 
+  /**
+   * Carga las notificaciones no leídas del usuario autenticado.
+   * Combina las notificaciones personales con las del rol ADMINISTRADOR,
+   * deduplicando por id.
+   */
+  const cargarNotificacionesNoLeidas = async () => {
+
+    try {
+
+      const empleadoId = getEmpleadoIdFromToken()
+      const token = getToken()
+
+      if (!empleadoId || !token) {
+        return
+      }
+
+      const headers = {
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      }
+
+      // Notificaciones personales
+      const responsePersonales = await fetch(
+        `http://localhost:8090/api/notificaciones/empleado/${empleadoId}`,
+        { method: 'GET', headers }
+      )
+
+      let lista = []
+
+      if (responsePersonales.ok) {
+        const dataPersonales = await responsePersonales.json()
+        lista = Array.isArray(dataPersonales) ? dataPersonales : []
+      }
+
+      // Notificaciones del rol ADMINISTRADOR
+      const rol = getRolFromToken()
+
+      if (rol === 'ADMINISTRADOR') {
+
+        try {
+
+          const responseRol = await fetch(
+            `http://localhost:8090/api/notificaciones/rol/${rol}`,
+            { method: 'GET', headers }
+          )
+
+          if (responseRol.ok) {
+            const dataRol = await responseRol.json()
+            const listaRol = Array.isArray(dataRol) ? dataRol : []
+
+            // Combinar deduplicando por id
+            const idsExistentes = new Set(lista.map((n) => n.id))
+            const nuevasDeRol = listaRol.filter((n) => !idsExistentes.has(n.id))
+            lista = [...lista, ...nuevasDeRol]
+          }
+
+        } catch (errRol) {
+          console.error('Error al obtener notificaciones por rol:', errRol)
+        }
+      }
+
+      // Contar solo las no leídas
+      setCantidadNoLeidas(lista.filter((n) => !n.leida).length)
+
+    } catch (err) {
+      console.error('Error al cargar notificaciones no leídas:', err)
+    }
+  }
+
   /** Cantidad de guardias activas en este momento */
   const cantidadGuardiasActivas = guardiasActivas.length
-
-  /** Empleados asignados a guardias activas (solo los no nulos) */
-  const personalDeTurno = guardiasActivas.filter(
-    (g) => g.empleadoId !== null && g.empleadoId !== undefined
-  ).length
 
   /**
    * Mapa de empleadoId (dni) → nombre completo para resolución O(1).
@@ -208,13 +295,13 @@ function PanelPrincipal() {
         </div>
 
         <div className="admin-panel-tarjeta">
-          <span className="admin-tarjeta-label">Personal de turno</span>
+          <span className="admin-tarjeta-label">Notificaciones no leidas</span>
           <div className="admin-tarjeta-contenido">
             <span className="admin-tarjeta-valor">
-              {loading ? '…' : personalDeTurno}
+              {loading ? '…' : cantidadNoLeidas}
             </span>
             <span className="admin-tarjeta-icono" aria-hidden="true">
-              {/* Icono de personas */}
+              {/* Icono de campana */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="22"
@@ -226,10 +313,8 @@ function PanelPrincipal() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
               </svg>
             </span>
           </div>
