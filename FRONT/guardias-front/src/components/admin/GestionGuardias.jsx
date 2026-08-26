@@ -117,6 +117,11 @@ function GestionGuardias({
             ahora
           )
 
+        // Las guardias terminadas se visualizan en HistorialGuardias
+        if (estadoCalculado === 'TERMINADA') {
+          return false
+        }
+
         const coincideBusqueda =
           !textoNormalizado ||
           nombreEmpleado.includes(
@@ -325,16 +330,12 @@ function GestionGuardias({
               Todos los estados
             </option>
 
-            <option value="PROXIMA">
-              Próxima
-            </option>
-
             <option value="EN CURSO">
               En curso
             </option>
 
-            <option value="TERMINADA">
-              Terminada
+            <option value="PROXIMA">
+              Próxima
             </option>
 
             <option value="SIN ASIGNAR">

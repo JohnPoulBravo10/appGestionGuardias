@@ -24,7 +24,9 @@ import CalendarioGuardias from './components/admin/CalendarioGuardias'
 import EditarGuardia from './components/admin/EditarGuardia'
 import PanelPrincipal from './components/admin/PanelPrincipal'
 import GestionSolicitudes from './components/admin/GestionSolicitudes'
+import HistorialGuardias from './components/admin/HistorialGuardias'
 
+import MiHistorial from './components/empleado/MiHistorial'
 import PanelEmpleado from './components/empleado/PanelEmpleado'
 import MisGuardias from './components/empleado/MisGuardias'
 import SolicitarCambio from './components/empleado/SolicitarCambio'
@@ -41,6 +43,7 @@ const rutaPorPagina = {
   'CREAR GUARDIAS': '/admin/guardias/nueva',
   'EDITAR GUARDIA': '/admin/guardias/editar',
 
+  'HISTORIAL GUARDIAS': '/admin/historial-guardias',
   SOLICITUDES: '/admin/solicitudes',
 }
 
@@ -163,6 +166,11 @@ function App() {
         />
 
         <Route
+          path="historial-guardias"
+          element={<HistorialGuardias />}
+        />
+
+        <Route
           path="solicitudes"
           element={<GestionSolicitudes />}
         />
@@ -197,14 +205,7 @@ function App() {
 
         <Route
           path="historial"
-          element={
-            <div>
-              <h2>Historial</h2>
-              <p>
-                Próximamente se mostrará el historial de guardias.
-              </p>
-            </div>
-          }
+          element={<MiHistorial />}
         />
       </Route>
 
