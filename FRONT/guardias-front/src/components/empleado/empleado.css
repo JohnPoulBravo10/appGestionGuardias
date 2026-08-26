@@ -223,6 +223,17 @@
   font-size: 0.9rem;
 }
 
+/* Errores de validación inline debajo de cada campo */
+
+.empleado-campo-error {
+  color: #f44336;
+
+  font-size: 0.82rem;
+
+  margin: 2px 0 0;
+  padding: 0;
+}
+
 /* =========================================================
    ACCIONES DE TABLA
    Usado por: MisGuardias (columna "Acciones")

@@ -62,6 +62,10 @@ export default function useSolicitarCambio(options = {}) {
   const [error, setError] = useState('')
   const [exito, setExito] = useState('')
 
+  /* ── Errores de validación por campo ── */
+  const [errorGuardia, setErrorGuardia] = useState('')
+  const [errorMotivo, setErrorMotivo] = useState('')
+
   /**
    * IDs de guardias que ya tienen una solicitud PENDIENTE.
    * Se usa para excluirlas del dropdown.
@@ -383,17 +387,23 @@ export default function useSolicitarCambio(options = {}) {
 
       setError('')
       setExito('')
+      setErrorGuardia('')
+      setErrorMotivo('')
 
-      /* ── Validaciones ── */
+      /* ── Validaciones por campo ── */
+      let tieneErrores = false
+
       if (!guardiaSeleccionada) {
-        setError('Debés seleccionar una guardia.')
-        return
+        setErrorGuardia('Debés seleccionar una guardia.')
+        tieneErrores = true
       }
 
       if (!motivo.trim()) {
-        setError('El motivo del cambio es obligatorio.')
-        return
+        setErrorMotivo('El motivo del cambio es obligatorio.')
+        tieneErrores = true
       }
+
+      if (tieneErrores) return
 
       if (!empleado) {
         setError(
@@ -490,6 +500,14 @@ export default function useSolicitarCambio(options = {}) {
         )
 
         resetearFormulario()
+
+        /*
+         * Recargamos la lista de guardias para que la guardia
+         * recién solicitada desaparezca del dropdown.
+         */
+        if (empleado?.dni) {
+          cargarGuardias(empleado.dni)
+        }
       } catch (err) {
         console.error(
           'Error al enviar solicitud:',
@@ -512,6 +530,7 @@ export default function useSolicitarCambio(options = {}) {
       guardias,
       companeros,
       resetearFormulario,
+      cargarGuardias,
     ]
   )
 
@@ -551,5 +570,8 @@ export default function useSolicitarCambio(options = {}) {
     enviando,
     error,
     exito,
+    setExito,
+    errorGuardia,
+    errorMotivo,
   }
 }

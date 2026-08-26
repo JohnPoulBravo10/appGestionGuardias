@@ -524,7 +524,7 @@
  * ModalMensaje incluye un ícono.
  * En ese caso centramos título y mensaje.
  */
-.common-modal-icono + .common-modal-titulo {
+.common-modal-icono+.common-modal-titulo {
   text-align: center;
 }
 
@@ -541,8 +541,7 @@
  * Si el modal tiene ícono, centramos también
  * el texto del mensaje.
  */
-.common-modal-dialogo:has(.common-modal-icono)
-.common-modal-mensaje {
+.common-modal-dialogo:has(.common-modal-icono) .common-modal-mensaje {
   text-align: center;
 }
 
@@ -560,8 +559,7 @@
  * En ModalMensaje existe un solo botón.
  * Lo centramos y permitimos que tenga un ancho cómodo.
  */
-.common-modal-dialogo:has(.common-modal-icono)
-.common-modal-acciones {
+.common-modal-dialogo:has(.common-modal-icono) .common-modal-acciones {
   justify-content: center;
 }
 
@@ -593,6 +591,22 @@
 .common-modal-btn:focus-visible {
   outline: 2px solid #ffffff;
   outline-offset: 3px;
+}
+
+/* Aceptar */
+
+.common-modal-btn-aceptar {
+  background: #ffffff;
+  color: #000000;
+
+  border: 1px solid #c4c4c4;
+}
+
+.common-modal-btn-aceptar:hover {
+  background: #e0e0e0;
+  color: #000000;
+
+  border-color: #949494;
 }
 
 /* Cancelar */
@@ -634,16 +648,14 @@
  * esa estructura para cambiar el botón.
  */
 
-.common-modal-dialogo:has(.common-modal-icono)
-.common-modal-btn-confirmar {
+.common-modal-dialogo:has(.common-modal-icono) .common-modal-btn-confirmar {
   min-width: 140px;
 
   background: #f2f2f2;
   color: #151515;
 }
 
-.common-modal-dialogo:has(.common-modal-icono)
-.common-modal-btn-confirmar:hover {
+.common-modal-dialogo:has(.common-modal-icono) .common-modal-btn-confirmar:hover {
   background: #ffffff;
 }
 
@@ -666,16 +678,14 @@
     opacity: 0;
 
     transform:
-      translateY(16px)
-      scale(0.97);
+      translateY(16px) scale(0.97);
   }
 
   to {
     opacity: 1;
 
     transform:
-      translateY(0)
-      scale(1);
+      translateY(0) scale(1);
   }
 }
 

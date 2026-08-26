@@ -1,10 +1,12 @@
 import React, {
   useEffect,
+  useMemo,
   useState,
 } from 'react'
 
 import ModalMensaje from '../common/ui/ModalMensaje'
 import { validarGuardia } from '../../utils/validacionesGuardia'
+import { filtrarEmpleadosDisponibles } from '../../utils/guardiaUtils'
 
 const API_BASE_URL = 'http://localhost:8090'
 
@@ -24,6 +26,10 @@ function EditarGuardia({
   setGuardiaEditar,
 }) {
   const [empleados, setEmpleados] =
+    useState([])
+
+  /** Todas las guardias del sistema, para filtrar empleados ocupados */
+  const [guardiasExistentes, setGuardiasExistentes] =
     useState([])
 
   /** Errores de validación: { campo: mensajeError } */
@@ -73,25 +79,46 @@ function EditarGuardia({
   ) => {
     if (!rol) {
       setEmpleados([])
+      setGuardiasExistentes([])
       return
     }
 
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/empleados?rol=${rol}`
-      )
+      const [respEmpleados, respGuardias] =
+        await Promise.all([
+          fetch(
+            `${API_BASE_URL}/api/empleados?rol=${rol}`
+          ),
+          fetch(
+            `${API_BASE_URL}/api/guardias`
+          ),
+        ])
 
-      if (!response.ok) {
+      if (!respEmpleados.ok) {
         throw new Error(
           'Error al obtener empleados'
         )
       }
 
-      const data = await response.json()
+      const dataEmpleados =
+        await respEmpleados.json()
 
       setEmpleados(
-        Array.isArray(data) ? data : []
+        Array.isArray(dataEmpleados)
+          ? dataEmpleados
+          : []
       )
+
+      if (respGuardias.ok) {
+        const dataGuardias =
+          await respGuardias.json()
+
+        setGuardiasExistentes(
+          Array.isArray(dataGuardias)
+            ? dataGuardias
+            : []
+        )
+      }
     } catch (error) {
       console.error(
         'Error al cargar empleados:',
@@ -99,6 +126,34 @@ function EditarGuardia({
       )
     }
   }
+
+  /**
+   * Empleados filtrados que no tienen una guardia
+   * asignada que se solape con la guardia en edición.
+   * Se excluye la guardia actual para que su empleado asignado siga disponible.
+   */
+  const empleadosDisponibles = useMemo(
+    () =>
+      filtrarEmpleadosDisponibles(
+        empleados,
+        guardiasExistentes,
+        {
+          fecha: guardiaEditar?.fecha,
+          horaInicio:
+            guardiaEditar?.horaInicio,
+          horaFin: guardiaEditar?.horaFin,
+        },
+        guardiaEditar?.id ?? null
+      ),
+    [
+      empleados,
+      guardiasExistentes,
+      guardiaEditar?.fecha,
+      guardiaEditar?.horaInicio,
+      guardiaEditar?.horaFin,
+      guardiaEditar?.id,
+    ]
+  )
 
   useEffect(() => {
     if (guardiaEditar?.rol) {
@@ -442,7 +497,7 @@ function EditarGuardia({
                 Dejar sin asignar
               </option>
 
-              {empleados.map(
+              {empleadosDisponibles.map(
                 (empleado) => (
                   <option
                     key={empleado.dni}

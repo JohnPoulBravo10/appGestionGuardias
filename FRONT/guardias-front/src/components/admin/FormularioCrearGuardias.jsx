@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 
 import ModalMensaje from '../common/ui/ModalMensaje'
 import { validarGuardia } from '../../utils/validacionesGuardia'
+import { filtrarEmpleadosDisponibles } from '../../utils/guardiaUtils'
 
 const API_BASE_URL = 'http://localhost:8090'
 
@@ -27,6 +28,10 @@ function FormularioCrearGuardias({
   setPagina,
 }) {
   const [empleados, setEmpleados] =
+    useState([])
+
+  /** Todas las guardias del sistema, para filtrar empleados ocupados */
+  const [guardiasExistentes, setGuardiasExistentes] =
     useState([])
 
   const [guardia, setGuardia] =
@@ -77,25 +82,46 @@ function FormularioCrearGuardias({
   ) => {
     if (!rol) {
       setEmpleados([])
+      setGuardiasExistentes([])
       return
     }
 
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/empleados?rol=${rol}`
-      )
+      const [respEmpleados, respGuardias] =
+        await Promise.all([
+          fetch(
+            `${API_BASE_URL}/api/empleados?rol=${rol}`
+          ),
+          fetch(
+            `${API_BASE_URL}/api/guardias`
+          ),
+        ])
 
-      if (!response.ok) {
+      if (!respEmpleados.ok) {
         throw new Error(
           'Error al obtener empleados'
         )
       }
 
-      const data = await response.json()
+      const dataEmpleados =
+        await respEmpleados.json()
 
       setEmpleados(
-        Array.isArray(data) ? data : []
+        Array.isArray(dataEmpleados)
+          ? dataEmpleados
+          : []
       )
+
+      if (respGuardias.ok) {
+        const dataGuardias =
+          await respGuardias.json()
+
+        setGuardiasExistentes(
+          Array.isArray(dataGuardias)
+            ? dataGuardias
+            : []
+        )
+      }
     } catch (error) {
       console.error(
         'Error al cargar empleados:',
@@ -105,6 +131,30 @@ function FormularioCrearGuardias({
       setEmpleados([])
     }
   }
+
+  /**
+   * Empleados filtrados que no tienen una guardia
+   * asignada que se solape con la guardia actual.
+   */
+  const empleadosDisponibles = useMemo(
+    () =>
+      filtrarEmpleadosDisponibles(
+        empleados,
+        guardiasExistentes,
+        {
+          fecha: guardia.fecha,
+          horaInicio: guardia.horaInicio,
+          horaFin: guardia.horaFin,
+        }
+      ),
+    [
+      empleados,
+      guardiasExistentes,
+      guardia.fecha,
+      guardia.horaInicio,
+      guardia.horaFin,
+    ]
+  )
 
   const cerrarModal = () => {
     const debeVolver = modal.volver
@@ -444,7 +494,7 @@ function FormularioCrearGuardias({
                 Dejar sin asignar
               </option>
 
-              {empleados.map(
+              {empleadosDisponibles.map(
                 (empleado) => (
                   <option
                     key={empleado.dni}
