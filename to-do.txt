@@ -6,10 +6,10 @@ Pantallas Admin:
 + No se pueden ver las notificaciones. Agregar funcionalidad al boton de campanita.
 + Pantalla Historial
 + Al asignar un empleado a una guardia, verificar disponibilidad.
++ Al rechazar una solicitud no deberia estar disponible la lista de empleados a asignar.
++ Al aceptar una solicitud la lista de empleados debe filtrarse por rol segun la guardia. 
 - Añadir validaciones o restricciones al crear/eliminar admins (cuestión de seguridad).
 - Al eliminar un usuario habria que darlo de baja en lugar de borrarlo de la BD?
-- Al rechazar una solicitud no deberia estar disponible la lista de empleados a asignar.
-- Al aceptar una solicitud la lista de empleados debe filtrarse por rol segun la guardia. 
 - Ver donde se puede usar comunicacion asincrona.
 
 Pantallas Empleado:
@@ -19,7 +19,7 @@ Pantallas Empleado:
 + Guardias En Curso no deberian permitir Solicitar Cambio.
 + Al realizar solicitud, mostrar mensaje de confirmacion con el modal y actualizar la lista de
   guardias a seleccionar.
-- Creo que "Horas este mes" cuenta solo guardias hasta el dia anterior. Deberia contar tambien las
++ Creo que "Horas este mes" cuenta solo guardias hasta el dia anterior. Deberia contar tambien las
   del dia de hoy que esten Terminadas? (Creo que tiene que ver con que las guardias no actualizan
   su estado solas en el backend)
 - Ver donde se puede usar comunicacion asincrona.
