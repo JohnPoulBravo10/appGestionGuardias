@@ -29,6 +29,21 @@ function PanelEmpleado() {
     cargarNotificacionesEmpleado()
   }, [])
 
+  // Escuchar cuando otro componente (ej: ModalNotificaciones)
+  // marca una notificación como leída, para sincronizar la lista
+  useEffect(() => {
+
+    const handleNotificacionLeida = () => {
+      cargarNotificacionesEmpleado()
+    }
+
+    window.addEventListener('notificacion-leida', handleNotificacionLeida)
+
+    return () => {
+      window.removeEventListener('notificacion-leida', handleNotificacionLeida)
+    }
+  }, [])
+
   const cargarGuardiasEmpleado = async () => {
 
     try {
@@ -116,7 +131,16 @@ function PanelEmpleado() {
 
       const data = await response.json()
 
-      setNotificaciones(Array.isArray(data) ? data : [])
+      const lista = Array.isArray(data) ? data : []
+
+      // Ordenar por fecha de creación descendente (más recientes primero)
+      lista.sort((a, b) => {
+        const fechaA = a.fechaCreacion ? new Date(a.fechaCreacion) : new Date(0)
+        const fechaB = b.fechaCreacion ? new Date(b.fechaCreacion) : new Date(0)
+        return fechaB - fechaA
+      })
+
+      setNotificaciones(lista)
 
     } catch (err) {
 
@@ -165,6 +189,10 @@ function PanelEmpleado() {
             : notificacion
         )
       )
+
+      // Notificar a otros componentes (ej: BarraSuperior) para
+      // que sincronicen el indicador de notificaciones no leídas
+      window.dispatchEvent(new CustomEvent('notificacion-leida'))
 
     } catch (err) {
 
@@ -496,21 +524,21 @@ function PanelEmpleado() {
           <div>
 
             <h3 className="empleado-panel-tabla-titulo">
-              Mis notificaciones recientes
+              Notificaciones no leídas
             </h3>
 
             <p className="empleado-notificaciones-subtitulo">
-              Novedades sobre tus guardias y solicitudes
+              Notificaciones pendientes de lectura
             </p>
 
           </div>
 
-          {!loadingNotificaciones && (
+          {!loadingNotificaciones && cantidadNoLeidas > 0 && (
             <span className="empleado-notificaciones-contador">
               {cantidadNoLeidas}{' '}
               {cantidadNoLeidas === 1
-                ? 'nueva'
-                : 'nuevas'}
+                ? 'no leída'
+                : 'no leídas'}
             </span>
           )}
 
@@ -528,17 +556,17 @@ function PanelEmpleado() {
             {errorNotificaciones}
           </p>
 
-        ) : notificaciones.length === 0 ? (
+        ) : notificaciones.filter((n) => !n.leida).length === 0 ? (
 
           <p className="empleado-panel-vacio">
-            No hay notificaciones por el momento.
+            No hay notificaciones sin leer.
           </p>
 
         ) : (
 
           <div className="empleado-notificaciones-lista">
 
-            {notificaciones.map((notificacion) => (
+            {notificaciones.filter((n) => !n.leida).map((notificacion) => (
 
               <div
                 key={notificacion.id}

@@ -1,5 +1,6 @@
 package com.jpbravo.guardia_service.repository;
 
+import com.jpbravo.guardia_service.model.EstadoGuardia;
 import com.jpbravo.guardia_service.model.Guardia;
 import com.jpbravo.guardia_service.model.Rol;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,6 +16,8 @@ public interface GuardiaRepository
     List<Guardia> findByEmpleadoId(Long empleadoId);
 
     List<Guardia> findByRol(Rol rol);
+
+    List<Guardia> findByEstadoNot(EstadoGuardia estado);
 
     @Query(
         value = "SELECT * FROM guardias g "

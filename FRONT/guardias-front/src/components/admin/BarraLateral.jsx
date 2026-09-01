@@ -98,6 +98,13 @@ function BarraLateral() {
           </NavLink>
 
           <NavLink
+            to="/admin/historial-guardias"
+            className={obtenerClaseMenu}
+          >
+            HISTORIAL GUARDIAS
+          </NavLink>
+
+          <NavLink
             to="/admin/solicitudes"
             className={obtenerClaseMenu}
           >

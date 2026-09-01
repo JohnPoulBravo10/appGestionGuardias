@@ -63,6 +63,19 @@ function ModalResolucionSolicitud({
   }
 
   /**
+   * Filtra la lista de empleados para que no se pueda seleccionar el mismo empleado
+   * y que tenga el rol adecuado, segun el rol de la guardia.
+   */
+  const filtrarEmpleados = (listEmpleados) => {
+    return listEmpleados.filter((emp) => {
+      return (
+        String(emp.dni) !== String(solicitud.empleadoDni) &&
+        emp.rol === solicitud.infoGuardia?.rol
+      )
+    })
+  }
+
+  /**
    * Cierra el modal con Escape.
    */
   const handleKeyDown = (event) => {
@@ -138,7 +151,7 @@ function ModalResolucionSolicitud({
             Empleado Propuesto
             {esAprobacion
               ? ' (obligatorio)'
-              : ' (opcional)'}
+              : ''}
           </label>
 
           <select
@@ -148,13 +161,13 @@ function ModalResolucionSolicitud({
             onChange={(event) =>
               setEmpleadoDni(event.target.value)
             }
-            disabled={procesando}
+            disabled={!esAprobacion || procesando}
           >
             <option value="">
               Seleccione un empleado
             </option>
 
-            {empleados.map((emp) => (
+            {filtrarEmpleados(empleados).map((emp) => (
               <option
                 key={emp.dni}
                 value={emp.dni}

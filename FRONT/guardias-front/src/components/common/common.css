@@ -279,6 +279,8 @@
 }
 
 .common-btn-notificacion {
+  position: relative;
+
   margin-left: auto;
 
   display: flex;
@@ -304,6 +306,121 @@
 .common-btn-notificacion:hover {
   background: #222222;
   color: #ffffff;
+}
+
+/* ── Punto indicador de notificaciones no leídas ── */
+
+.common-btn-notificacion-punto {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+
+  width: 8px;
+  height: 8px;
+
+  background: #ffffff;
+
+  border-radius: 50%;
+
+  pointer-events: none;
+}
+
+/* =========================================================
+   MODAL DE NOTIFICACIONES
+   Usado por: ModalNotificaciones
+   ========================================================= */
+
+.common-modal-dialogo-notificaciones {
+  width: 100%;
+  max-width: 800px;
+  max-height: 80vh;
+
+  padding: 24px 28px 20px;
+
+  display: flex;
+  flex-direction: column;
+
+  background: #1a1a1a;
+
+  border: 1px solid #2f2f2f;
+  border-radius: 14px;
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+
+  animation: common-slideUp 0.25s ease;
+}
+
+/* ── Header del modal ── */
+
+.common-modal-notif-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+
+  padding-bottom: 18px;
+
+  border-bottom: 1px solid #2a2a2a;
+
+  flex-shrink: 0;
+}
+
+.common-modal-notif-header-acciones {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  flex-shrink: 0;
+}
+
+.common-modal-notif-btn-cerrar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+
+  background: transparent;
+  color: #888888;
+
+  border: none;
+  border-radius: 50%;
+
+  cursor: pointer;
+
+  font-size: 16px;
+  line-height: 1;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.common-modal-notif-btn-cerrar:hover {
+  background: #292929;
+  color: #ffffff;
+}
+
+/* ── Cuerpo scrollable ── */
+
+.common-modal-notif-cuerpo {
+  flex: 1;
+
+  margin-top: 4px;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 860px) {
+  .common-modal-dialogo-notificaciones {
+    max-width: 95vw;
+  }
 }
 
 /* =========================================================
@@ -407,7 +524,7 @@
  * ModalMensaje incluye un ícono.
  * En ese caso centramos título y mensaje.
  */
-.common-modal-icono + .common-modal-titulo {
+.common-modal-icono+.common-modal-titulo {
   text-align: center;
 }
 
@@ -424,8 +541,7 @@
  * Si el modal tiene ícono, centramos también
  * el texto del mensaje.
  */
-.common-modal-dialogo:has(.common-modal-icono)
-.common-modal-mensaje {
+.common-modal-dialogo:has(.common-modal-icono) .common-modal-mensaje {
   text-align: center;
 }
 
@@ -443,8 +559,7 @@
  * En ModalMensaje existe un solo botón.
  * Lo centramos y permitimos que tenga un ancho cómodo.
  */
-.common-modal-dialogo:has(.common-modal-icono)
-.common-modal-acciones {
+.common-modal-dialogo:has(.common-modal-icono) .common-modal-acciones {
   justify-content: center;
 }
 
@@ -476,6 +591,22 @@
 .common-modal-btn:focus-visible {
   outline: 2px solid #ffffff;
   outline-offset: 3px;
+}
+
+/* Aceptar */
+
+.common-modal-btn-aceptar {
+  background: #ffffff;
+  color: #000000;
+
+  border: 1px solid #c4c4c4;
+}
+
+.common-modal-btn-aceptar:hover {
+  background: #e0e0e0;
+  color: #000000;
+
+  border-color: #949494;
 }
 
 /* Cancelar */
@@ -517,16 +648,14 @@
  * esa estructura para cambiar el botón.
  */
 
-.common-modal-dialogo:has(.common-modal-icono)
-.common-modal-btn-confirmar {
+.common-modal-dialogo:has(.common-modal-icono) .common-modal-btn-confirmar {
   min-width: 140px;
 
   background: #f2f2f2;
   color: #151515;
 }
 
-.common-modal-dialogo:has(.common-modal-icono)
-.common-modal-btn-confirmar:hover {
+.common-modal-dialogo:has(.common-modal-icono) .common-modal-btn-confirmar:hover {
   background: #ffffff;
 }
 
@@ -549,16 +678,14 @@
     opacity: 0;
 
     transform:
-      translateY(16px)
-      scale(0.97);
+      translateY(16px) scale(0.97);
   }
 
   to {
     opacity: 1;
 
     transform:
-      translateY(0)
-      scale(1);
+      translateY(0) scale(1);
   }
 }
 
