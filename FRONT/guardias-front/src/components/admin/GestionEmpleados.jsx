@@ -230,9 +230,9 @@ function GestionEmpleados({
         setModal({
           visible: true,
           tipo: 'exito',
-          titulo: 'Empleado eliminado',
+          titulo: 'Empleado dado de baja',
           mensaje:
-            'El empleado se eliminó con éxito.',
+            'El empleado se dio de baja con éxito.',
         })
       } catch (error) {
         console.error(
@@ -247,7 +247,7 @@ function GestionEmpleados({
           tipo: 'error',
           titulo: 'Error',
           mensaje:
-            'No se pudo eliminar el empleado.',
+            'No se pudo dar de baja al empleado.',
         })
       }
     }
@@ -460,10 +460,10 @@ function GestionEmpleados({
         visible={
           empleadoAEliminar !== null
         }
-        titulo="Eliminar empleado"
+        titulo="Dar de baja empleado"
         mensaje={
           empleadoAEliminar
-            ? `¿Desea eliminar a ${empleadoAEliminar.nombre} ${empleadoAEliminar.apellido}, DNI ${empleadoAEliminar.dni}?`
+            ? `¿Desea dar de baja a ${empleadoAEliminar.nombre} ${empleadoAEliminar.apellido}, DNI ${empleadoAEliminar.dni}? Esta acción desactivará al empleado, liberará sus guardias futuras y cancelará sus solicitudes pendientes.`
             : ''
         }
         onConfirmar={

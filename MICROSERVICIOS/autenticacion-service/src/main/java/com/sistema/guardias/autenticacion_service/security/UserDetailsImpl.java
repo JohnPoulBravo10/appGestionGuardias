@@ -14,6 +14,7 @@ public class UserDetailsImpl implements UserDetails {
     private String usuario;
     private String password;
     private Long empleadoDni;
+    private boolean activo;
     private Collection<? extends GrantedAuthority> authorities;
 
     public UserDetailsImpl(
@@ -21,12 +22,14 @@ public class UserDetailsImpl implements UserDetails {
             String usuario,
             String password,
             Long empleadoDni,
+            boolean activo,
             Collection<? extends GrantedAuthority> authorities
     ) {
         this.id = id;
         this.usuario = usuario;
         this.password = password;
         this.empleadoDni = empleadoDni;
+        this.activo = activo;
         this.authorities = authorities;
     }
 
@@ -39,6 +42,7 @@ public class UserDetailsImpl implements UserDetails {
                 usuario.getUsuario(),
                 usuario.getPassword(),
                 usuario.getEmpleadoDni(),
+                usuario.isActivo(),
                 Collections.singletonList(authority)
         );
     }
@@ -81,8 +85,12 @@ public class UserDetailsImpl implements UserDetails {
         return true;
     }
 
+    /**
+     * Retorna si el usuario está habilitado.
+     * Un usuario dado de baja (activo = false) no podrá autenticarse.
+     */
     @Override
     public boolean isEnabled() {
-        return true;
+        return activo;
     }
 }

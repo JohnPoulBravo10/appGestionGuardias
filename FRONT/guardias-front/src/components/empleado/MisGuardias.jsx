@@ -295,10 +295,6 @@ function MisGuardias() {
           <option value="PROXIMA">
             Próxima
           </option>
-
-          <option value="SIN ASIGNAR">
-            Sin asignar
-          </option>
         </select>
 
         <input

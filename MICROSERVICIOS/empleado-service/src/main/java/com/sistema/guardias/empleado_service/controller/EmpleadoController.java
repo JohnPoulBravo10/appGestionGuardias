@@ -78,7 +78,7 @@ public class EmpleadoController {
             @PathVariable Long dni) {
 
         try {
-            empleadoService.eliminarEmpleado(dni);
+            empleadoService.desactivarEmpleado(dni);
 
             return ResponseEntity.noContent().build();
 

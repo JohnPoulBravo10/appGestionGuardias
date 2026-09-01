@@ -38,4 +38,14 @@ public interface SolicitudCambioGuardiaRepository extends MongoRepository<Solici
      * @return lista ordenada de solicitudes
      */
     List<SolicitudCambioGuardia> findByEstadoOrderByFechaCreacionDesc(EstadoSolicitud estado);
+
+    /**
+     * Obtiene solicitudes de un empleado en un estado determinado.
+     * Usado para rechazar automáticamente solicitudes pendientes al dar de baja un empleado.
+     *
+     * @param empleadoDni DNI del empleado solicitante
+     * @param estado estado de la solicitud a filtrar
+     * @return lista de solicitudes del empleado en el estado indicado
+     */
+    List<SolicitudCambioGuardia> findByEmpleadoDniAndEstado(String empleadoDni, EstadoSolicitud estado);
 }

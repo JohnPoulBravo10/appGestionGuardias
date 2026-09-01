@@ -30,4 +30,13 @@ public class Usuario {
 
     @Column(name = "empleado_dni", unique = true)
     private Long empleadoDni;
+
+    /**
+     * Indica si el usuario está activo en el sistema.
+     * Al dar de baja al empleado asociado, se marca como false
+     * para bloquear el acceso al sistema.
+     */
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean activo = true;
 }
