@@ -23,6 +23,15 @@ public class EmpleadoEvent {
     /** DNI del empleado afectado. */
     private Long empleadoDni;
 
+    /** Nombre del empleado. */
+    private String nombre;
+
+    /** Apellido del empleado. */
+    private String apellido;
+
+    /** Rol del empleado al momento del evento. */
+    private String rol;
+
     /** Fecha y hora en que se produjo el evento. */
     private LocalDateTime fechaEvento;
 }

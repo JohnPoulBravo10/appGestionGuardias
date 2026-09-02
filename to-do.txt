@@ -9,13 +9,13 @@ Pantallas Admin:
 + Al rechazar una solicitud no deberia estar disponible la lista de empleados a asignar.
 + Al aceptar una solicitud la lista de empleados debe filtrarse por rol segun la guardia. 
 + Al eliminar un usuario habria que darlo de baja en lugar de borrarlo de la BD
-------------------------------------------------------------------------------------------
-- Añadir validaciones o restricciones al crear/eliminar admins (cuestión de seguridad).
-- Ver donde se puede usar comunicacion asincrona:
-  - Consulta de guardias con nombre de empleado
++ Ver donde se puede usar comunicacion asincrona:
+  + Consulta de guardias con nombre de empleado
   + Registro de usuarios y creacion de empleados
   + Eliminacion de usuarios
   + Aprobacion de solicitudes y reasignacion de guardias
+------------------------------------------------------------------------------------------
+- Añadir validaciones o restricciones al crear/eliminar admins (cuestión de seguridad).
 
 Pantallas Empleado:
 + "Mis guardias" se ordenan por igual que para el admin. Cambiar IDEM a admin.
@@ -28,4 +28,7 @@ Pantallas Empleado:
   del dia de hoy que esten Terminadas? (Creo que tiene que ver con que las guardias no actualizan
   su estado solas en el backend)
 ------------------------------------------------------------------------------------------
-- Ver donde se puede usar comunicacion asincrona.
+
+
+- Revisar posibles mejoras en seguridad.
+- Implementar Monitoreo y Logs.

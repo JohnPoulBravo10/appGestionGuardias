@@ -39,7 +39,13 @@ public class EmpleadoService {
             throw new RuntimeException("Ya existe un empleado con ese DNI");
         }
 
-        return empleadoRepository.save(empleado);
+        Empleado guardado = empleadoRepository.save(empleado);
+
+        empleadoEventProducer.publicarEvento(
+                construirEvento(TipoEmpleadoEvent.EMPLEADO_CREADO, guardado)
+        );
+
+        return guardado;
     }
 
     /**
@@ -57,14 +63,9 @@ public class EmpleadoService {
         empleado.setActivo(false);
         empleadoRepository.save(empleado);
 
-        // Publicar evento Kafka para notificar a los demás microservicios
-        EmpleadoEvent evento = EmpleadoEvent.builder()
-                .tipoEvento(TipoEmpleadoEvent.EMPLEADO_DESACTIVADO)
-                .empleadoDni(dni)
-                .fechaEvento(LocalDateTime.now())
-                .build();
-
-        empleadoEventProducer.publicarEvento(evento);
+        empleadoEventProducer.publicarEvento(
+                construirEvento(TipoEmpleadoEvent.EMPLEADO_DESACTIVADO, empleado)
+        );
     }
 
     /**
@@ -85,6 +86,31 @@ public class EmpleadoService {
 
         empleado.setDni(dni);
 
-        return empleadoRepository.save(empleado);
+        Empleado actualizado = empleadoRepository.save(empleado);
+
+        empleadoEventProducer.publicarEvento(
+                construirEvento(TipoEmpleadoEvent.EMPLEADO_ACTUALIZADO, actualizado)
+        );
+
+        return actualizado;
+    }
+
+    /**
+     * Construye un evento enriquecido a partir de la entidad Empleado.
+     * Centraliza la creación para evitar duplicación (principio DRY).
+     *
+     * @param tipo   tipo de evento del ciclo de vida del empleado
+     * @param empleado entidad con los datos actuales del empleado
+     * @return evento listo para publicar en Kafka
+     */
+    private EmpleadoEvent construirEvento(TipoEmpleadoEvent tipo, Empleado empleado) {
+        return EmpleadoEvent.builder()
+                .tipoEvento(tipo)
+                .empleadoDni(empleado.getDni())
+                .nombre(empleado.getNombre())
+                .apellido(empleado.getApellido())
+                .rol(empleado.getRol() != null ? empleado.getRol().name() : null)
+                .fechaEvento(LocalDateTime.now())
+                .build();
     }
 }

@@ -6,6 +6,12 @@ package com.jpbravo.solicitudes_service.event;
  */
 public enum TipoEmpleadoEvent {
 
+    /** Se emite cuando se crea un nuevo empleado en el sistema. */
+    EMPLEADO_CREADO,
+
+    /** Se emite cuando se actualizan los datos de un empleado existente. */
+    EMPLEADO_ACTUALIZADO,
+
     /** Se emite cuando un empleado es dado de baja (soft-delete). */
     EMPLEADO_DESACTIVADO
 }
