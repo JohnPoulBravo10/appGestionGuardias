@@ -1,6 +1,5 @@
 package com.jpbravo.solicitudes_service.service;
 
-import com.jpbravo.solicitudes_service.client.GuardiaServiceClient;
 import com.jpbravo.solicitudes_service.dto.SolicitudRequestDto;
 import com.jpbravo.solicitudes_service.dto.SolicitudResponseDto;
 import com.jpbravo.solicitudes_service.event.SolicitudEvent;
@@ -24,9 +23,6 @@ public class SolicitudCambioGuardiaService {
 
     @Autowired
     private SolicitudCambioGuardiaRepository repository;
-
-    @Autowired
-    private GuardiaServiceClient guardiaServiceClient;
 
     @Autowired
     private SolicitudEventProducer solicitudEventProducer;
@@ -103,17 +99,14 @@ public class SolicitudCambioGuardiaService {
             solicitud.setNombreEmpleadoReemplazo(nombreEmpleadoReemplazo);
         }
 
-        Long guardiaId = solicitud.getInfoGuardia().getGuardiaId();
-        Long nuevoEmpleadoId = solicitud.getEmpleadoReemplazoDni();
-
-        guardiaServiceClient.reasignarEmpleado(guardiaId, nuevoEmpleadoId);
-
         solicitud.setEstado(EstadoSolicitud.APROBADA);
         solicitud.setFechaResolucion(LocalDateTime.now());
         solicitud.setObservacionAdmin(observacion);
 
         SolicitudCambioGuardia actualizada = repository.save(solicitud);
 
+        // El evento SOLICITUD_CAMBIO_ACEPTADA incluye los datos de reasignación
+        // para que guardia-service los consuma de forma asíncrona vía Kafka.
         SolicitudEvent evento = SolicitudEvent.builder()
                 .tipoEvento(TipoSolicitudEvent.SOLICITUD_CAMBIO_ACEPTADA)
                 .solicitudId(actualizada.getId())
@@ -122,6 +115,7 @@ public class SolicitudCambioGuardiaService {
                 .guardiaId(actualizada.getInfoGuardia().getGuardiaId())
                 .estado(actualizada.getEstado().name())
                 .observacionAdmin(actualizada.getObservacionAdmin())
+                .empleadoReemplazoDni(actualizada.getEmpleadoReemplazoDni())
                 .fechaEvento(LocalDateTime.now())
                 .build();
 
