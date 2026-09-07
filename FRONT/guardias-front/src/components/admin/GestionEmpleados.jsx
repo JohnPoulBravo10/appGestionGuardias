@@ -7,6 +7,8 @@ import React, {
 import ModalConfirmacion from '../common/ui/ModalConfirmacion'
 import ModalMensaje from '../common/ui/ModalMensaje'
 
+import { getToken } from '../../utils/authUtils'
+
 const API_BASE_URL = 'http://localhost:8090'
 
 function GestionEmpleados({
@@ -44,8 +46,12 @@ function GestionEmpleados({
     try {
       setLoading(true)
 
+      const token = getToken()
+      const headers = token ? { Authorization: `Bearer ${token}` } : {}
+
       const response = await fetch(
-        `${API_BASE_URL}/api/empleados`
+        `${API_BASE_URL}/api/empleados`,
+        { headers }
       )
 
       if (!response.ok) {
@@ -204,10 +210,13 @@ function GestionEmpleados({
         empleadoAEliminar.dni
 
       try {
+        const token = getToken()
+
         const response = await fetch(
           `${API_BASE_URL}/api/empleados/${dni}`,
           {
             method: 'DELETE',
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
           }
         )
 
@@ -438,12 +447,13 @@ function GestionEmpleados({
 
                       <button
                         type="button"
-                        className="admin-accion-eliminar"
+                        className={`admin-accion-eliminar ${empleado.rol === 'ADMINISTRADOR' ? 'admin-accion-deshabilitada' : ''}`}
                         onClick={() =>
                           solicitarEliminarEmpleado(
                             empleado
                           )
                         }
+                        disabled={empleado.rol === 'ADMINISTRADOR'}
                       >
                         Eliminar
                       </button>

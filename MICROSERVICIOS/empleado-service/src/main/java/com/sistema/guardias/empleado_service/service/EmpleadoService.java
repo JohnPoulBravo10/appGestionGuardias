@@ -60,6 +60,10 @@ public class EmpleadoService {
         Empleado empleado = empleadoRepository.findById(dni)
                 .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
 
+        if (Rol.ADMINISTRADOR.equals(empleado.getRol())) {
+            throw new IllegalArgumentException("No está permitido dar de baja a un administrador.");
+        }
+
         empleado.setActivo(false);
         empleadoRepository.save(empleado);
 

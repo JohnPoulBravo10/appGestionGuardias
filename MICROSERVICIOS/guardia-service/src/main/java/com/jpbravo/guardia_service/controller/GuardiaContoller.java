@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,8 +30,9 @@ public class GuardiaContoller {
 
     @GetMapping
     public ResponseEntity<List<GuardiaResponseDto>>
-            listarGuardias() {
+            listarGuardias(@RequestHeader(value = "X-User-Roles", required = false) String roles) {
 
+        requireAdmin(roles);
         List<GuardiaResponseDto> guardias =
                 guardiaService
                         .obtenerTodasConEmpleado();
@@ -39,7 +41,8 @@ public class GuardiaContoller {
     }
 
     @GetMapping("/activas")
-    public List<Guardia> listarGuardiasActivas() {
+    public List<Guardia> listarGuardiasActivas(@RequestHeader(value = "X-User-Roles", required = false) String roles) {
+        requireAdmin(roles);
         return guardiaService
                 .obtenerGuardiasActivas();
     }
@@ -62,9 +65,12 @@ public class GuardiaContoller {
     @GetMapping("/empleado/{idEmpleado}")
     public ResponseEntity<List<Guardia>>
             obtenerGuardiasEmpleado(
-                    @PathVariable Long idEmpleado
+                    @PathVariable Long idEmpleado,
+                    @RequestHeader(value = "X-User-Roles", required = false) String roles,
+                    @RequestHeader(value = "X-User-Dni", required = false) String userDni
             ) {
 
+        requireAdminOrOwner(roles, userDni, idEmpleado);
         List<Guardia> guardias =
                 guardiaService
                         .obtenerGuardiasEmpleado(
@@ -92,8 +98,10 @@ public class GuardiaContoller {
 
     @PostMapping
     public ResponseEntity<?> crearGuardia(
-            @Valid @RequestBody CrearGuardiaDto dto
+            @Valid @RequestBody CrearGuardiaDto dto,
+            @RequestHeader(value = "X-User-Roles", required = false) String roles
     ) {
+        requireAdmin(roles);
         /*
          * Validación de reglas de negocio (coherencia de horario)
          * que no se puede expresar con anotaciones Jakarta.
@@ -127,9 +135,11 @@ public class GuardiaContoller {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void>
             eliminarGuardia(
-                    @PathVariable Long id
+                    @PathVariable Long id,
+                    @RequestHeader(value = "X-User-Roles", required = false) String roles
             ) {
 
+        requireAdmin(roles);
         guardiaService.eliminarGuardia(id);
 
         return ResponseEntity
@@ -141,9 +151,11 @@ public class GuardiaContoller {
     public ResponseEntity<?>
             actualizarGuardia(
                     @PathVariable Long id,
-                    @Valid @RequestBody CrearGuardiaDto dto
+                    @Valid @RequestBody CrearGuardiaDto dto,
+                    @RequestHeader(value = "X-User-Roles", required = false) String roles
             ) {
 
+        requireAdmin(roles);
         /*
          * Validación de reglas de negocio (coherencia de horario)
          * que no se puede expresar con anotaciones Jakarta.
@@ -190,5 +202,21 @@ public class GuardiaContoller {
                 .rol(dto.getRol())
                 .empleadoId(dto.getEmpleadoId())
                 .build();
+    }
+
+    private boolean isAdmin(String roles) {
+        return roles != null && roles.contains("ADMIN");
+    }
+
+    private void requireAdmin(String roles) {
+        if (!isAdmin(roles)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado: Se requiere rol ADMIN");
+        }
+    }
+
+    private void requireAdminOrOwner(String roles, String userDni, Long targetDni) {
+        if (!isAdmin(roles) && (userDni == null || !userDni.equals(String.valueOf(targetDni)))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado: No tiene permisos para este recurso");
+        }
     }
 }

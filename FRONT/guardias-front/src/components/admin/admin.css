@@ -613,6 +613,11 @@ select.admin-input-estilo {
   transform: translateY(1px);
 }
 
+.admin-accion-deshabilitada {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 /* =========================================================
    BADGES
    Usado por: GestionGuardias, PanelPrincipal

@@ -1,6 +1,5 @@
 package com.jpbravo.notification_service.consumer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.jpbravo.notification_service.event.SolicitudEvent;
 import com.jpbravo.notification_service.model.Notificacion;
@@ -17,19 +16,17 @@ public class SolicitudEventConsumer {
     @Autowired
     private NotificacionService notificacionService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @KafkaListener(
             topics = "solicitudes-events",
             groupId = "notification-solicitudes-group",
-            containerFactory = "solicitudKafkaListenerContainerFactory"
+            properties = {
+                "spring.json.value.default.type=com.jpbravo.notification_service.event.SolicitudEvent"
+            }
     )
-    public void consumirEvento(String mensaje) {
+    public void consumirEvento(SolicitudEvent evento) {
 
         try {
-
-            SolicitudEvent evento = objectMapper.readValue(mensaje, SolicitudEvent.class);
 
             System.out.println("EVENTO DE SOLICITUD RECIBIDO: " + evento);
 

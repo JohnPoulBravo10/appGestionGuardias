@@ -28,7 +28,7 @@ public class DataInitializer {
                     adminDto.setTelefono(3425000001L);
                     adminDto.setDireccion("Av. Principal 100");
 
-                    authService.registrar(adminDto);
+                    authService.registrarSistema(adminDto);
                     System.out.println("✓ Usuario de prueba creado: admin (rol: ADMINISTRADOR)");
                 }
 
@@ -45,7 +45,7 @@ public class DataInitializer {
                     enfermeriaDto.setTelefono(3425000002L);
                     enfermeriaDto.setDireccion("Calle Salud 200");
 
-                    authService.registrar(enfermeriaDto);
+                    authService.registrarSistema(enfermeriaDto);
                     System.out.println("✓ Usuario de prueba creado: enfermeria (rol: ENFERMERIA)");
                 }
 
@@ -62,7 +62,7 @@ public class DataInitializer {
                     mantenimientoDto.setTelefono(3425000003L);
                     mantenimientoDto.setDireccion("Calle Herramienta 300");
 
-                    authService.registrar(mantenimientoDto);
+                    authService.registrarSistema(mantenimientoDto);
                     System.out.println("✓ Usuario de prueba creado: mantenimiento (rol: MANTENIMIENTO)");
                 }
 
@@ -79,7 +79,7 @@ public class DataInitializer {
                     limpiezaDto.setTelefono(3425000004L);
                     limpiezaDto.setDireccion("Calle Escoba 400");
 
-                    authService.registrar(limpiezaDto);
+                    authService.registrarSistema(limpiezaDto);
                     System.out.println("✓ Usuario de prueba creado: limpieza (rol: LIMPIEZA)");
                 }
             } catch (Exception e) {

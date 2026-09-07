@@ -63,7 +63,10 @@ function PanelPrincipal() {
 
   const obtenerGuardiasActivas = async () => {
     try {
-      const response = await fetch('http://localhost:8090/api/guardias/activas')
+      const token = getToken()
+      const headers = token ? { Authorization: `Bearer ${token}` } : {}
+
+      const response = await fetch('http://localhost:8090/api/guardias/activas', { headers })
 
       if (!response.ok) {
         throw new Error('Error al obtener las guardias activas')

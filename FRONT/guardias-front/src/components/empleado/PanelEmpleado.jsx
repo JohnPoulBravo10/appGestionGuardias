@@ -214,7 +214,7 @@ function PanelEmpleado() {
     const futuras = guardias
       .filter((g) => {
 
-        if (!g.fecha) {
+        if (!g.fecha || g.estado === 'COMPLETADA') {
           return false
         }
 
@@ -386,6 +386,7 @@ function PanelEmpleado() {
                 <span className="empleado-proxima-guardia-horario">
                   {formatearFechaRelativa(proximaGuardia.fecha)},{' '}
                   {formatearHora(proximaGuardia.horaInicio)} h
+                  {proximaGuardia.estado === 'ENCURSO' && ' (En curso)'}
                 </span>
 
                 <span className="empleado-proxima-guardia-area">
@@ -570,11 +571,10 @@ function PanelEmpleado() {
 
               <div
                 key={notificacion.id}
-                className={`empleado-notificacion-item ${
-                  !notificacion.leida
-                    ? 'empleado-notificacion-item-nueva'
-                    : ''
-                }`}
+                className={`empleado-notificacion-item ${!notificacion.leida
+                  ? 'empleado-notificacion-item-nueva'
+                  : ''
+                  }`}
               >
 
                 <div className="empleado-notificacion-principal">

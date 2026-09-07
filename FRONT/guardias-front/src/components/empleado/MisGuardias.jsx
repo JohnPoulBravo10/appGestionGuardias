@@ -426,11 +426,7 @@ function MisGuardias() {
                       <td className="empleado-acciones">
                         <button
                           type="button"
-                          className={
-                            pendiente
-                              ? 'empleado-btn-solicitud-realizada'
-                              : 'empleado-btn-solicitar-cambio'
-                          }
+                          className={`empleado-btn-solicitar-cambio ${pendiente || esEnCurso ? 'empleado-accion-deshabilitada' : ''}`}
                           disabled={botonDeshabilitado}
                           title={
                             esEnCurso

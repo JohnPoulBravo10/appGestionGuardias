@@ -10,6 +10,8 @@ import {
   obtenerClaseEstadoGuardia,
 } from '../../utils/guardiaUtils'
 
+import { getToken } from '../../utils/authUtils'
+
 const API_BASE_URL = 'http://localhost:8090'
 
 /**
@@ -53,8 +55,12 @@ function HistorialGuardias() {
     try {
       setLoading(true)
 
+      const token = getToken()
+      const headers = token ? { Authorization: `Bearer ${token}` } : {}
+
       const response = await fetch(
-        `${API_BASE_URL}/api/guardias`
+        `${API_BASE_URL}/api/guardias`,
+        { headers }
       )
 
       if (!response.ok) {

@@ -3,6 +3,7 @@ package com.sistema.guardias.autenticacion_service.service;
 import com.sistema.guardias.autenticacion_service.dto.LoginRequestDto;
 import com.sistema.guardias.autenticacion_service.dto.RegistroRequestDto;
 import com.sistema.guardias.autenticacion_service.dto.TokenDto;
+import com.sistema.guardias.autenticacion_service.dto.UsuarioResponseDto;
 import com.sistema.guardias.autenticacion_service.event.UsuarioRegistradoEvent;
 import com.sistema.guardias.autenticacion_service.exception.CampoDuplicadoException;
 import com.sistema.guardias.autenticacion_service.model.Usuario;
@@ -38,7 +39,21 @@ public class AuthService {
     private UsuarioRegistradoProducer usuarioRegistradoProducer;
 
     @Transactional
-    public Usuario registrar(RegistroRequestDto dto) {
+    public UsuarioResponseDto registrar(RegistroRequestDto dto) {
+        if (com.sistema.guardias.autenticacion_service.model.Rol.ADMINISTRADOR.equals(dto.getRolUsuario()) || 
+            "ADMINISTRADOR".equalsIgnoreCase(dto.getRolEmpleado())) {
+            throw new IllegalArgumentException("No está permitido crear usuarios administradores a través del registro público.");
+        }
+
+        return procesarRegistro(dto);
+    }
+
+    @Transactional
+    public UsuarioResponseDto registrarSistema(RegistroRequestDto dto) {
+        return procesarRegistro(dto);
+    }
+
+    private UsuarioResponseDto procesarRegistro(RegistroRequestDto dto) {
         if (usuarioRepository.findByUsuario(dto.getUsuario()).isPresent()) {
             throw new CampoDuplicadoException("usuario", "El usuario ya existe");
         }
@@ -68,7 +83,13 @@ public class AuthService {
         
         usuarioRegistradoProducer.publicarEvento(evento);
         
-        return usuarioGuardado;
+        return UsuarioResponseDto.builder()
+                .id(usuarioGuardado.getId())
+                .usuario(usuarioGuardado.getUsuario())
+                .rol(usuarioGuardado.getRol())
+                .empleadoDni(usuarioGuardado.getEmpleadoDni())
+                .activo(usuarioGuardado.isActivo())
+                .build();
     }
 
     public TokenDto login(LoginRequestDto dto) {
