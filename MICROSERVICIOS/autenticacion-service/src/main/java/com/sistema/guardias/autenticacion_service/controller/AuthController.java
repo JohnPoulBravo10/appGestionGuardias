@@ -3,7 +3,7 @@ package com.sistema.guardias.autenticacion_service.controller;
 import com.sistema.guardias.autenticacion_service.dto.LoginRequestDto;
 import com.sistema.guardias.autenticacion_service.dto.RegistroRequestDto;
 import com.sistema.guardias.autenticacion_service.dto.TokenDto;
-import com.sistema.guardias.autenticacion_service.model.Usuario;
+import com.sistema.guardias.autenticacion_service.dto.UsuarioResponseDto;
 import com.sistema.guardias.autenticacion_service.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +18,8 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<Usuario> registrar(@Valid @RequestBody RegistroRequestDto dto) {
-        Usuario nuevoUsuario = authService.registrar(dto);
+    public ResponseEntity<UsuarioResponseDto> registrar(@Valid @RequestBody RegistroRequestDto dto) {
+        UsuarioResponseDto nuevoUsuario = authService.registrar(dto);
         return ResponseEntity.ok(nuevoUsuario);
     }
 

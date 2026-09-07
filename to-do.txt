@@ -8,9 +8,14 @@ Pantallas Admin:
 + Al asignar un empleado a una guardia, verificar disponibilidad.
 + Al rechazar una solicitud no deberia estar disponible la lista de empleados a asignar.
 + Al aceptar una solicitud la lista de empleados debe filtrarse por rol segun la guardia. 
-- Añadir validaciones o restricciones al crear/eliminar admins (cuestión de seguridad).
-- Al eliminar un usuario habria que darlo de baja en lugar de borrarlo de la BD?
-- Ver donde se puede usar comunicacion asincrona.
++ Al eliminar un usuario habria que darlo de baja en lugar de borrarlo de la BD
++ Ver donde se puede usar comunicacion asincrona:
+  + Consulta de guardias con nombre de empleado
+  + Registro de usuarios y creacion de empleados
+  + Eliminacion de usuarios
+  + Aprobacion de solicitudes y reasignacion de guardias
++ Para botones deshabilitados copiar style de boton "eliminar" en Gestion de empleados
+------------------------------------------------------------------------------------------
 
 Pantallas Empleado:
 + "Mis guardias" se ordenan por igual que para el admin. Cambiar IDEM a admin.
@@ -22,4 +27,21 @@ Pantallas Empleado:
 + Creo que "Horas este mes" cuenta solo guardias hasta el dia anterior. Deberia contar tambien las
   del dia de hoy que esten Terminadas? (Creo que tiene que ver con que las guardias no actualizan
   su estado solas en el backend)
-- Ver donde se puede usar comunicacion asincrona.
++ Logica de tarjeta "Proxima guardia"
+------------------------------------------------------------------------------------------
+
+
+- Revisar posibles mejoras en seguridad:
+  + Fuga del hash de contraseñas (BCrypt) en la respuesta del endpoint de registro
+  + Exposición innecesaria de puertos de bases de datos, Kafka y microservicios al exterior
+  + Deserialización permisiva de paquetes Kafka (trusted.packages=*)
+  + Ausencia de Validación de JWT en el API Gateway y Servicios de Negocio
+  + Escalación de Privilegios en el Registro de Usuarios
+  + Añadir validaciones o restricciones al eliminar admins (a nivel backend).
+  + Credenciales, contraseñas y clave secreta JWT hardcodeadas en repositorios
+  + Endpoints de consulta y resolución de solicitudes confían ciegamente en IDs sin verificar el usuario autenticado
+  + Instancias de MongoDB ejecutándose sin autenticación
+  - Mass Assignment (vinculación directa de entidades JPA en controladores)
+  - Nivel de logueo TRACE para sentencias y parámetros SQL con datos sensibles
+
+- Implementar Monitoreo y Logs.

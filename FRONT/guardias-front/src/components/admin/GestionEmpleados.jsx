@@ -7,6 +7,8 @@ import React, {
 import ModalConfirmacion from '../common/ui/ModalConfirmacion'
 import ModalMensaje from '../common/ui/ModalMensaje'
 
+import { getToken } from '../../utils/authUtils'
+
 const API_BASE_URL = 'http://localhost:8090'
 
 function GestionEmpleados({
@@ -44,8 +46,12 @@ function GestionEmpleados({
     try {
       setLoading(true)
 
+      const token = getToken()
+      const headers = token ? { Authorization: `Bearer ${token}` } : {}
+
       const response = await fetch(
-        `${API_BASE_URL}/api/empleados`
+        `${API_BASE_URL}/api/empleados`,
+        { headers }
       )
 
       if (!response.ok) {
@@ -204,10 +210,13 @@ function GestionEmpleados({
         empleadoAEliminar.dni
 
       try {
+        const token = getToken()
+
         const response = await fetch(
           `${API_BASE_URL}/api/empleados/${dni}`,
           {
             method: 'DELETE',
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
           }
         )
 
@@ -230,9 +239,9 @@ function GestionEmpleados({
         setModal({
           visible: true,
           tipo: 'exito',
-          titulo: 'Empleado eliminado',
+          titulo: 'Empleado dado de baja',
           mensaje:
-            'El empleado se eliminó con éxito.',
+            'El empleado se dio de baja con éxito.',
         })
       } catch (error) {
         console.error(
@@ -247,7 +256,7 @@ function GestionEmpleados({
           tipo: 'error',
           titulo: 'Error',
           mensaje:
-            'No se pudo eliminar el empleado.',
+            'No se pudo dar de baja al empleado.',
         })
       }
     }
@@ -438,12 +447,13 @@ function GestionEmpleados({
 
                       <button
                         type="button"
-                        className="admin-accion-eliminar"
+                        className={`admin-accion-eliminar ${empleado.rol === 'ADMINISTRADOR' ? 'admin-accion-deshabilitada' : ''}`}
                         onClick={() =>
                           solicitarEliminarEmpleado(
                             empleado
                           )
                         }
+                        disabled={empleado.rol === 'ADMINISTRADOR'}
                       >
                         Eliminar
                       </button>
@@ -460,10 +470,10 @@ function GestionEmpleados({
         visible={
           empleadoAEliminar !== null
         }
-        titulo="Eliminar empleado"
+        titulo="Dar de baja empleado"
         mensaje={
           empleadoAEliminar
-            ? `¿Desea eliminar a ${empleadoAEliminar.nombre} ${empleadoAEliminar.apellido}, DNI ${empleadoAEliminar.dni}?`
+            ? `¿Desea dar de baja a ${empleadoAEliminar.nombre} ${empleadoAEliminar.apellido}, DNI ${empleadoAEliminar.dni}? Esta acción desactivará al empleado, liberará sus guardias futuras y cancelará sus solicitudes pendientes.`
             : ''
         }
         onConfirmar={

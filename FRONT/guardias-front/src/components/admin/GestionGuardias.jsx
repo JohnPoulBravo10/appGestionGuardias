@@ -13,6 +13,8 @@ import {
 import ModalConfirmacion from '../common/ui/ModalConfirmacion'
 import ModalMensaje from '../common/ui/ModalMensaje'
 
+import { getToken } from '../../utils/authUtils'
+
 const API_BASE_URL = 'http://localhost:8090'
 
 function GestionGuardias({
@@ -70,8 +72,12 @@ function GestionGuardias({
     try {
       setLoading(true)
 
+      const token = getToken()
+      const headers = token ? { Authorization: `Bearer ${token}` } : {}
+
       const response = await fetch(
-        `${API_BASE_URL}/api/guardias`
+        `${API_BASE_URL}/api/guardias`,
+        { headers }
       )
 
       if (!response.ok) {
@@ -192,10 +198,13 @@ function GestionGuardias({
     const id = guardiaAEliminar.id
 
     try {
+      const token = getToken()
+
       const response = await fetch(
         `${API_BASE_URL}/api/guardias/${id}`,
         {
           method: 'DELETE',
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
         }
       )
 
@@ -458,11 +467,11 @@ function GestionGuardias({
                       <td className="admin-acciones">
                         <button
                           type="button"
-                          className="admin-accion-editar"
+                          className={`admin-accion-editar ${esInmodificable ? 'admin-accion-deshabilitada' : ''}`}
                           disabled={esInmodificable}
                           title={
                             esInmodificable
-                              ? 'No se puede editar una guardia terminada o en curso'
+                              ? 'No se puede editar una guardia en curso'
                               : ''
                           }
                           onClick={() =>
@@ -476,11 +485,11 @@ function GestionGuardias({
 
                         <button
                           type="button"
-                          className="admin-accion-eliminar"
+                          className={`admin-accion-eliminar ${esInmodificable ? 'admin-accion-deshabilitada' : ''}`}
                           disabled={esInmodificable}
                           title={
                             esInmodificable
-                              ? 'No se puede eliminar una guardia terminada o en curso'
+                              ? 'No se puede eliminar una guardia en curso'
                               : ''
                           }
                           onClick={() =>

@@ -1,0 +1,63 @@
+package com.jpbravo.guardia_service.consumer;
+
+import com.jpbravo.guardia_service.event.SolicitudAprobadaEvent;
+import com.jpbravo.guardia_service.service.GuardiaService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Service;
+
+/**
+ * Consumidor Kafka que reacciona a eventos de solicitud de cambio de guardia
+ * emitidos por solicitudes-service.
+ *
+ * <p>Al recibir un evento de tipo {@code SOLICITUD_CAMBIO_ACEPTADA}, reasigna
+ * el empleado de la guardia indicada al empleado de reemplazo.
+ * Los demás tipos de evento (CREADA, RECHAZADA) se ignoran.</p>
+ */
+@Service
+public class SolicitudAprobadaConsumer {
+
+    private static final Logger log = LoggerFactory.getLogger(SolicitudAprobadaConsumer.class);
+
+    private final GuardiaService guardiaService;
+
+    public SolicitudAprobadaConsumer(GuardiaService guardiaService) {
+        this.guardiaService = guardiaService;
+    }
+
+    @KafkaListener(
+            topics = "solicitudes-events",
+            groupId = "guardia-service-solicitud-group",
+            properties = {
+                "spring.json.value.default.type=com.jpbravo.guardia_service.event.SolicitudAprobadaEvent"
+            }
+    )
+    public void procesarEventoSolicitud(SolicitudAprobadaEvent evento) {
+
+        // Solo procesar aprobaciones; ignorar creaciones y rechazos
+        if (!"SOLICITUD_CAMBIO_ACEPTADA".equals(evento.getTipoEvento())) {
+            return;
+        }
+
+        log.info("Solicitud aprobada recibida: reasignando guardia {} al empleado {}",
+                evento.getGuardiaId(), evento.getEmpleadoReemplazoDni());
+
+        try {
+            guardiaService.reasignarEmpleado(
+                    evento.getGuardiaId(),
+                    evento.getEmpleadoReemplazoDni()
+            );
+
+            log.info("Guardia {} reasignada exitosamente al empleado {} desde evento Kafka.",
+                    evento.getGuardiaId(), evento.getEmpleadoReemplazoDni());
+
+        } catch (RuntimeException ex) {
+            // Loguear sin relanzar para evitar reintentos infinitos
+            // ante un mensaje que siempre fallará (ej: guardia no encontrada).
+            log.error("Error al reasignar guardia {} desde evento Kafka: {}",
+                    evento.getGuardiaId(), ex.getMessage());
+        }
+    }
+}

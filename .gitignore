@@ -8,3 +8,6 @@ target/
 .settings/
 .classpath
 .project
+
+# Archivos de configuración local (Docker)
+docker-compose.override.yml

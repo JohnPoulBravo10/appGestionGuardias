@@ -273,21 +273,9 @@
   transform: translateY(1px);
 }
 
-/* ── Botón "Solicitud realizada" (inhabilitado) ── */
-
-.empleado-btn-solicitud-realizada {
-  padding: 14px;
-
-  background: transparent;
-  color: #777777;
-
-  border: none;
-
+.empleado-accion-deshabilitada {
   cursor: not-allowed;
-
-  font: inherit;
-  line-height: 1;
-  font-weight: 500;
+  opacity: 0.5;
 }
 
 /* =========================================================
@@ -708,6 +696,7 @@
 .empleado-notificacion-sin-accion {
   color: #555;
 }
+
 /* =========================================================
    RESPONSIVE — PANEL EMPLEADO
    ========================================================= */

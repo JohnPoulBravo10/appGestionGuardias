@@ -229,7 +229,7 @@ export default function useSolicitarCambio(options = {}) {
 
         setError(
           err.message ||
-            'Error al cargar las guardias asignadas.'
+          'Error al cargar las guardias asignadas.'
         )
       } finally {
         setCargandoGuardias(false)
@@ -254,7 +254,7 @@ export default function useSolicitarCambio(options = {}) {
         }
 
         const response = await fetch(
-          `${API_BASE_URL}/api/empleados?rol=${rol}`,
+          `${API_BASE_URL}/api/empleados/area/${rol}`,
           {
             method: 'GET',
             headers: {
@@ -290,7 +290,7 @@ export default function useSolicitarCambio(options = {}) {
 
         setError(
           err.message ||
-            'Error al cargar la lista de compañeros.'
+          'Error al cargar la lista de compañeros.'
         )
       } finally {
         setCargandoCompaneros(false)
@@ -516,7 +516,7 @@ export default function useSolicitarCambio(options = {}) {
 
         setError(
           err.message ||
-            'Ocurrió un error al enviar la solicitud.'
+          'Ocurrió un error al enviar la solicitud.'
         )
       } finally {
         setEnviando(false)

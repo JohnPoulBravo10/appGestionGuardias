@@ -1,5 +1,6 @@
 package com.sistema.guardias.autenticacion_service.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +23,7 @@ public class Usuario {
     private String usuario;
 
     @Column(nullable = false)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -30,4 +32,13 @@ public class Usuario {
 
     @Column(name = "empleado_dni", unique = true)
     private Long empleadoDni;
+
+    /**
+     * Indica si el usuario está activo en el sistema.
+     * Al dar de baja al empleado asociado, se marca como false
+     * para bloquear el acceso al sistema.
+     */
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean activo = true;
 }

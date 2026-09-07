@@ -5,6 +5,8 @@ import React, {
 
 import ModalMensaje from '../common/ui/ModalMensaje'
 
+import { getToken } from '../../utils/authUtils'
+
 import {
   validarEmpleado,
   LIMITES,
@@ -193,6 +195,8 @@ function FormularioCrearEmpleado({
       let response
 
       if (esEdicion) {
+        const token = getToken()
+
         response = await fetch(
           `${API_BASE_URL}/api/empleados/${empleado.dni}`,
           {
@@ -200,6 +204,7 @@ function FormularioCrearEmpleado({
             headers: {
               'Content-Type':
                 'application/json',
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
             body: JSON.stringify({
               dni: Number(
@@ -579,22 +584,25 @@ function FormularioCrearEmpleado({
                   )
                 }
                 required
+                disabled={empleado.rol === 'ADMINISTRADOR'}
               >
-                <option value="ENFERMERIA">
-                  Enfermería
-                </option>
-
-                <option value="LIMPIEZA">
-                  Limpieza
-                </option>
-
-                <option value="MANTENIMIENTO">
-                  Mantenimiento
-                </option>
-
-                <option value="ADMINISTRADOR">
-                  Administrador
-                </option>
+                {empleado.rol === 'ADMINISTRADOR' ? (
+                  <option value="ADMINISTRADOR">
+                    Administrador
+                  </option>
+                ) : (
+                  <>
+                    <option value="ENFERMERIA">
+                      Enfermería
+                    </option>
+                    <option value="LIMPIEZA">
+                      Limpieza
+                    </option>
+                    <option value="MANTENIMIENTO">
+                      Mantenimiento
+                    </option>
+                  </>
+                )}
               </select>
             </div>
           </div>

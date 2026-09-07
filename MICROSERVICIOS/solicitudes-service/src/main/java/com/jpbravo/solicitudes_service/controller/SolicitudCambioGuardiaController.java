@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import org.springframework.web.server.ResponseStatusException;
+
 /**
  * Controlador REST para la gestión de solicitudes de cambio de guardia.
  * Expone los endpoints CRUD y las operaciones de aprobación/rechazo.
@@ -46,7 +48,9 @@ public class SolicitudCambioGuardiaController {
      * @return lista de solicitudes
      */
     @GetMapping
-    public ResponseEntity<List<SolicitudResponseDto>> listarSolicitudes() {
+    public ResponseEntity<List<SolicitudResponseDto>> listarSolicitudes(
+            @RequestHeader(value = "X-User-Roles", required = false) String roles) {
+        requireAdmin(roles);
         List<SolicitudResponseDto> solicitudes = solicitudService.obtenerTodas();
         return ResponseEntity.ok(solicitudes);
     }
@@ -71,8 +75,11 @@ public class SolicitudCambioGuardiaController {
      */
     @GetMapping("/empleado/{empleadoDni}")
     public ResponseEntity<List<SolicitudResponseDto>> obtenerPorEmpleado(
-            @PathVariable String empleadoDni) {
+            @PathVariable String empleadoDni,
+            @RequestHeader(value = "X-User-Roles", required = false) String roles,
+            @RequestHeader(value = "X-User-Dni", required = false) String userDni) {
 
+        requireAdminOrOwner(roles, userDni, empleadoDni);
         List<SolicitudResponseDto> solicitudes = solicitudService.obtenerPorEmpleado(empleadoDni);
         return ResponseEntity.ok(solicitudes);
     }
@@ -85,8 +92,10 @@ public class SolicitudCambioGuardiaController {
      */
     @GetMapping("/estado/{estado}")
     public ResponseEntity<List<SolicitudResponseDto>> obtenerPorEstado(
-            @PathVariable EstadoSolicitud estado) {
+            @PathVariable EstadoSolicitud estado,
+            @RequestHeader(value = "X-User-Roles", required = false) String roles) {
 
+        requireAdmin(roles);
         List<SolicitudResponseDto> solicitudes = solicitudService.obtenerPorEstado(estado);
         return ResponseEntity.ok(solicitudes);
     }
@@ -104,8 +113,10 @@ public class SolicitudCambioGuardiaController {
     @PatchMapping("/{id}/aprobar")
     public ResponseEntity<SolicitudResponseDto> aprobarSolicitud(
             @PathVariable String id,
-            @RequestBody(required = false) ResolucionRequestDto body) {
+            @RequestBody(required = false) ResolucionRequestDto body,
+            @RequestHeader(value = "X-User-Roles", required = false) String roles) {
 
+        requireAdmin(roles);
         SolicitudResponseDto aprobada = solicitudService.aprobarSolicitud(
                 id,
                 body != null ? body.getObservacion() : null,
@@ -127,12 +138,30 @@ public class SolicitudCambioGuardiaController {
     @PatchMapping("/{id}/rechazar")
     public ResponseEntity<SolicitudResponseDto> rechazarSolicitud(
             @PathVariable String id,
-            @RequestBody(required = false) ResolucionRequestDto body) {
+            @RequestBody(required = false) ResolucionRequestDto body,
+            @RequestHeader(value = "X-User-Roles", required = false) String roles) {
 
+        requireAdmin(roles);
         SolicitudResponseDto rechazada = solicitudService.rechazarSolicitud(
                 id,
                 body != null ? body.getObservacion() : null
         );
         return ResponseEntity.ok(rechazada);
+    }
+
+    private boolean isAdmin(String roles) {
+        return roles != null && roles.contains("ADMIN");
+    }
+
+    private void requireAdmin(String roles) {
+        if (!isAdmin(roles)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado: Se requiere rol ADMIN");
+        }
+    }
+
+    private void requireAdminOrOwner(String roles, String userDni, String targetDni) {
+        if (!isAdmin(roles) && (userDni == null || !userDni.equals(targetDni))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado: No tiene permisos para este recurso");
+        }
     }
 }

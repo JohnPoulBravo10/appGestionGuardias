@@ -6,6 +6,7 @@ import com.jpbravo.notification_service.service.NotificacionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -30,12 +31,20 @@ public class NotificacionController {
     }
 
     @GetMapping("/empleado/{empleadoDni}")
-    public ResponseEntity<List<Notificacion>> obtenerPorEmpleado(@PathVariable Long empleadoDni) {
+    public ResponseEntity<List<Notificacion>> obtenerPorEmpleado(
+            @PathVariable Long empleadoDni,
+            @RequestHeader(value = "X-User-Roles", required = false) String roles,
+            @RequestHeader(value = "X-User-Dni", required = false) String userDni) {
+        requireAdminOrOwner(roles, userDni, empleadoDni);
         return ResponseEntity.ok(service.obtenerPorEmpleado(empleadoDni));
     }
 
     @GetMapping("/empleado/{empleadoDni}/no-leidas")
-    public ResponseEntity<List<Notificacion>> obtenerNoLeidas(@PathVariable Long empleadoDni) {
+    public ResponseEntity<List<Notificacion>> obtenerNoLeidas(
+            @PathVariable Long empleadoDni,
+            @RequestHeader(value = "X-User-Roles", required = false) String roles,
+            @RequestHeader(value = "X-User-Dni", required = false) String userDni) {
+        requireAdminOrOwner(roles, userDni, empleadoDni);
         return ResponseEntity.ok(service.obtenerNoLeidasPorEmpleado(empleadoDni));
     }
 
@@ -62,5 +71,15 @@ public class NotificacionController {
         return ResponseEntity
                 .noContent()
                 .build();
+    }
+
+    private boolean isAdmin(String roles) {
+        return roles != null && roles.contains("ADMIN");
+    }
+
+    private void requireAdminOrOwner(String roles, String userDni, Long targetDni) {
+        if (!isAdmin(roles) && (userDni == null || !userDni.equals(String.valueOf(targetDni)))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado: No tiene permisos para este recurso");
+        }
     }
 }

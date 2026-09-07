@@ -15,7 +15,13 @@ public class GuardiaEventConsumer {
     @Autowired
     private NotificacionService notificacionService;
 
-    @KafkaListener(topics = "guardias-events", groupId = "notification-service-group")
+    @KafkaListener(
+            topics = "guardias-events", 
+            groupId = "notification-service-group",
+            properties = {
+                "spring.json.value.default.type=com.jpbravo.notification_service.event.GuardiaEvent"
+            }
+    )
     public void consumirEvento(GuardiaEvent evento) {
 
         System.out.println("EVENTO RECIBIDO DESDE KAFKA: " + evento);

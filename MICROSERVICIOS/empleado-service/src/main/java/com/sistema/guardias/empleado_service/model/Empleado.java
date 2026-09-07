@@ -53,4 +53,12 @@ public class Empleado {
     @Column(name = "usuario_id", nullable = false)
     private Long usuarioId;
 
+    /**
+     * Indica si el empleado está activo en el sistema.
+     * Al dar de baja, se marca como false en lugar de eliminar el registro (soft-delete).
+     */
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean activo = true;
+
 }

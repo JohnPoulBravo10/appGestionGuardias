@@ -1,14 +1,14 @@
 package com.jpbravo.guardia_service.service;
 
-import com.jpbravo.guardia_service.dto.EmpleadoDto;
 import com.jpbravo.guardia_service.dto.GuardiaResponseDto;
-import com.jpbravo.guardia_service.client.EmpleadoClient;
 import com.jpbravo.guardia_service.event.GuardiaEvent;
 import com.jpbravo.guardia_service.event.TipoGuardiaEvent;
+import com.jpbravo.guardia_service.model.EmpleadoCache;
 import com.jpbravo.guardia_service.model.EstadoGuardia;
 import com.jpbravo.guardia_service.model.Guardia;
 import com.jpbravo.guardia_service.model.Rol;
 import com.jpbravo.guardia_service.producer.GuardiaEventProducer;
+import com.jpbravo.guardia_service.repository.EmpleadoCacheRepository;
 import com.jpbravo.guardia_service.repository.GuardiaRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class GuardiaService {
     private GuardiaRepository repository;
 
     @Autowired
-    private EmpleadoClient empleadoClient;
+    private EmpleadoCacheRepository empleadoCacheRepository;
 
     @Autowired
     private GuardiaEventProducer guardiaEventProducer;
@@ -186,7 +186,7 @@ public class GuardiaService {
                     if (empleadoId != null) {
                         empleadoNombre = nombresEmpleados.computeIfAbsent(
                                 empleadoId,
-                                dni -> obtenerNombreEmpleado(dni)
+                                this::obtenerNombreEmpleado
                         );
                     }
 
@@ -204,40 +204,36 @@ public class GuardiaService {
                 .toList();
     }
 
+    /**
+     * Resuelve el nombre completo de un empleado consultando la caché local.
+     * Reemplaza la antigua llamada HTTP síncrona a empleado-service,
+     * eliminando el acoplamiento temporal entre servicios.
+     *
+     * @param dni DNI del empleado a buscar en la caché
+     * @return nombre completo o mensaje de fallback si no se encuentra
+     */
     private String obtenerNombreEmpleado(Long dni) {
 
-        try {
+        Optional<EmpleadoCache> cacheOpt = empleadoCacheRepository.findById(dni);
 
-            EmpleadoDto empleado = empleadoClient.obtenerEmpleadoPorDni(dni);
-
-            if (empleado == null) {
-                return "Empleado no encontrado";
-            }
-
-            String nombre = empleado.getNombre() != null
-                    ? empleado.getNombre()
-                    : "";
-
-            String apellido = empleado.getApellido() != null
-                    ? empleado.getApellido()
-                    : "";
-
-            String nombreCompleto = (nombre + " " + apellido).trim();
-
-            return nombreCompleto.isEmpty()
-                    ? "Empleado sin nombre"
-                    : nombreCompleto;
-
-        } catch (Exception error) {
-
-            System.err.println(
-                    "No se pudo obtener el empleado "
-                            + dni
-                            + ": "
-                            + error.getMessage()
-            );
-
+        if (cacheOpt.isEmpty()) {
             return "Empleado no encontrado";
         }
+
+        EmpleadoCache cache = cacheOpt.get();
+
+        String nombre = cache.getNombre() != null
+                ? cache.getNombre()
+                : "";
+
+        String apellido = cache.getApellido() != null
+                ? cache.getApellido()
+                : "";
+
+        String nombreCompleto = (nombre + " " + apellido).trim();
+
+        return nombreCompleto.isEmpty()
+                ? "Empleado sin nombre"
+                : nombreCompleto;
     }
 }

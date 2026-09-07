@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 
+import { getToken } from '../../utils/authUtils'
+
 function CalendarioGuardias() {
     // ===========================
     // Fecha mostrada en el calendario
@@ -24,7 +26,10 @@ function CalendarioGuardias() {
 
     const obtenerGuardias = async () => {
         try {
-            const response = await fetch("http://localhost:8090/api/guardias");
+            const token = getToken()
+            const headers = token ? { Authorization: `Bearer ${token}` } : {}
+
+            const response = await fetch("http://localhost:8090/api/guardias", { headers });
 
             if (!response.ok) {
                 throw new Error("Error al obtener guardias");

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -18,6 +19,13 @@ public interface GuardiaRepository
     List<Guardia> findByRol(Rol rol);
 
     List<Guardia> findByEstadoNot(EstadoGuardia estado);
+
+    /**
+     * Obtiene guardias futuras de un empleado con un estado específico.
+     * Usado para liberar guardias al desactivar un empleado.
+     */
+    List<Guardia> findByEmpleadoIdAndFechaGreaterThanEqualAndEstado(
+            Long empleadoId, LocalDate fecha, EstadoGuardia estado);
 
     @Query(
         value = "SELECT * FROM guardias g "

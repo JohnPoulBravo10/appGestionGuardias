@@ -8,6 +8,8 @@ import ModalMensaje from '../common/ui/ModalMensaje'
 import { validarGuardia } from '../../utils/validacionesGuardia'
 import { filtrarEmpleadosDisponibles } from '../../utils/guardiaUtils'
 
+import { getToken } from '../../utils/authUtils'
+
 const API_BASE_URL = 'http://localhost:8090'
 
 /**
@@ -84,13 +86,31 @@ function EditarGuardia({
     }
 
     try {
+      const token = getToken()
+
       const [respEmpleados, respGuardias] =
         await Promise.all([
           fetch(
-            `${API_BASE_URL}/api/empleados?rol=${rol}`
+            `${API_BASE_URL}/api/empleados/area/${rol}`,
+            {
+              method: 'GET',
+              headers: {
+                'Content-Type':
+                  'application/json',
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+              },
+            }
           ),
           fetch(
-            `${API_BASE_URL}/api/guardias`
+            `${API_BASE_URL}/api/guardias`,
+            {
+              method: 'GET',
+              headers: {
+                'Content-Type':
+                  'application/json',
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+              },
+            }
           ),
         ])
 
@@ -239,6 +259,8 @@ function EditarGuardia({
     try {
       setGuardando(true)
 
+      const token = getToken()
+
       const response = await fetch(
         `${API_BASE_URL}/api/guardias/${guardiaEditar.id}`,
         {
@@ -246,6 +268,7 @@ function EditarGuardia({
           headers: {
             'Content-Type':
               'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
           body: JSON.stringify(
             guardiaEditar
@@ -488,8 +511,8 @@ function EditarGuardia({
                   event.target.value === ''
                     ? null
                     : Number(
-                        event.target.value
-                      )
+                      event.target.value
+                    )
                 )
               }
             >
