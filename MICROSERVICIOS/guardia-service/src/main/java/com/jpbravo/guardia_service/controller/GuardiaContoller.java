@@ -41,10 +41,14 @@ public class GuardiaContoller {
     }
 
     @GetMapping("/activas")
-    public List<Guardia> listarGuardiasActivas(@RequestHeader(value = "X-User-Roles", required = false) String roles) {
+    public ResponseEntity<List<GuardiaResponseDto>>
+            listarGuardiasActivas(@RequestHeader(value = "X-User-Roles", required = false) String roles) {
+        
         requireAdmin(roles);
-        return guardiaService
-                .obtenerGuardiasActivas();
+        List<GuardiaResponseDto> guardias =
+                guardiaService
+                        .obtenerGuardiasActivas();
+        return ResponseEntity.ok(guardias);
     }
 
     @GetMapping("/area/{rol}")

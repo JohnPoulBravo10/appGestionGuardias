@@ -15,6 +15,7 @@ Pantallas Admin:
   + Eliminacion de usuarios
   + Aprobacion de solicitudes y reasignacion de guardias
 + Para botones deshabilitados copiar style de boton "eliminar" en Gestion de empleados
++ Mostrar mensaje de maximos intentos permitidos en login
 ------------------------------------------------------------------------------------------
 
 Pantallas Empleado:
@@ -30,8 +31,7 @@ Pantallas Empleado:
 + Logica de tarjeta "Proxima guardia"
 ------------------------------------------------------------------------------------------
 
-
-- Revisar posibles mejoras en seguridad:
++ Revisar posibles mejoras en seguridad:
   + Fuga del hash de contraseñas (BCrypt) en la respuesta del endpoint de registro
   + Exposición innecesaria de puertos de bases de datos, Kafka y microservicios al exterior
   + Deserialización permisiva de paquetes Kafka (trusted.packages=*)
@@ -41,7 +41,21 @@ Pantallas Empleado:
   + Credenciales, contraseñas y clave secreta JWT hardcodeadas en repositorios
   + Endpoints de consulta y resolución de solicitudes confían ciegamente en IDs sin verificar el usuario autenticado
   + Instancias de MongoDB ejecutándose sin autenticación
-  - Mass Assignment (vinculación directa de entidades JPA en controladores)
-  - Nivel de logueo TRACE para sentencias y parámetros SQL con datos sensibles
+  + Nivel de logueo TRACE para sentencias y parámetros SQL con datos sensibles
 
-- Implementar Monitoreo y Logs.
++ Añadir funcionalidades de Resilience4J:
+  + API Gateway — Circuit Breakers y Fallbacks por Microservicio
+  + Protección de Autenticación y Endpoints Públicos — Rate Limiting
+  + Schedulers y Procesos en Background — TimeLimiter & Retry
+  + Publicación de Eventos Kafka en Operaciones de Negocio — Retry & Circuit Breaker
+  + Consumidores de Eventos Kafka — Retry & Circuit Breaker en Procesamiento
+
++ Implementar Monitoreo y Logs
+
+- Refactorizacion de codigo:
+  - pasar archivos .properties a .yml
+  - eliminar dependencias no utilizadas
+  - mejorar logeo de la aplicacion
+  - verificar codigo duplicado y eliminarlo
+  - mejorar y unificar estilo de comentarios
+  - buscar codigo en desuso y eliminarlo

@@ -1,0 +1,69 @@
+# Configuración de Prometheus para scrapear métricas de los microservicios
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # ==================== CONFIG SERVER ====================
+  - job_name: 'config-server'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['config-server:8888']
+        labels:
+          application: 'config-server'
+
+  # ==================== DISCOVERY SERVER ====================
+  - job_name: 'discovery-server'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['discovery-server:8761']
+        labels:
+          application: 'discovery-server'
+
+  # ==================== API GATEWAY ====================
+  - job_name: 'api-gateway'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['api-gateway:8090']
+        labels:
+          application: 'api-gateway'
+
+  # ==================== EMPLEADO SERVICE ====================
+  - job_name: 'empleado-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['empleado-service:8080']
+        labels:
+          application: 'empleado-service'
+
+  # ==================== GUARDIA SERVICE ====================
+  - job_name: 'guardia-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['guardia-service:8081']
+        labels:
+          application: 'guardia-service'
+
+  # ==================== AUTENTICACION SERVICE ====================
+  - job_name: 'autenticacion-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['autenticacion-service:8083']
+        labels:
+          application: 'autenticacion-service'
+
+  # ==================== NOTIFICATION SERVICE ====================
+  - job_name: 'notification-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['notification-service:8084']
+        labels:
+          application: 'notification-service'
+
+  # ==================== SOLICITUDES SERVICE ====================
+  - job_name: 'solicitudes-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['solicitudes-service:8085']
+        labels:
+          application: 'solicitudes-service'

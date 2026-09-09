@@ -20,19 +20,12 @@ public interface GuardiaRepository
 
     List<Guardia> findByEstadoNot(EstadoGuardia estado);
 
+    List<Guardia> findByEstado(EstadoGuardia estado);
+
     /**
      * Obtiene guardias futuras de un empleado con un estado específico.
      * Usado para liberar guardias al desactivar un empleado.
      */
     List<Guardia> findByEmpleadoIdAndFechaGreaterThanEqualAndEstado(
             Long empleadoId, LocalDate fecha, EstadoGuardia estado);
-
-    @Query(
-        value = "SELECT * FROM guardias g "
-                + "WHERE g.fecha = CURDATE() "
-                + "AND g.hora_inicio <= CURTIME() "
-                + "AND g.hora_fin > CURTIME()",
-        nativeQuery = true
-    )
-    List<Guardia> findGuardiasActivas();
 }

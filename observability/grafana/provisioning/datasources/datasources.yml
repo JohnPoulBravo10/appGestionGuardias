@@ -1,0 +1,19 @@
+# Auto-provisioning de datasources de Grafana
+# Se cargan automáticamente al iniciar el contenedor
+apiVersion: 1
+
+datasources:
+  # Prometheus como fuente principal de métricas
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true
+
+  # Loki como fuente de logs centralizados
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    editable: true

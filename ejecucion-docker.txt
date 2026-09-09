@@ -71,12 +71,14 @@ OTROS COMANDOS ÚTILES
   Autenticación Service             http://localhost:8083
   Notification Service              http://localhost:8084
   Solicitudes Service               http://localhost:8085
-  PhpMyAdmin                        http://localhost:8082 (usuario: root / pass: rootpassword)
+  PhpMyAdmin                        http://localhost:8082 (usuario: root / pass: root)
   MySQL                             localhost:3307
   MongoDB (Solicitudes)             localhost:27017
   MongoDB (Notificaciones)          localhost:27018
   Kafka                             localhost:9092
-
+  Prometheus (Observabilidad)       http://localhost:9090
+  Loki (Logs Centralizados)         http://localhost:3100
+  Grafana (Dashboards)              http://localhost:3000 (usuario: admin / pass: admin)
 
 
 ================================================================================
@@ -98,6 +100,9 @@ dependencias configuradas en docker-compose.yml:
   10. API Gateway (api-gateway)                     — espera a Config Server y Eureka
   11. Frontend (frontend)                           — espera a API Gateway
   12. PhpMyAdmin (phpmyadmin)                       — espera a MySQL
+  13. Prometheus (Observabilidad)                   — espera a MySQL, Kafka y Microservicios
+  14. Loki (Logs Centralizados)                     — espera a Kafka y Microservicios
+  15. Grafana (Dashboards)                          — espera a Prometheus y Loki
 
 NOTA: El arranque completo puede tardar varios minutos debido a los healthchecks.
 

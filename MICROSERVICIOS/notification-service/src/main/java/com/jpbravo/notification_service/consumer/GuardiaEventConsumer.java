@@ -8,8 +8,12 @@ import com.jpbravo.notification_service.service.NotificacionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class GuardiaEventConsumer {
 
     @Autowired
@@ -22,6 +26,8 @@ public class GuardiaEventConsumer {
                 "spring.json.value.default.type=com.jpbravo.notification_service.event.GuardiaEvent"
             }
     )
+    @Retry(name = "consumerRetry", fallbackMethod = "fallbackProcesamiento")
+    @CircuitBreaker(name = "consumerCB", fallbackMethod = "fallbackProcesamiento")
     public void consumirEvento(GuardiaEvent evento) {
 
         System.out.println("EVENTO RECIBIDO DESDE KAFKA: " + evento);
@@ -89,5 +95,10 @@ public class GuardiaEventConsumer {
                 notificacionService.crear(notificacion);
             }
         }
+    }
+
+    public void fallbackProcesamiento(GuardiaEvent evento, Exception e) {
+        log.error("Error definitivo al procesar evento de guardia en notificación. Evento: {}, Error: {}", evento, e.getMessage());
+        // Se registra la falla para evitar un Poison Pill y commitear el offset.
     }
 }

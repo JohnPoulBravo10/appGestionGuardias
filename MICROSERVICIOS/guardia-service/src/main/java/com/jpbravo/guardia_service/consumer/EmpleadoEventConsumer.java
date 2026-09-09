@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -51,6 +53,8 @@ public class EmpleadoEventConsumer {
                 "spring.json.value.default.type=com.jpbravo.guardia_service.event.EmpleadoEvent"
             }
     )
+    @Retry(name = "consumerRetry", fallbackMethod = "fallbackProcesamiento")
+    @CircuitBreaker(name = "consumerCB", fallbackMethod = "fallbackProcesamiento")
     public void procesarEventoEmpleado(EmpleadoEvent evento) {
 
         if (evento.getTipoEvento() == null) {
@@ -62,6 +66,11 @@ public class EmpleadoEventConsumer {
             case EMPLEADO_CREADO, EMPLEADO_ACTUALIZADO -> actualizarCache(evento);
             case EMPLEADO_DESACTIVADO -> procesarDesactivacion(evento);
         }
+    }
+
+    public void fallbackProcesamiento(EmpleadoEvent evento, Exception e) {
+        log.error("Error definitivo al procesar evento de empleado en guardia-service. Evento: {}, Error: {}", evento, e.getMessage());
+        // Se registra la falla tras agotar reintentos para evitar un Poison Pill y avanzar el offset
     }
 
     /**

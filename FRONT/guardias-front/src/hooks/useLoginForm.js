@@ -166,6 +166,8 @@ export default function useLoginForm() {
             response.status === 403
           ) {
             setError('Usuario o contraseña incorrectos')
+          } else if (response.status === 429) {
+            setError('Demasiados intentos fallidos. Intente nuevamente en 1 minuto.')
           } else {
             setError(
               `Error del servidor (${response.status}). Intente nuevamente.`

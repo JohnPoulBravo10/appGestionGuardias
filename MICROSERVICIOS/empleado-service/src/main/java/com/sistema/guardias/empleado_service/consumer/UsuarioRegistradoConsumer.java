@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 
 /**
  * Consumidor Kafka que reacciona al evento de registro de usuario
@@ -37,31 +39,30 @@ public class UsuarioRegistradoConsumer {
                 "spring.json.value.default.type=com.sistema.guardias.empleado_service.event.UsuarioRegistradoEvent"
             }
     )
+    @Retry(name = "consumerRetry", fallbackMethod = "fallbackProcesamiento")
+    @CircuitBreaker(name = "consumerCB", fallbackMethod = "fallbackProcesamiento")
     public void procesarUsuarioRegistrado(UsuarioRegistradoEvent evento) {
         log.info("Evento recibido: registro de usuario con DNI {} (usuarioId={})",
                 evento.getDni(), evento.getUsuarioId());
 
-        try {
-            Empleado empleado = Empleado.builder()
-                    .dni(evento.getDni())
-                    .nombre(evento.getNombre())
-                    .apellido(evento.getApellido())
-                    .email(evento.getEmail())
-                    .telefono(evento.getTelefono())
-                    .direccion(evento.getDireccion())
-                    .rol(Rol.valueOf(evento.getRol()))
-                    .usuarioId(evento.getUsuarioId())
-                    .build();
+        Empleado empleado = Empleado.builder()
+                .dni(evento.getDni())
+                .nombre(evento.getNombre())
+                .apellido(evento.getApellido())
+                .email(evento.getEmail())
+                .telefono(evento.getTelefono())
+                .direccion(evento.getDireccion())
+                .rol(Rol.valueOf(evento.getRol()))
+                .usuarioId(evento.getUsuarioId())
+                .build();
 
-            empleadoService.guardarEmpleado(empleado);
+        empleadoService.guardarEmpleado(empleado);
 
-            log.info("Empleado con DNI {} creado exitosamente desde evento Kafka.", evento.getDni());
+        log.info("Empleado con DNI {} creado exitosamente desde evento Kafka.", evento.getDni());
+    }
 
-        } catch (RuntimeException ex) {
-            // Idempotencia: si el empleado ya existe, loguear sin relanzar para que
-            // Kafka no reintente indefinidamente un mensaje que siempre fallará.
-            log.warn("No se pudo crear el empleado con DNI {} desde evento Kafka: {}",
-                    evento.getDni(), ex.getMessage());
-        }
+    public void fallbackProcesamiento(UsuarioRegistradoEvent evento, Exception e) {
+        log.warn("Error definitivo o duplicado al crear empleado con DNI {} desde evento Kafka: {}", evento.getDni(), e.getMessage());
+        // Se registra la falla tras agotar reintentos para evitar un Poison Pill y avanzar el offset
     }
 }

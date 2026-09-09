@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 
 /**
  * Consumidor Kafka que reacciona a eventos de solicitud de cambio de guardia
@@ -34,6 +36,8 @@ public class SolicitudAprobadaConsumer {
                 "spring.json.value.default.type=com.jpbravo.guardia_service.event.SolicitudAprobadaEvent"
             }
     )
+    @Retry(name = "consumerRetry", fallbackMethod = "fallbackProcesamiento")
+    @CircuitBreaker(name = "consumerCB", fallbackMethod = "fallbackProcesamiento")
     public void procesarEventoSolicitud(SolicitudAprobadaEvent evento) {
 
         // Solo procesar aprobaciones; ignorar creaciones y rechazos
@@ -44,20 +48,17 @@ public class SolicitudAprobadaConsumer {
         log.info("Solicitud aprobada recibida: reasignando guardia {} al empleado {}",
                 evento.getGuardiaId(), evento.getEmpleadoReemplazoDni());
 
-        try {
-            guardiaService.reasignarEmpleado(
-                    evento.getGuardiaId(),
-                    evento.getEmpleadoReemplazoDni()
-            );
+        guardiaService.reasignarEmpleado(
+                evento.getGuardiaId(),
+                evento.getEmpleadoReemplazoDni()
+        );
 
-            log.info("Guardia {} reasignada exitosamente al empleado {} desde evento Kafka.",
-                    evento.getGuardiaId(), evento.getEmpleadoReemplazoDni());
+        log.info("Guardia {} reasignada exitosamente al empleado {} desde evento Kafka.",
+                evento.getGuardiaId(), evento.getEmpleadoReemplazoDni());
+    }
 
-        } catch (RuntimeException ex) {
-            // Loguear sin relanzar para evitar reintentos infinitos
-            // ante un mensaje que siempre fallará (ej: guardia no encontrada).
-            log.error("Error al reasignar guardia {} desde evento Kafka: {}",
-                    evento.getGuardiaId(), ex.getMessage());
-        }
+    public void fallbackProcesamiento(SolicitudAprobadaEvent evento, Exception e) {
+        log.error("Error definitivo al reasignar guardia {} desde evento Kafka: {}", evento.getGuardiaId(), e.getMessage());
+        // Se registra la falla tras agotar reintentos para evitar un Poison Pill y avanzar el offset
     }
 }
