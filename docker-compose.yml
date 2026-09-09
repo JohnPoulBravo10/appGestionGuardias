@@ -20,36 +20,17 @@ services:
       retries: 15
       start_period: 60s
 
-  # ==================== MONGO DB (SOLICITUDES) ====================
-  mongo-solicitudes:
+  # ==================== BASE DE DATOS MongoDB ====================
+  mongo-db:
     image: mongo:6.0
-    container_name: mongo-solicitudes
-    restart: unless-stopped
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
-    volumes:
-      - mongo-solicitudes-data:/data/db
-    networks:
-      - guardias-network
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh -u ${MONGO_USER} -p ${MONGO_PASSWORD} localhost:27017/test --quiet --authenticationDatabase admin
-      interval: 10s
-      timeout: 10s
-      retries: 15
-      start_period: 60s
-
-  # ==================== MONGO DB (NOTIFICACIONES) ====================
-  mongo-notificaciones:
-    image: mongo:6.0
-    container_name: mongo-notificaciones
+    container_name: mongo-db
     restart: unless-stopped
     environment:
       TZ: America/Argentina/Buenos_Aires
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
     volumes:
-      - mongo-notificaciones-data:/data/db
+      - mongo-data:/data/db
     networks:
       - guardias-network
     healthcheck:
@@ -246,7 +227,7 @@ services:
       SPRING_PROFILES_ACTIVE: native
       SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
       SERVER_PORT: 8084
-      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongo-notificaciones:27017/notification_service?authSource=admin
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongo-db:27017/notification_service?authSource=admin
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SPRING_KAFKA_CONSUMER_GROUP_ID: notification-service-group
@@ -260,7 +241,7 @@ services:
         condition: service_healthy
       discovery-server:
         condition: service_healthy
-      mongo-notificaciones:
+      mongo-db:
         condition: service_healthy
       kafka:
         condition: service_started
@@ -279,7 +260,7 @@ services:
       SPRING_PROFILES_ACTIVE: native
       SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8888
       SERVER_PORT: 8085
-      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongo-solicitudes:27017/solicitudes_service?authSource=admin
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongo-db:27017/solicitudes_service?authSource=admin
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SPRING_KAFKA_PRODUCER_KEY_SERIALIZER: org.apache.kafka.common.serialization.StringSerializer
@@ -295,7 +276,7 @@ services:
         condition: service_healthy
       discovery-server:
         condition: service_healthy
-      mongo-solicitudes:
+      mongo-db:
         condition: service_healthy
       kafka:
         condition: service_started
@@ -413,8 +394,7 @@ services:
 
 volumes:
   mysql-data:
-  mongo-solicitudes-data:
-  mongo-notificaciones-data:
+  mongo-data:
   prometheus-data:
   loki-data:
   grafana-data:

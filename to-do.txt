@@ -53,7 +53,7 @@ Pantallas Empleado:
 + Implementar Monitoreo y Logs
 
 - Refactorizacion de codigo:
-  - pasar archivos .properties a .yml
+  + unificar bd mongo
   - eliminar dependencias no utilizadas
   - mejorar logeo de la aplicacion
   - verificar codigo duplicado y eliminarlo
