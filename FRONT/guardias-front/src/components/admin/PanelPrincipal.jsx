@@ -33,16 +33,12 @@ function PanelPrincipal() {
   const [solicitudesPendientes, setSolicitudesPendientes] = useState(0)
   const [loadingSolicitudes, setLoadingSolicitudes] = useState(true)
 
-  /** Lista de empleados para resolver nombres en la tabla de guardias */
-  const [empleados, setEmpleados] = useState([])
-
   /** Cantidad real de notificaciones no leídas (personales + rol admin) */
   const [cantidadNoLeidas, setCantidadNoLeidas] = useState(0)
 
   useEffect(() => {
     obtenerGuardiasActivas()
     obtenerSolicitudesPendientes()
-    obtenerEmpleados()
     cargarNotificacionesNoLeidas()
   }, [])
 
@@ -109,31 +105,6 @@ function PanelPrincipal() {
       // En caso de fallo, se deja el contador en 0 para no bloquear el panel.
     } finally {
       setLoadingSolicitudes(false)
-    }
-  }
-
-  /**
-   * Carga la lista completa de empleados para resolver
-   * el nombre asociado a cada empleadoId de las guardias.
-   */
-  const obtenerEmpleados = async () => {
-    try {
-      const token = getToken()
-      const headers = token ? { Authorization: `Bearer ${token}` } : {}
-
-      const response = await fetch(
-        'http://localhost:8090/api/empleados',
-        { headers }
-      )
-
-      if (!response.ok) {
-        throw new Error(`Error al obtener empleados (${response.status})`)
-      }
-
-      const data = await response.json()
-      setEmpleados(Array.isArray(data) ? data : [])
-    } catch (err) {
-      console.error('Error al cargar empleados:', err)
     }
   }
 
@@ -208,21 +179,6 @@ function PanelPrincipal() {
 
   /** Cantidad de guardias activas en este momento */
   const cantidadGuardiasActivas = guardiasActivas.length
-
-  /**
-   * Mapa de empleadoId (dni) → nombre completo para resolución O(1).
-   * Se recalcula cuando cambia la lista de empleados.
-   */
-  const mapaEmpleados = new Map(
-    empleados.map((e) => [e.dni, `${e.nombre} ${e.apellido}`])
-  )
-
-  /**
-   * Resuelve el nombre del empleado a partir de su ID (dni).
-   * Si no se encuentra en el mapa, muestra un fallback con el ID.
-   */
-  const resolverNombreEmpleado = (empleadoId) =>
-    mapaEmpleados.get(empleadoId) ?? `Empleado #${empleadoId}`
 
   /**
    * Formatea el nombre del rol para mostrarlo de forma legible.
@@ -358,11 +314,7 @@ function PanelPrincipal() {
                     {formatearHora(g.horaFin)}
                   </td>
                   <td>{formatearRol(g.rol)}</td>
-                  <td>
-                    {g.empleadoId != null
-                      ? resolverNombreEmpleado(g.empleadoId)
-                      : 'Sin asignar'}
-                  </td>
+                  <td>{g.empleadoNombre}</td>
                   <td>
                     <span className="admin-badge admin-badge-encurso">
                       En curso

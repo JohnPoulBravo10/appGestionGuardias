@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Configuración de Logback para solicitudes-service con Loki4j appender -->
+<configuration>
+
+    <!-- Propiedad del nombre de la aplicación, inyectada por Spring -->
+    <springProperty name="APP_NAME" source="spring.application.name" defaultValue="solicitudes-service"/>
+
+    <!-- ==================== CONSOLA (salida estándar) ==================== -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ==================== LOKI (logs centralizados) ==================== -->
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+        <!-- URL del endpoint push de Loki dentro de la red Docker -->
+        <http>
+            <url>http://loki:3100/loki/api/v1/push</url>
+        </http>
+        <format>
+            <!-- Labels para filtrado en Grafana -->
+            <label>
+                <pattern>application=${APP_NAME},host=${HOSTNAME},level=%level</pattern>
+            </label>
+            <message>
+                <pattern>
+                    {"timestamp":"%d{yyyy-MM-dd HH:mm:ss.SSS}","thread":"%thread","level":"%level","logger":"%logger{36}","message":"%msg%n"}
+                </pattern>
+            </message>
+            <sortByTime>true</sortByTime>
+        </format>
+    </appender>
+
+    <!-- ==================== ROOT LOGGER ==================== -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="LOKI"/>
+    </root>
+
+</configuration>

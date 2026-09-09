@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 
 /**
  * Productor Kafka responsable de publicar eventos de registro de usuario.
@@ -28,6 +30,8 @@ public class UsuarioRegistradoProducer {
      *
      * @param evento evento con los datos del perfil del nuevo usuario, nunca null
      */
+    @Retry(name = "kafkaRetry", fallbackMethod = "fallbackPublicacion")
+    @CircuitBreaker(name = "kafkaCB", fallbackMethod = "fallbackPublicacion")
     public void publicarEvento(UsuarioRegistradoEvent evento) {
         log.info("Publicando evento de registro de usuario con DNI {} en topic '{}'",
                 evento.getDni(), TOPIC);
@@ -37,5 +41,10 @@ public class UsuarioRegistradoProducer {
                 String.valueOf(evento.getDni()),
                 evento
         );
+    }
+
+    public void fallbackPublicacion(UsuarioRegistradoEvent evento, Exception e) {
+        log.error("Error al publicar evento de registro en Kafka. DNI: {}, Error: {}", evento.getDni(), e.getMessage());
+        // Se registra la falla para no perder la operación y permitir que el flujo de negocio principal continúe.
     }
 }

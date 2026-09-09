@@ -9,8 +9,12 @@ import com.jpbravo.notification_service.service.NotificacionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class SolicitudEventConsumer {
 
     @Autowired
@@ -24,31 +28,26 @@ public class SolicitudEventConsumer {
                 "spring.json.value.default.type=com.jpbravo.notification_service.event.SolicitudEvent"
             }
     )
+    @Retry(name = "consumerRetry", fallbackMethod = "fallbackProcesamiento")
+    @CircuitBreaker(name = "consumerCB", fallbackMethod = "fallbackProcesamiento")
     public void consumirEvento(SolicitudEvent evento) {
 
-        try {
+        System.out.println("EVENTO DE SOLICITUD RECIBIDO: " + evento);
 
-            System.out.println("EVENTO DE SOLICITUD RECIBIDO: " + evento);
-
-            if (evento.getTipoEvento() == null) {
-                return;
-            }
-
-            switch (evento.getTipoEvento()) {
-
-                case SOLICITUD_CAMBIO_CREADA -> crearNotificacionAdministrador(evento);
-
-                case SOLICITUD_CAMBIO_ACEPTADA -> crearNotificacionSolicitudAceptada(evento);
-
-                case SOLICITUD_CAMBIO_RECHAZADA -> crearNotificacionSolicitudRechazada(evento);
-            }
-
-        } catch (Exception error) {
-
-            System.err.println(
-                    "Error procesando evento de solicitud: " + error.getMessage()
-            );
+        if (evento.getTipoEvento() == null) {
+            return;
         }
+
+        switch (evento.getTipoEvento()) {
+            case SOLICITUD_CAMBIO_CREADA -> crearNotificacionAdministrador(evento);
+            case SOLICITUD_CAMBIO_ACEPTADA -> crearNotificacionSolicitudAceptada(evento);
+            case SOLICITUD_CAMBIO_RECHAZADA -> crearNotificacionSolicitudRechazada(evento);
+        }
+    }
+
+    public void fallbackProcesamiento(SolicitudEvent evento, Exception e) {
+        log.error("Error definitivo al procesar evento de solicitud. Evento: {}, Error: {}", evento, e.getMessage());
+        // Se registra la falla tras agotar reintentos para evitar Poison Pill en Kafka
     }
 
     private void crearNotificacionAdministrador(SolicitudEvent evento) {

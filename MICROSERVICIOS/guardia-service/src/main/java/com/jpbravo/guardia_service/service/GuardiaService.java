@@ -36,8 +36,8 @@ public class GuardiaService {
         return repository.findAll();
     }
 
-    public List<Guardia> obtenerGuardiasActivas() {
-        return repository.findGuardiasActivas();
+    public List<GuardiaResponseDto> obtenerGuardiasActivas() {
+        return convertirGuardiasConEmpleado(repository.findByEstado(EstadoGuardia.ENCURSO));
     }
 
     public Optional<Guardia> obtenerPorId(Long id) {

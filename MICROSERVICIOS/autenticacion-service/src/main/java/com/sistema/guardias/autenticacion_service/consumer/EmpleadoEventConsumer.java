@@ -8,6 +8,9 @@ import com.sistema.guardias.autenticacion_service.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
 
@@ -17,6 +20,7 @@ import java.util.Optional;
  * para bloquear su acceso al sistema (Spring Security rechazará el login).
  */
 @Service
+@Slf4j
 public class EmpleadoEventConsumer {
 
     @Autowired
@@ -26,6 +30,8 @@ public class EmpleadoEventConsumer {
             topics = "empleados-events",
             groupId = "autenticacion-service-empleado-group"
     )
+    @Retry(name = "consumerRetry", fallbackMethod = "fallbackProcesamiento")
+    @CircuitBreaker(name = "consumerCB", fallbackMethod = "fallbackProcesamiento")
     public void procesarEventoEmpleado(EmpleadoEvent evento) {
 
         if (evento.getTipoEvento() != TipoEmpleadoEvent.EMPLEADO_DESACTIVADO) {
@@ -49,5 +55,10 @@ public class EmpleadoEventConsumer {
 
         System.out.println("[autenticacion-service] Usuario '" + usuario.getUsuario()
                 + "' dado de baja exitosamente.");
+    }
+
+    public void fallbackProcesamiento(EmpleadoEvent evento, Exception e) {
+        log.error("Error definitivo al procesar evento de empleado en autenticacion-service. Evento: {}, Error: {}", evento, e.getMessage());
+        // Se registra la falla tras agotar reintentos para evitar un Poison Pill y avanzar el offset
     }
 }
