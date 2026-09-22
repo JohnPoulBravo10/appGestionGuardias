@@ -17,6 +17,7 @@ public class NotificacionService {
         this.repository = repository;
     }
 
+    // Crea y guarda una nueva notificación, inicializando su estado a "no leída".
     public Notificacion crear(Notificacion notificacion) {
 
         notificacion.setId(null);
@@ -26,22 +27,27 @@ public class NotificacionService {
         return repository.save(notificacion);
     }
 
+    // Devuelve todas las notificaciones de un empleado específico.
     public List<Notificacion> obtenerPorEmpleado(Long empleadoDni) {
         return repository.findByEmpleadoDniOrderByFechaCreacionDesc(empleadoDni);
     }
 
+    // Devuelve todas las notificaciones no leídas de un empleado específico.
     public List<Notificacion> obtenerNoLeidasPorEmpleado(Long empleadoDni) {
         return repository.findByEmpleadoDniAndLeidaFalseOrderByFechaCreacionDesc(empleadoDni);
     }
 
+    // Devuelve todas las notificaciones destinadas a un rol específico.
     public List<Notificacion> obtenerPorRol(String rolDestinatario) {
         return repository.findByRolDestinatarioOrderByFechaCreacionDesc(rolDestinatario);
     }
 
+    // Devuelve todas las notificaciones no leídas destinadas a un rol específico.
     public List<Notificacion> obtenerNoLeidasPorRol(String rolDestinatario) {
         return repository.findByRolDestinatarioAndLeidaFalseOrderByFechaCreacionDesc(rolDestinatario);
     }
 
+    // Actualiza el estado de una notificación específica a "leída".
     public Notificacion marcarComoLeida(String id) {
 
         Notificacion notificacion = repository.findById(id)
@@ -52,6 +58,7 @@ public class NotificacionService {
         return repository.save(notificacion);
     }
 
+    // Elimina una notificación por su ID.
     public void eliminar(String id) {
 
         if (!repository.existsById(id)) {

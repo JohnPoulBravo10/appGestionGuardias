@@ -4,6 +4,8 @@ import com.sistema.guardias.autenticacion_service.model.Rol;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
+/* DTO que representa la solicitud de registro de un nuevo usuario.
+   Incluye los datos del usuario y los datos del empleado asociado. */
 @Data
 public class RegistroRequestDto {
 

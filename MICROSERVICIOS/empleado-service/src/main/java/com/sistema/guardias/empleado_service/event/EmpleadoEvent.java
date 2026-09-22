@@ -7,32 +7,23 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-/**
- * Evento Kafka que representa una acción sobre un empleado.
- * Es publicado en el topic "empleados-events" y consumido por los demás microservicios
- * para ejecutar acciones reactivas coordinadas (liberar guardias, dar de baja usuario, etc.).
- */
+/* Evento emitido por empleado-service ante cambios en su ciclo de vida.
+   Se publica en el topic "empleados-events" y es consumido por otros microservicios. */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmpleadoEvent {
 
-    /** Tipo de acción que originó este evento. */
     private TipoEmpleadoEvent tipoEvento;
 
-    /** DNI del empleado afectado. */
     private Long empleadoDni;
 
-    /** Nombre del empleado (para sincronización de caché en consumidores). */
     private String nombre;
 
-    /** Apellido del empleado (para sincronización de caché en consumidores). */
     private String apellido;
 
-    /** Rol del empleado al momento del evento. */
     private String rol;
 
-    /** Fecha y hora en que se produjo el evento. */
     private LocalDateTime fechaEvento;
 }

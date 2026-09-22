@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+/* Servicio central para la lógica de registro y autenticación de usuarios. */
 @Service
 public class AuthService {
 
@@ -38,6 +39,7 @@ public class AuthService {
     @Autowired
     private UsuarioRegistradoProducer usuarioRegistradoProducer;
 
+    // Registra un nuevo usuario público. No permite crear administradores.
     @Transactional
     public UsuarioResponseDto registrar(RegistroRequestDto dto) {
         if (com.sistema.guardias.autenticacion_service.model.Rol.ADMINISTRADOR.equals(dto.getRolUsuario()) || 
@@ -48,6 +50,7 @@ public class AuthService {
         return procesarRegistro(dto);
     }
 
+    // Registra un usuario interno del sistema (usado potencialmente por microservicios).
     @Transactional
     public UsuarioResponseDto registrarSistema(RegistroRequestDto dto) {
         return procesarRegistro(dto);
@@ -92,6 +95,7 @@ public class AuthService {
                 .build();
     }
 
+    // Valida credenciales contra la BD y si son correctas delega la generación del JWT.
     public TokenDto login(LoginRequestDto dto) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(dto.getUsuario(), dto.getPassword())
@@ -101,6 +105,7 @@ public class AuthService {
         return new TokenDto(jwt);
     }
 
+    // Verifica criptográficamente que el token no ha sido alterado y no ha expirado.
     public TokenDto validate(String token) {
         if (!jwtProvider.validateToken(token)) {
             throw new RuntimeException("Token invalido");

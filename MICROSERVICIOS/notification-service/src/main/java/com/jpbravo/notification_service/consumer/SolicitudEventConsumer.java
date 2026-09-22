@@ -13,6 +13,9 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 
+// Consumidor Kafka que reacciona a eventos de solicitudes de cambio de guardia.
+// Genera notificaciones tanto para administradores (nuevas solicitudes) 
+// como para empleados (solicitudes aprobadas o rechazadas).
 @Service
 @Slf4j
 public class SolicitudEventConsumer {
@@ -32,7 +35,7 @@ public class SolicitudEventConsumer {
     @CircuitBreaker(name = "consumerCB", fallbackMethod = "fallbackProcesamiento")
     public void consumirEvento(SolicitudEvent evento) {
 
-        System.out.println("EVENTO DE SOLICITUD RECIBIDO: " + evento);
+        log.info("EVENTO DE SOLICITUD RECIBIDO: {}", evento);
 
         if (evento.getTipoEvento() == null) {
             return;
@@ -45,11 +48,13 @@ public class SolicitudEventConsumer {
         }
     }
 
+    // Manejo de fallos en caso de que el procesamiento falle tras los reintentos.
     public void fallbackProcesamiento(SolicitudEvent evento, Exception e) {
         log.error("Error definitivo al procesar evento de solicitud. Evento: {}, Error: {}", evento, e.getMessage());
         // Se registra la falla tras agotar reintentos para evitar Poison Pill en Kafka
     }
 
+    // Crea una notificación dirigida a los usuarios con rol ADMINISTRADOR.
     private void crearNotificacionAdministrador(SolicitudEvent evento) {
 
         Notificacion notificacion = Notificacion.builder()

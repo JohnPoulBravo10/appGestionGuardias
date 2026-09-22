@@ -9,10 +9,8 @@ import java.util.List;
 
 import io.jsonwebtoken.security.Keys;
 
-/**
- * Configuración centralizada para la validación de JWT en el Gateway.
- * Lee las propiedades con prefijo "jwt" desde el Config Server.
- */
+/* Configuración centralizada para la validación de JWT. 
+   Carga las propiedades "jwt.secret" y "jwt.public-paths" desde el Config Server. */
 @Component
 @ConfigurationProperties(prefix = "jwt")
 public class JwtConfig {
@@ -36,11 +34,8 @@ public class JwtConfig {
         this.publicPaths = publicPaths;
     }
 
-    /**
-     * Genera la clave de firma HMAC-SHA a partir del secret en Base64.
-     * Utiliza el mismo algoritmo que el JwtProvider del autenticacion-service
-     * para garantizar la coherencia en la verificación.
-     */
+    /* Decodifica el secreto en Base64 y genera la clave criptográfica HMAC-SHA.
+       Debe coincidir con la usada en autenticacion-service para validar firmas correctamente. */
     public SecretKey getSigningKey() {
         byte[] keyBytes = Base64.getDecoder().decode(secret);
         return Keys.hmacShaKeyFor(keyBytes);

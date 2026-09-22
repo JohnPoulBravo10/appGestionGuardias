@@ -32,21 +32,6 @@ import MisGuardias from './components/empleado/MisGuardias'
 import SolicitarCambio from './components/empleado/SolicitarCambio'
 import CalendarioMisGuardias from './components/empleado/CalendarioMisGuardias'
 
-const rutaPorPagina = {
-  INICIO: '/admin',
-  CALENDARIO: '/admin/calendario',
-
-  'GESTION EMPLEADOS': '/admin/empleados',
-  'CREAR EMPLEADO': '/admin/empleados/nuevo',
-
-  'GESTION GUARDIAS': '/admin/guardias',
-  'CREAR GUARDIAS': '/admin/guardias/nueva',
-  'EDITAR GUARDIA': '/admin/guardias/editar',
-
-  'HISTORIAL GUARDIAS': '/admin/historial-guardias',
-  SOLICITUDES: '/admin/solicitudes',
-}
-
 function App() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -64,22 +49,6 @@ function App() {
       document.title = 'SGGS'
     }
   }, [location.pathname])
-
-  const [empleadoEditar, setEmpleadoEditar] = useState(null)
-  const [guardiaEditar, setGuardiaEditar] = useState(null)
-
-  const setPagina = (nombrePagina) => {
-    const ruta = rutaPorPagina[nombrePagina]
-
-    if (!ruta) {
-      console.error(
-        `No existe una ruta para la página: ${nombrePagina}`
-      )
-      return
-    }
-
-    navigate(ruta)
-  }
 
   return (
     <Routes>
@@ -117,51 +86,35 @@ function App() {
         <Route
           path="empleados"
           element={
-            <GestionEmpleados
-              setPagina={setPagina}
-              setEmpleadoEditar={setEmpleadoEditar}
-            />
+            <GestionEmpleados />
           }
         />
 
         <Route
           path="empleados/nuevo"
           element={
-            <FormularioCrearEmpleado
-              setPagina={setPagina}
-              empleadoEditar={empleadoEditar}
-              setEmpleadoEditar={setEmpleadoEditar}
-            />
+            <FormularioCrearEmpleado />
           }
         />
 
         <Route
           path="guardias"
           element={
-            <GestionGuardias
-              setPagina={setPagina}
-              setGuardiaEditar={setGuardiaEditar}
-            />
+            <GestionGuardias />
           }
         />
 
         <Route
           path="guardias/nueva"
           element={
-            <FormularioCrearGuardias
-              setPagina={setPagina}
-            />
+            <FormularioCrearGuardias />
           }
         />
 
         <Route
           path="guardias/editar"
           element={
-            <EditarGuardia
-              setPagina={setPagina}
-              guardiaEditar={guardiaEditar}
-              setGuardiaEditar={setGuardiaEditar}
-            />
+            <EditarGuardia />
           }
         />
 

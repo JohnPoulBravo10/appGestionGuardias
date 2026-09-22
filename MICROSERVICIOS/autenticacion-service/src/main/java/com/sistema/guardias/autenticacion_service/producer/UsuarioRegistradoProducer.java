@@ -8,11 +8,9 @@ import org.springframework.stereotype.Service;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 
-/**
- * Productor Kafka responsable de publicar eventos de registro de usuario.
- * Utiliza el DNI como key para garantizar orden de procesamiento
- * por partición para un mismo empleado.
- */
+/* Productor Kafka responsable de publicar eventos de registro de usuario.
+   Utiliza el DNI como key para garantizar orden de procesamiento
+   por partición para un mismo empleado. */
 @Service
 public class UsuarioRegistradoProducer {
 
@@ -25,11 +23,7 @@ public class UsuarioRegistradoProducer {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    /**
-     * Publica un evento de usuario registrado en el topic Kafka.
-     *
-     * @param evento evento con los datos del perfil del nuevo usuario, nunca null
-     */
+    // Publica un evento de usuario registrado en el topic Kafka.
     @Retry(name = "kafkaRetry", fallbackMethod = "fallbackPublicacion")
     @CircuitBreaker(name = "kafkaCB", fallbackMethod = "fallbackPublicacion")
     public void publicarEvento(UsuarioRegistradoEvent evento) {

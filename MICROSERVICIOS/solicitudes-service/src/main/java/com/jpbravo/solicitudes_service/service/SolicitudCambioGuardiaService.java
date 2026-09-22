@@ -27,6 +27,7 @@ public class SolicitudCambioGuardiaService {
     @Autowired
     private SolicitudEventProducer solicitudEventProducer;
 
+    // Crea una nueva solicitud de cambio de guardia 
     public SolicitudResponseDto crearSolicitud(SolicitudRequestDto requestDto) {
 
         InfoGuardia infoGuardia = convertirInfoGuardia(requestDto.getInfoGuardia());
@@ -59,12 +60,14 @@ public class SolicitudCambioGuardiaService {
         return convertirAResponseDto(guardada);
     }
 
+    // Obtiene todas las solicitudes de cambio de guardia
     public List<SolicitudResponseDto> obtenerTodas() {
         return repository.findAll().stream()
                 .map(this::convertirAResponseDto)
                 .toList();
     }
 
+    // Obtiene una solicitud por ID
     public SolicitudResponseDto obtenerPorId(String id) {
 
         SolicitudCambioGuardia solicitud = buscarSolicitudOFallar(id);
@@ -72,18 +75,21 @@ public class SolicitudCambioGuardiaService {
         return convertirAResponseDto(solicitud);
     }
 
+    // Obtiene las solicitudes de un empleado por su DNI
     public List<SolicitudResponseDto> obtenerPorEmpleado(String empleadoDni) {
         return repository.findByEmpleadoDni(empleadoDni).stream()
                 .map(this::convertirAResponseDto)
                 .toList();
     }
 
+    // Obtiene las solicitudes por estado
     public List<SolicitudResponseDto> obtenerPorEstado(EstadoSolicitud estado) {
         return repository.findByEstadoOrderByFechaCreacionDesc(estado).stream()
                 .map(this::convertirAResponseDto)
                 .toList();
     }
 
+    // Aprueba una solicitud de cambio de guardia
     public SolicitudResponseDto aprobarSolicitud(
             String id,
             String observacion,
@@ -124,6 +130,7 @@ public class SolicitudCambioGuardiaService {
         return convertirAResponseDto(actualizada);
     }
 
+    // Rechaza una solicitud de cambio de guardia
     public SolicitudResponseDto rechazarSolicitud(String id, String observacion) {
 
         SolicitudCambioGuardia solicitud = buscarSolicitudOFallar(id);
@@ -152,6 +159,7 @@ public class SolicitudCambioGuardiaService {
         return convertirAResponseDto(actualizada);
     }
 
+    // Valida que la solicitud esté en estado PENDIENTE
     private void validarEstadoPendiente(SolicitudCambioGuardia solicitud, EstadoSolicitud estadoDeseado) {
 
         if (solicitud.getEstado() != EstadoSolicitud.PENDIENTE) {
@@ -162,11 +170,13 @@ public class SolicitudCambioGuardiaService {
         }
     }
 
+    // Busca una solicitud por ID o lanza excepción si no existe
     private SolicitudCambioGuardia buscarSolicitudOFallar(String id) {
         return repository.findById(id)
                 .orElseThrow(() -> new SolicitudNotFoundException(id));
     }
 
+    // Convierte InfoGuardiaDto a InfoGuardia
     private InfoGuardia convertirInfoGuardia(SolicitudRequestDto.InfoGuardiaDto dto) {
         return InfoGuardia.builder()
                 .guardiaId(dto.getGuardiaId())
@@ -177,6 +187,7 @@ public class SolicitudCambioGuardiaService {
                 .build();
     }
 
+    // Convierte SolicitudCambioGuardia a SolicitudResponseDto
     private SolicitudResponseDto convertirAResponseDto(SolicitudCambioGuardia solicitud) {
         return SolicitudResponseDto.builder()
                 .id(solicitud.getId())

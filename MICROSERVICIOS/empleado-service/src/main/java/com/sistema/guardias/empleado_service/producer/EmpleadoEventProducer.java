@@ -7,11 +7,9 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Productor Kafka responsable de publicar eventos del ciclo de vida de empleados.
- * Utiliza el DNI del empleado como key para garantizar orden de procesamiento
- * por partición para un mismo empleado.
- */
+/* Productor Kafka responsable de publicar eventos del ciclo de vida de empleados.
+   Utiliza el DNI del empleado como key para garantizar orden de procesamiento
+   por partición para un mismo empleado. */
 @Service
 @Slf4j
 public class EmpleadoEventProducer {
@@ -24,11 +22,7 @@ public class EmpleadoEventProducer {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    /**
-     * Publica un evento de empleado en el topic Kafka.
-     *
-     * @param evento evento a publicar, nunca null
-     */
+    // Publica un evento de empleado en el topic Kafka.
     @Retry(name = "kafkaRetry", fallbackMethod = "fallbackPublicacion")
     @CircuitBreaker(name = "kafkaCB", fallbackMethod = "fallbackPublicacion")
     public void publicarEvento(EmpleadoEvent evento) {

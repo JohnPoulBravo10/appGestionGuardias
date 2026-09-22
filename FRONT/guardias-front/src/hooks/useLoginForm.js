@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { decodeJwtPayload } from '../utils/authUtils'
 
 /**
  * URL base del API Gateway.
@@ -15,32 +16,6 @@ const REDIRECT_ROUTES = {
   DEFAULT: '/empleado',
 }
 
-/**
- * Decodifica el payload de un JWT sin verificar la firma.
- *
- * La validación real del JWT debe hacerse en el backend.
- */
-function decodeJwtPayload(token) {
-  const partes = token.split('.')
-
-  if (partes.length !== 3) {
-    throw new Error('El token recibido no tiene un formato JWT válido')
-  }
-
-  const payloadBase64 = partes[1]
-    .replace(/-/g, '+')
-    .replace(/_/g, '/')
-
-  /*
-   * atob necesita que el Base64 tenga una longitud válida.
-   * Agregamos "=" cuando sea necesario.
-   */
-  const padding = '='.repeat((4 - (payloadBase64.length % 4)) % 4)
-
-  const payloadJson = atob(payloadBase64 + padding)
-
-  return JSON.parse(payloadJson)
-}
 
 /**
  * Extrae el rol del usuario desde el payload del JWT.
@@ -189,6 +164,11 @@ export default function useLoginForm() {
         localStorage.setItem('token', token)
 
         const payload = decodeJwtPayload(token)
+        
+        if (!payload) {
+          throw new Error('El token JWT recibido no es válido o no se pudo decodificar')
+        }
+
         const rol = extractRolFromPayload(payload)
 
         if (!rol) {

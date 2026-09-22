@@ -22,18 +22,17 @@ public class EmpleadoService {
     @Autowired
     private EmpleadoEventProducer empleadoEventProducer;
 
-    /**
-     * Obtiene todos los empleados activos del sistema.
-     * Los empleados dados de baja (activo = false) quedan excluidos.
-     */
+    // Obtiene todos los empleados activos del sistema.
     public List<Empleado> obtenerTodos() {
         return empleadoRepository.findByActivoTrue();
     }
 
+    // Obtiene un empleado por su DNI.
     public Optional<Empleado> obtenerPorId(Long dni) {
         return empleadoRepository.findById(dni);
     }
 
+    // Crea un nuevo empleado.
     public Empleado guardarEmpleado(Empleado empleado) {
         if (empleadoRepository.existsById(empleado.getDni())) {
             throw new RuntimeException("Ya existe un empleado con ese DNI");
@@ -42,20 +41,12 @@ public class EmpleadoService {
         Empleado guardado = empleadoRepository.save(empleado);
 
         empleadoEventProducer.publicarEvento(
-                construirEvento(TipoEmpleadoEvent.EMPLEADO_CREADO, guardado)
-        );
+                construirEvento(TipoEmpleadoEvent.EMPLEADO_CREADO, guardado));
 
         return guardado;
     }
 
-    /**
-     * Da de baja lógica a un empleado (soft-delete).
-     * En lugar de eliminar el registro, marca el campo activo como false
-     * y publica un evento Kafka para que los demás servicios reaccionen.
-     *
-     * @param dni DNI del empleado a desactivar
-     * @throws RuntimeException si el empleado no existe
-     */
+    // Desactiva un empleado (soft-delete).
     public void desactivarEmpleado(Long dni) {
         Empleado empleado = empleadoRepository.findById(dni)
                 .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
@@ -68,21 +59,20 @@ public class EmpleadoService {
         empleadoRepository.save(empleado);
 
         empleadoEventProducer.publicarEvento(
-                construirEvento(TipoEmpleadoEvent.EMPLEADO_DESACTIVADO, empleado)
-        );
+                construirEvento(TipoEmpleadoEvent.EMPLEADO_DESACTIVADO, empleado));
     }
 
-    /**
-     * Obtiene empleados activos filtrados por rol.
-     */
+    // Obtiene empleados activos filtrados por rol.
     public List<Empleado> obtenerPorRol(Rol rol) {
         return empleadoRepository.findByRolAndActivoTrue(rol);
     }
 
+    // Obtiene un empleado por su usuarioId.
     public Optional<Empleado> buscarPorUsuarioId(Long usuarioId) {
         return empleadoRepository.findByUsuarioId(usuarioId);
     }
 
+    // Actualiza un empleado.
     public Empleado actualizarEmpleado(Long dni, Empleado empleado) {
         if (!empleadoRepository.existsById(dni)) {
             throw new RuntimeException("Empleado no encontrado");
@@ -93,20 +83,12 @@ public class EmpleadoService {
         Empleado actualizado = empleadoRepository.save(empleado);
 
         empleadoEventProducer.publicarEvento(
-                construirEvento(TipoEmpleadoEvent.EMPLEADO_ACTUALIZADO, actualizado)
-        );
+                construirEvento(TipoEmpleadoEvent.EMPLEADO_ACTUALIZADO, actualizado));
 
         return actualizado;
     }
 
-    /**
-     * Construye un evento enriquecido a partir de la entidad Empleado.
-     * Centraliza la creación para evitar duplicación (principio DRY).
-     *
-     * @param tipo   tipo de evento del ciclo de vida del empleado
-     * @param empleado entidad con los datos actuales del empleado
-     * @return evento listo para publicar en Kafka
-     */
+    // Construye un evento a partir de la entidad Empleado.
     private EmpleadoEvent construirEvento(TipoEmpleadoEvent tipo, Empleado empleado) {
         return EmpleadoEvent.builder()
                 .tipoEvento(tipo)

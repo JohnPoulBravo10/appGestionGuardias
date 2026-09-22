@@ -7,31 +7,23 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-/**
- * DTO espejo del evento emitido por empleado-service.
- * Permite la deserialización de eventos Kafka del topic "empleados-events".
- */
+/* DTO espejo del evento emitido por empleado-service.
+   Permite la deserialización de eventos Kafka del topic "empleados-events". */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmpleadoEvent {
 
-    /** Tipo de acción que originó este evento. */
     private TipoEmpleadoEvent tipoEvento;
 
-    /** DNI del empleado afectado. */
     private Long empleadoDni;
 
-    /** Nombre del empleado. */
     private String nombre;
 
-    /** Apellido del empleado. */
     private String apellido;
 
-    /** Rol del empleado al momento del evento. */
     private String rol;
 
-    /** Fecha y hora en que se produjo el evento. */
     private LocalDateTime fechaEvento;
 }

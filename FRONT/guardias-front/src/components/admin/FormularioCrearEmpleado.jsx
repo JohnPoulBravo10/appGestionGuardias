@@ -2,6 +2,7 @@ import React, {
   useEffect,
   useState,
 } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import ModalMensaje from '../common/ui/ModalMensaje'
 
@@ -42,13 +43,12 @@ function claseInput(errorCampo) {
     : 'admin-input-estilo'
 }
 
-function FormularioCrearEmpleado({
-  setPagina,
-  empleadoEditar,
-  setEmpleadoEditar,
-}) {
-  const esEdicion =
-    empleadoEditar != null
+function FormularioCrearEmpleado() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  
+  const empleadoEditar = location.state?.empleadoEditar || null
+  const esEdicion = empleadoEditar != null
 
   const [empleado, setEmpleado] =
     useState(
@@ -111,8 +111,7 @@ function FormularioCrearEmpleado({
   }
 
   const volverAGestion = () => {
-    setEmpleadoEditar(null)
-    setPagina('GESTION EMPLEADOS')
+    navigate('/admin/empleados')
   }
 
   const cerrarModal = () => {
@@ -127,9 +126,7 @@ function FormularioCrearEmpleado({
     })
 
     if (debeVolver) {
-      setEmpleado(empleadoVacio)
-      setEmpleadoEditar(null)
-      setPagina('GESTION EMPLEADOS')
+      navigate('/admin/empleados')
     }
   }
 

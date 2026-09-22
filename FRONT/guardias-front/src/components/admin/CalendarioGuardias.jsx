@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 
 import { getToken } from '../../utils/authUtils'
 
+const API_BASE_URL = 'http://localhost:8090'
+
 function CalendarioGuardias() {
     // ===========================
     // Fecha mostrada en el calendario
@@ -29,7 +31,7 @@ function CalendarioGuardias() {
             const token = getToken()
             const headers = token ? { Authorization: `Bearer ${token}` } : {}
 
-            const response = await fetch("http://localhost:8090/api/guardias", { headers });
+            const response = await fetch(`${API_BASE_URL}/api/guardias`, { headers });
 
             if (!response.ok) {
                 throw new Error("Error al obtener guardias");

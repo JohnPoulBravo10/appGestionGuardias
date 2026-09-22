@@ -10,14 +10,11 @@ import org.springframework.stereotype.Service;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 
-/**
- * Consumidor Kafka que reacciona a eventos de solicitud de cambio de guardia
- * emitidos por solicitudes-service.
- *
- * <p>Al recibir un evento de tipo {@code SOLICITUD_CAMBIO_ACEPTADA}, reasigna
- * el empleado de la guardia indicada al empleado de reemplazo.
- * Los demás tipos de evento (CREADA, RECHAZADA) se ignoran.</p>
- */
+/* Consumidor Kafka que reacciona a eventos de solicitud de cambio de guardia
+   emitidos por solicitudes-service.
+   Al recibir un evento de tipo SOLICITUD_CAMBIO_ACEPTADA, reasigna
+   el empleado de la guardia indicada al empleado de reemplazo.
+   Los demás tipos de evento (CREADA, RECHAZADA) se ignoran. */
 @Service
 public class SolicitudAprobadaConsumer {
 

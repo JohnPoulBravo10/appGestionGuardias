@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+// DTO que representa un evento de solicitud recibido desde Kafka.
 @Data
 @Builder
 @NoArgsConstructor

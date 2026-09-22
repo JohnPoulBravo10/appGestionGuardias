@@ -13,17 +13,13 @@ import java.util.Optional;
 @Repository
 public interface EmpleadoRepository extends JpaRepository<Empleado, Long> {
 
-    
     List<Empleado> findByApellidoContainingIgnoreCase(String apellido);
+
     List<Empleado> findByRol(Rol rol);
 
-    /** Obtiene todos los empleados activos (no dados de baja). */
     List<Empleado> findByActivoTrue();
 
-    /** Obtiene empleados activos filtrados por rol. */
     List<Empleado> findByRolAndActivoTrue(Rol rol);
 
-    
     Optional<Empleado> findByUsuarioId(Long usuarioId);
 }
-

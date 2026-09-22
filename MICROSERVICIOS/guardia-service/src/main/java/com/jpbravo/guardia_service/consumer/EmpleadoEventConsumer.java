@@ -19,17 +19,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Consumidor Kafka que reacciona a eventos del ciclo de vida de empleados.
- *
- * <p>Responsabilidades:</p>
- * <ul>
- *   <li>{@code EMPLEADO_CREADO} / {@code EMPLEADO_ACTUALIZADO}: sincroniza la
- *       caché local {@code empleados_cache} con los datos del empleado.</li>
- *   <li>{@code EMPLEADO_DESACTIVADO}: marca al empleado como inactivo en la
- *       caché y libera las guardias futuras asignadas a ese empleado.</li>
- * </ul>
- */
+/* Consumidor Kafka que reacciona a eventos del ciclo de vida de empleados.
+   Responsabilidades:
+   - EMPLEADO_CREADO / EMPLEADO_ACTUALIZADO: sincroniza la caché local
+     con los datos del empleado.
+   - EMPLEADO_DESACTIVADO: marca al empleado como inactivo en la
+     caché y libera las guardias futuras asignadas a ese empleado. */
 @Service
 public class EmpleadoEventConsumer {
 
@@ -73,10 +68,8 @@ public class EmpleadoEventConsumer {
         // Se registra la falla tras agotar reintentos para evitar un Poison Pill y avanzar el offset
     }
 
-    /**
-     * Inserta o actualiza la caché local con los datos del empleado
-     * recibidos en el evento Kafka.
-     */
+    /* Inserta o actualiza la caché local con los datos del empleado
+       recibidos en el evento Kafka. */
     private void actualizarCache(EmpleadoEvent evento) {
 
         EmpleadoCache cache = empleadoCacheRepository.findById(evento.getEmpleadoDni())
@@ -97,10 +90,8 @@ public class EmpleadoEventConsumer {
                 evento.getEmpleadoDni(), evento.getTipoEvento());
     }
 
-    /**
-     * Marca al empleado como inactivo en la caché y libera todas sus
-     * guardias futuras con estado PROXIMA, cambiándolas a ABIERTA.
-     */
+    /* Marca al empleado como inactivo en la caché y libera todas sus
+       guardias futuras con estado PROXIMA, cambiándolas a ABIERTA. */
     private void procesarDesactivacion(EmpleadoEvent evento) {
 
         // Actualizar caché marcando como inactivo

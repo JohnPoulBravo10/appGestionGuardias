@@ -12,6 +12,8 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 
+// Consumidor Kafka que reacciona a eventos del ciclo de vida de las guardias.
+// Crea notificaciones para los empleados cuando se les asigna, modifica o elimina una guardia.
 @Service
 @Slf4j
 public class GuardiaEventConsumer {
@@ -30,7 +32,7 @@ public class GuardiaEventConsumer {
     @CircuitBreaker(name = "consumerCB", fallbackMethod = "fallbackProcesamiento")
     public void consumirEvento(GuardiaEvent evento) {
 
-        System.out.println("EVENTO RECIBIDO DESDE KAFKA: " + evento);
+        log.info("EVENTO RECIBIDO DESDE KAFKA: {}", evento);
 
         if (evento.getTipoEvento() == null) {
             return;
@@ -97,6 +99,7 @@ public class GuardiaEventConsumer {
         }
     }
 
+    // Manejo de fallos en caso de que el procesamiento falle tras los reintentos.
     public void fallbackProcesamiento(GuardiaEvent evento, Exception e) {
         log.error("Error definitivo al procesar evento de guardia en notificación. Evento: {}, Error: {}", evento, e.getMessage());
         // Se registra la falla para evitar un Poison Pill y commitear el offset.

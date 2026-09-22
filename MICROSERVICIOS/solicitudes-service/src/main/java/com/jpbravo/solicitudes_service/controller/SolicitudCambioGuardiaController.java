@@ -14,10 +14,6 @@ import java.util.List;
 
 import org.springframework.web.server.ResponseStatusException;
 
-/**
- * Controlador REST para la gestión de solicitudes de cambio de guardia.
- * Expone los endpoints CRUD y las operaciones de aprobación/rechazo.
- */
 @RestController
 @RequestMapping("/api/solicitudes")
 public class SolicitudCambioGuardiaController {
@@ -28,12 +24,7 @@ public class SolicitudCambioGuardiaController {
         this.solicitudService = solicitudService;
     }
 
-    /**
-     * Crea una nueva solicitud de cambio de guardia.
-     *
-     * @param requestDto datos de la solicitud validados
-     * @return solicitud creada con HTTP 201
-     */
+    // Crea una nueva solicitud de cambio de guardia.
     @PostMapping
     public ResponseEntity<SolicitudResponseDto> crearSolicitud(
             @Valid @RequestBody SolicitudRequestDto requestDto) {
@@ -42,11 +33,7 @@ public class SolicitudCambioGuardiaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(creada);
     }
 
-    /**
-     * Lista todas las solicitudes de cambio de guardia.
-     *
-     * @return lista de solicitudes
-     */
+    // Lista todas las solicitudes de cambio de guardia.
     @GetMapping
     public ResponseEntity<List<SolicitudResponseDto>> listarSolicitudes(
             @RequestHeader(value = "X-User-Roles", required = false) String roles) {
@@ -55,24 +42,14 @@ public class SolicitudCambioGuardiaController {
         return ResponseEntity.ok(solicitudes);
     }
 
-    /**
-     * Obtiene una solicitud por su identificador.
-     *
-     * @param id identificador de la solicitud
-     * @return solicitud encontrada
-     */
+    // Obtiene una solicitud por su identificador.
     @GetMapping("/{id}")
     public ResponseEntity<SolicitudResponseDto> obtenerSolicitud(@PathVariable String id) {
         SolicitudResponseDto solicitud = solicitudService.obtenerPorId(id);
         return ResponseEntity.ok(solicitud);
     }
 
-    /**
-     * Obtiene todas las solicitudes de un empleado por su DNI.
-     *
-     * @param empleadoDni DNI del empleado
-     * @return lista de solicitudes del empleado
-     */
+    // Obtiene todas las solicitudes de un empleado por su DNI.
     @GetMapping("/empleado/{empleadoDni}")
     public ResponseEntity<List<SolicitudResponseDto>> obtenerPorEmpleado(
             @PathVariable String empleadoDni,
@@ -84,12 +61,7 @@ public class SolicitudCambioGuardiaController {
         return ResponseEntity.ok(solicitudes);
     }
 
-    /**
-     * Filtra las solicitudes por estado.
-     *
-     * @param estado estado a filtrar (PENDIENTE, APROBADA, RECHAZADA)
-     * @return lista de solicitudes con el estado indicado
-     */
+    // Filtra las solicitudes por estado.
     @GetMapping("/estado/{estado}")
     public ResponseEntity<List<SolicitudResponseDto>> obtenerPorEstado(
             @PathVariable EstadoSolicitud estado,
@@ -100,16 +72,10 @@ public class SolicitudCambioGuardiaController {
         return ResponseEntity.ok(solicitudes);
     }
 
-    /**
-     * Aprueba una solicitud pendiente.
-     * Recibe opcionalmente una observación del administrador y los datos
-     * del empleado de reemplazo. Al aprobar, la guardia se reasigna
-     * al empleado indicado (o queda sin asignar si no hay reemplazo).
-     *
-     * @param id   identificador de la solicitud
-     * @param body datos de resolución (observación, empleado de reemplazo)
-     * @return solicitud aprobada
-     */
+    /* Aprueba una solicitud pendiente.
+       Recibe opcionalmente una observación del administrador y los datos
+       del empleado de reemplazo. Al aprobar, la guardia se reasigna
+       al empleado indicado (o queda sin asignar si no hay reemplazo). */
     @PatchMapping("/{id}/aprobar")
     public ResponseEntity<SolicitudResponseDto> aprobarSolicitud(
             @PathVariable String id,
@@ -126,15 +92,9 @@ public class SolicitudCambioGuardiaController {
         return ResponseEntity.ok(aprobada);
     }
 
-    /**
-     * Rechaza una solicitud pendiente.
-     * Recibe opcionalmente una observación del administrador.
-     * La guardia no se modifica al rechazar.
-     *
-     * @param id   identificador de la solicitud
-     * @param body datos de resolución (solo observación es relevante)
-     * @return solicitud rechazada
-     */
+    /* Rechaza una solicitud pendiente.
+       Recibe opcionalmente una observación del administrador.
+       La guardia no se modifica al rechazar. */
     @PatchMapping("/{id}/rechazar")
     public ResponseEntity<SolicitudResponseDto> rechazarSolicitud(
             @PathVariable String id,
@@ -153,12 +113,14 @@ public class SolicitudCambioGuardiaController {
         return roles != null && roles.contains("ADMIN");
     }
 
+    /* Verifica si el usuario tiene rol ADMIN */
     private void requireAdmin(String roles) {
         if (!isAdmin(roles)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado: Se requiere rol ADMIN");
         }
     }
 
+    /* Verifica si el usuario tiene rol ADMIN o es el dueño de la solicitud */
     private void requireAdminOrOwner(String roles, String userDni, String targetDni) {
         if (!isAdmin(roles) && (userDni == null || !userDni.equals(targetDni))) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado: No tiene permisos para este recurso");

@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+// DTO para eventos relacionados con guardias
 @Data
 @Builder
 @NoArgsConstructor

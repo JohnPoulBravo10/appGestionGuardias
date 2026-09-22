@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+// DTO que representa un evento de guardia recibido desde Kafka.
 @Data
 @Builder
 @NoArgsConstructor

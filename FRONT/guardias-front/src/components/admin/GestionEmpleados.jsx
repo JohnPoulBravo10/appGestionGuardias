@@ -3,6 +3,7 @@ import React, {
   useMemo,
   useState,
 } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import ModalConfirmacion from '../common/ui/ModalConfirmacion'
 import ModalMensaje from '../common/ui/ModalMensaje'
@@ -11,10 +12,8 @@ import { getToken } from '../../utils/authUtils'
 
 const API_BASE_URL = 'http://localhost:8090'
 
-function GestionEmpleados({
-  setPagina,
-  setEmpleadoEditar,
-}) {
+function GestionEmpleados() {
+  const navigate = useNavigate()
   const [empleados, setEmpleados] =
     useState([])
 
@@ -186,8 +185,7 @@ function GestionEmpleados({
   const editarEmpleado = (
     empleado
   ) => {
-    setEmpleadoEditar(empleado)
-    setPagina('CREAR EMPLEADO')
+    navigate('/admin/empleados/nuevo', { state: { empleadoEditar: empleado } })
   }
 
   const solicitarEliminarEmpleado = (
@@ -280,10 +278,7 @@ function GestionEmpleados({
             type="button"
             className="admin-btn-nuevo"
             onClick={() => {
-              setEmpleadoEditar(null)
-              setPagina(
-                'CREAR EMPLEADO'
-              )
+              navigate('/admin/empleados/nuevo')
             }}
           >
             + Nuevo Empleado

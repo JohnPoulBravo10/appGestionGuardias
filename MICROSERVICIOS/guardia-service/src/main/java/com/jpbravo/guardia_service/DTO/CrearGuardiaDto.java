@@ -11,14 +11,9 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-/**
- * DTO de entrada para la creación y edición de guardias.
- * Centraliza las validaciones Jakarta que se aplican
- * tanto al endpoint POST como al PUT.
- *
- * <p>El campo {@code empleadoId} es opcional: si es {@code null}
- * la guardia se crea como "abierta" (sin personal asignado).</p>
- */
+/* DTO de entrada para la creación y edición de guardias.
+   Centraliza las validaciones Jakarta que se aplican al crear o editar.
+   El campo empleadoId es opcional: si es null, la guardia se crea como "abierta". */
 @Data
 @Builder
 @NoArgsConstructor
@@ -37,7 +32,6 @@ public class CrearGuardiaDto {
 
     @NotNull(message = "El área de trabajo es obligatoria")
     private Rol rol;
-
-    /** Opcional: DNI del empleado asignado */
+    
     private Long empleadoId;
 }

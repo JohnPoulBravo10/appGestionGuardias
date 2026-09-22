@@ -3,6 +3,7 @@ import React, {
   useMemo,
   useState,
 } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import {
   calcularEstadoGuardia,
@@ -17,10 +18,8 @@ import { getToken } from '../../utils/authUtils'
 
 const API_BASE_URL = 'http://localhost:8090'
 
-function GestionGuardias({
-  setPagina,
-  setGuardiaEditar,
-}) {
+function GestionGuardias() {
+  const navigate = useNavigate()
   const [guardias, setGuardias] =
     useState([])
 
@@ -257,8 +256,7 @@ function GestionGuardias({
   }
 
   const editarGuardia = (guardia) => {
-    setGuardiaEditar(guardia)
-    setPagina('EDITAR GUARDIA')
+    navigate('/admin/guardias/editar', { state: { guardiaEditar: guardia } })
   }
 
   const limpiarFiltros = () => {
@@ -278,7 +276,7 @@ function GestionGuardias({
             type="button"
             className="admin-btn-nuevo"
             onClick={() =>
-              setPagina('CREAR GUARDIAS')
+              navigate('/admin/guardias/nueva')
             }
           >
             + Crear Guardia

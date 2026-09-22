@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import ModalMensaje from '../common/ui/ModalMensaje'
 import { validarGuardia } from '../../utils/validacionesGuardia'
@@ -26,9 +27,8 @@ function claseInput(errorCampo) {
     : 'admin-input-estilo'
 }
 
-function FormularioCrearGuardias({
-  setPagina,
-}) {
+function FormularioCrearGuardias() {
+  const navigate = useNavigate()
   const [empleados, setEmpleados] =
     useState([])
 
@@ -188,7 +188,7 @@ function FormularioCrearGuardias({
     })
 
     if (debeVolver) {
-      setPagina('GESTION GUARDIAS')
+      navigate('/admin/guardias')
     }
   }
 
@@ -327,7 +327,7 @@ function FormularioCrearGuardias({
   }
 
   const volverAGestion = () => {
-    setPagina('GESTION GUARDIAS')
+    navigate('/admin/guardias')
   }
 
   return (

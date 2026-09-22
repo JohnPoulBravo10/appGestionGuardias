@@ -21,22 +21,13 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Filtro global del API Gateway que intercepta todas las peticiones entrantes
- * para validar el JWT antes de enrutar hacia los microservicios.
- *
- * <p>Responsabilidades:
- * <ul>
- *   <li>Excluir rutas públicas configurables (ej. /auth/**).</li>
- *   <li>Dejar pasar peticiones OPTIONS (preflight CORS) sin validación.</li>
- *   <li>Rechazar con 401 peticiones sin token o con token inválido/expirado.</li>
- *   <li>Sanitizar cabeceras X-User-* provenientes del cliente externo
- *       para prevenir suplantación de identidad.</li>
- *   <li>Propagar la identidad del usuario autenticado como cabeceras internas
- *       (X-User-Id, X-User-Dni, X-User-Roles, X-User-Name) hacia los
- *       microservicios downstream.</li>
- * </ul>
- */
+/* Filtro global que intercepta peticiones entrantes para validar el JWT.
+   Sus responsabilidades incluyen:
+   - Excluir rutas públicas de la validación.
+   - Permitir peticiones OPTIONS (CORS preflight).
+   - Rechazar peticiones no autorizadas (401).
+   - Sanitizar e inyectar cabeceras internas (X-User-*) con datos del JWT validado 
+     para prevenir suplantación de identidad en los microservicios. */
 @Component
 public class JwtAuthFilter implements GlobalFilter, Ordered {
 
@@ -59,18 +50,17 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
 
-        // Las rutas públicas no requieren autenticación
+        // Ignorar validación de token si la ruta está configurada como pública
         if (isPublicPath(path)) {
             return chain.filter(exchange);
         }
 
-        // Las peticiones OPTIONS son preflight CORS del navegador y nunca
-        // incluyen el header Authorization. Se dejan pasar para que el
-        // mecanismo CORS del Gateway las responda correctamente.
+        // Permitir peticiones OPTIONS preflight de CORS ya que no incluyen Authorization header
         if (HttpMethod.OPTIONS.equals(request.getMethod())) {
             return chain.filter(exchange);
         }
 
+        // Obtener cabecera Authorization y validar la presencia del prefijo Bearer
         String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
         if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
@@ -81,14 +71,16 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         String token = authHeader.substring(BEARER_PREFIX.length());
 
         try {
+            // Validar firma del token y extraer los claims (payload)
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(jwtConfig.getSigningKey())
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
 
-            // Sanitizar: eliminar cabeceras X-User-* que pudieran venir del cliente externo
-            // e inyectar las reales extraídas del JWT verificado.
+            /* Mutar la petición original: 
+               1. Eliminar cabeceras X-User-* que el cliente pudiera haber inyectado maliciosamente.
+               2. Inyectar las cabeceras reales extraídas de los claims del JWT verificado. */
             ServerHttpRequest mutatedRequest = request.mutate()
                     .headers(headers -> {
                         headers.remove(HEADER_USER_ID);
@@ -110,48 +102,33 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         }
     }
 
-    /**
-     * Prioridad alta (número bajo) para ejecutarse antes que otros filtros del Gateway,
-     * asegurando que ninguna petición no autenticada alcance los microservicios.
-     */
+    /* Define la prioridad del filtro en la cadena de filtros del Gateway.
+       Un valor negativo (-1) asegura que se ejecute tempranamente. */
     @Override
     public int getOrder() {
         return -1;
     }
 
-    /**
-     * Verifica si la ruta solicitada coincide con alguna de las rutas públicas
-     * configuradas (usa patrones Ant como /auth/**).
-     */
+    // Comprueba si el path solicitado hace match con alguna de las rutas públicas permitidas
     private boolean isPublicPath(String path) {
         return jwtConfig.getPublicPaths().stream()
                 .anyMatch(pattern -> pathMatcher.match(pattern, path));
     }
 
-    /**
-     * Retorna respuesta 401 Unauthorized sin cuerpo.
-     * Se completa el response para que el Gateway no continúe procesando.
-     */
+    // Devuelve código de estado 401 (No Autorizado) y aborta el procesamiento de la petición
     private Mono<Void> onUnauthorized(ServerWebExchange exchange) {
         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
         return exchange.getResponse().setComplete();
     }
 
-    /**
-     * Extrae un claim del JWT de forma segura, retornando cadena vacía si es null.
-     * Esto evita que se propaguen headers con valor "null" literal.
-     */
+    // Obtiene un claim específico evitando devolver null, lo que fallaría al setear la cabecera HTTP
     private String extractClaim(Claims claims, String claimName) {
         Object value = claims.get(claimName);
         return value != null ? value.toString() : "";
     }
 
-    /**
-     * Extrae los roles del claim "roles" del JWT.
-     * El JwtProvider del autenticacion-service almacena los roles como una lista
-     * de objetos con campo "authority" (serialización de GrantedAuthority).
-     * Se extraen y concatenan con coma para la cabecera.
-     */
+    /* Mapea y concatena la lista de roles o authorities extraída del JWT en un solo string separado por comas.
+       Soporta el formato de serialización de GrantedAuthority del servicio de autenticación. */
     @SuppressWarnings("unchecked")
     private String extractRoles(Claims claims) {
         Object rolesObj = claims.get("roles");

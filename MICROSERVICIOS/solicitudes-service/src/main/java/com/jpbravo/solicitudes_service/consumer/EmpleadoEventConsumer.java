@@ -16,11 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Consumidor Kafka que reacciona a eventos del ciclo de vida de empleados.
- * Al recibir EMPLEADO_DESACTIVADO, rechaza automáticamente todas las solicitudes
- * de cambio de guardia pendientes del empleado dado de baja.
- */
+/* Consumidor Kafka que reacciona a eventos del ciclo de vida de empleados.
+   Al recibir EMPLEADO_DESACTIVADO, rechaza automáticamente todas las solicitudes
+   de cambio de guardia pendientes del empleado dado de baja. */
 @Service
 @Slf4j
 public class EmpleadoEventConsumer {
@@ -42,8 +40,7 @@ public class EmpleadoEventConsumer {
 
         String empleadoDni = String.valueOf(evento.getEmpleadoDni());
 
-        System.out.println("[solicitudes-service] Empleado desactivado, DNI: " + empleadoDni
-                + ". Rechazando solicitudes pendientes...");
+        log.info("[solicitudes-service] Empleado desactivado, DNI: {}. Rechazando solicitudes pendientes...", empleadoDni);
 
         List<SolicitudCambioGuardia> solicitudesPendientes = solicitudRepository
                 .findByEmpleadoDniAndEstado(empleadoDni, EstadoSolicitud.PENDIENTE);
@@ -56,8 +53,7 @@ public class EmpleadoEventConsumer {
 
         solicitudRepository.saveAll(solicitudesPendientes);
 
-        System.out.println("[solicitudes-service] " + solicitudesPendientes.size()
-                + " solicitudes rechazadas para DNI: " + empleadoDni);
+        log.info("[solicitudes-service] {} solicitudes rechazadas para DNI: {}", solicitudesPendientes.size(), empleadoDni);
     }
 
     public void fallbackProcesamiento(EmpleadoEvent evento, Exception e) {

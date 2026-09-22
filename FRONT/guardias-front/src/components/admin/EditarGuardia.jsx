@@ -3,6 +3,7 @@ import React, {
   useMemo,
   useState,
 } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import ModalMensaje from '../common/ui/ModalMensaje'
 import { validarGuardia } from '../../utils/validacionesGuardia'
@@ -22,11 +23,13 @@ function claseInput(errorCampo) {
     : 'admin-input-estilo'
 }
 
-function EditarGuardia({
-  setPagina,
-  guardiaEditar,
-  setGuardiaEditar,
-}) {
+function EditarGuardia() {
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const [guardiaEditar, setGuardiaEditar] = useState(
+    location.state?.guardiaEditar || null
+  )
   const [empleados, setEmpleados] =
     useState([])
 
@@ -195,8 +198,7 @@ function EditarGuardia({
     })
 
     if (debeVolver) {
-      setGuardiaEditar(null)
-      setPagina('GESTION GUARDIAS')
+      navigate('/admin/guardias')
     }
   }
 
@@ -324,8 +326,7 @@ function EditarGuardia({
   }
 
   const volverAGestion = () => {
-    setGuardiaEditar(null)
-    setPagina('GESTION GUARDIAS')
+    navigate('/admin/guardias')
   }
 
   if (!guardiaEditar) {

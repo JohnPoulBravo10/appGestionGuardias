@@ -1,27 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { decodeJwtPayload } from '../utils/authUtils'
 
 const API_BASE_URL = 'http://localhost:8090'
 
-function decodeJwtPayload(token) {
-  const partes = token.split('.')
-
-  if (partes.length !== 3) {
-    throw new Error('Token JWT con formato inválido')
-  }
-
-  const payloadBase64 = partes[1]
-    .replace(/-/g, '+')
-    .replace(/_/g, '/')
-
-  const padding = '='.repeat(
-    (4 - (payloadBase64.length % 4)) % 4
-  )
-
-  const payloadJson = atob(payloadBase64 + padding)
-
-  return JSON.parse(payloadJson)
-}
 
 export default function useUsuarioActual() {
   const navigate = useNavigate()
@@ -62,6 +44,10 @@ export default function useUsuarioActual() {
         }
 
         const payload = decodeJwtPayload(token)
+
+        if (!payload) {
+          throw new Error('Token JWT con formato inválido o no se pudo decodificar')
+        }
 
         const usuarioId =
           payload.id || payload.usuarioId

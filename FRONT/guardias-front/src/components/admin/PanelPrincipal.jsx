@@ -5,6 +5,8 @@ import {
   getRolFromToken,
 } from '../../utils/authUtils'
 
+const API_BASE_URL = 'http://localhost:8090'
+
 /**
  * Mapeo de roles internos a etiquetas legibles para el usuario.
  */
@@ -62,7 +64,7 @@ function PanelPrincipal() {
       const token = getToken()
       const headers = token ? { Authorization: `Bearer ${token}` } : {}
 
-      const response = await fetch('http://localhost:8090/api/guardias/activas', { headers })
+      const response = await fetch(`${API_BASE_URL}/api/guardias/activas`, { headers })
 
       if (!response.ok) {
         throw new Error('Error al obtener las guardias activas')
@@ -88,7 +90,7 @@ function PanelPrincipal() {
       const headers = token ? { Authorization: `Bearer ${token}` } : {}
 
       const response = await fetch(
-        'http://localhost:8090/api/solicitudes/estado/PENDIENTE',
+        `${API_BASE_URL}/api/solicitudes/estado/PENDIENTE`,
         { headers }
       )
 
@@ -131,7 +133,7 @@ function PanelPrincipal() {
 
       // Notificaciones personales
       const responsePersonales = await fetch(
-        `http://localhost:8090/api/notificaciones/empleado/${empleadoId}`,
+        `${API_BASE_URL}/api/notificaciones/empleado/${empleadoId}`,
         { method: 'GET', headers }
       )
 
@@ -150,7 +152,7 @@ function PanelPrincipal() {
         try {
 
           const responseRol = await fetch(
-            `http://localhost:8090/api/notificaciones/rol/${rol}`,
+            `${API_BASE_URL}/api/notificaciones/rol/${rol}`,
             { method: 'GET', headers }
           )
 

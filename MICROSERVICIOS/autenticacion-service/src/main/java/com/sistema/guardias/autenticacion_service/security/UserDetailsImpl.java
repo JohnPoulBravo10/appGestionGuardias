@@ -8,6 +8,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
+/* Implementación de Spring Security UserDetails para usuarios del sistema.
+   Proporciona la información necesaria para la autenticación y autorización. */
 public class UserDetailsImpl implements UserDetails {
 
     private Long id;
@@ -85,10 +87,6 @@ public class UserDetailsImpl implements UserDetails {
         return true;
     }
 
-    /**
-     * Retorna si el usuario está habilitado.
-     * Un usuario dado de baja (activo = false) no podrá autenticarse.
-     */
     @Override
     public boolean isEnabled() {
         return activo;

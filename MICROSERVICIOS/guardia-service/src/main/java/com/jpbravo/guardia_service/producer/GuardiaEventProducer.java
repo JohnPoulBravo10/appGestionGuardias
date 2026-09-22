@@ -7,6 +7,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 
+// Productor Kafka responsable de publicar eventos de guardias.
 @Service
 @Slf4j
 public class GuardiaEventProducer {

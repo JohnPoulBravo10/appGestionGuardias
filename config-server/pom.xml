@@ -20,6 +20,7 @@
 	</properties>
 
 	<dependencies>
+		<!-- Servidor de Configuración: expone propiedades a los demás microservicios mediante endpoints HTTP -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-config-server</artifactId>
@@ -31,7 +32,7 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- Observabilidad: Actuator + Prometheus + Loki -->
+		<!-- Observabilidad: Actuator para endpoints de estado, Prometheus para métricas y Loki para agregación de logs -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>

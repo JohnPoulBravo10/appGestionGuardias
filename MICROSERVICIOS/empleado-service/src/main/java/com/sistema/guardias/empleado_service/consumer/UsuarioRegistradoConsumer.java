@@ -12,15 +12,12 @@ import org.springframework.stereotype.Service;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 
-/**
- * Consumidor Kafka que reacciona al evento de registro de usuario
- * emitido por autenticacion-service.
- *
- * <p>Al recibir un {@link UsuarioRegistradoEvent}, construye un {@link Empleado}
- * y lo persiste en la base de datos. La operación es idempotente: si el empleado
- * ya existe (por DNI duplicado), se loguea el conflicto sin propagar la excepción
- * para evitar reintentos infinitos del consumer.</p>
- */
+/* Consumidor Kafka que reacciona al evento de registro de usuario
+   emitido por autenticacion-service.
+   Al recibir un UsuarioRegistradoEvent, construye un Empleado
+   y lo persiste en la base de datos. La operación es idempotente: si el empleado
+   ya existe (por DNI duplicado), se loguea el conflicto sin propagar la excepción
+   para evitar reintentos infinitos del consumer. */
 @Service
 public class UsuarioRegistradoConsumer {
 
