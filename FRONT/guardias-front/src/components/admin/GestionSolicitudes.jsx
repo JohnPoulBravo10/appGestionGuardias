@@ -1,13 +1,7 @@
 import useGestionSolicitudes from '../../hooks/useGestionSolicitudes'
 import ModalResolucionSolicitud from './ModalResolucionSolicitud'
 
-/**
- * Pantalla "Solicitudes de Cambio" del módulo administrador.
- *
- * Muestra una tabla con todas las solicitudes en estado PENDIENTE.
- * Cada fila tiene botones de acción (aprobar / rechazar) que abren
- * un modal de resolución.
- */
+// Pantalla de solicitudes de cambio: lista solicitudes pendientes y permite aprobarlas o rechazarlas mediante modal.
 function GestionSolicitudes() {
   const {
     solicitudes,
@@ -28,10 +22,7 @@ function GestionSolicitudes() {
     formatearHora,
   } = useGestionSolicitudes()
 
-  /**
-   * Formatea la información de la guardia original
-   * para mostrar en la columna de la tabla.
-   */
+  // Formatea la fecha y rango de horas de la guardia original
   const formatearGuardia = (infoGuardia) => {
     if (!infoGuardia) return 'Sin información'
 

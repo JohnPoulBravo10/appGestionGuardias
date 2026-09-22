@@ -2,29 +2,17 @@ import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { decodeJwtPayload } from '../utils/authUtils'
 
-/**
- * URL base del API Gateway.
- */
 const API_BASE_URL = 'http://localhost:8090'
 
-/**
- * Rutas internas del único frontend.
- */
+// Mapeo de rutas de redirección post-autenticación según el rol
 const REDIRECT_ROUTES = {
   ADMINISTRADOR: '/admin',
   EMPLEADO: '/empleado',
   DEFAULT: '/empleado',
 }
 
-
 /**
- * Extrae el rol del usuario desde el payload del JWT.
- *
- * Soporta roles como:
- * [{ authority: "ROLE_ADMINISTRADOR" }]
- *
- * También soporta:
- * ["ROLE_ADMINISTRADOR"]
+ * Extrae el nombre del rol principal a partir del array de roles o authorities del JWT.
  */
 function extractRolFromPayload(payload) {
   const roles = payload.roles || payload.authorities || []
@@ -44,28 +32,25 @@ function extractRolFromPayload(payload) {
 }
 
 /**
- * Hook encargado de la lógica del formulario de login.
+ * Hook que gestiona el estado y envío del formulario de inicio de sesión.
  */
 export default function useLoginForm() {
   const navigate = useNavigate()
 
-  /* Estado del formulario */
+  // Estado de inputs del formulario
   const [usuario, setUsuario] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
-  /* Estado de interfaz */
+  // Estado de carga y errores de validación/servidor
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-
   const [fieldErrors, setFieldErrors] = useState({
     usuario: '',
     password: '',
   })
 
-  /**
-   * Valida los campos antes de enviar la solicitud.
-   */
+  // Validación local de campos requeridos
   const validarCampos = useCallback(() => {
     const errores = {
       usuario: '',
@@ -89,9 +74,7 @@ export default function useLoginForm() {
     return esValido
   }, [usuario, password])
 
-  /**
-   * Navega a la sección correspondiente según el rol.
-   */
+  // Redirecciona al panel correspondiente según el rol del usuario
   const redirigirPorRol = useCallback(
     (rol) => {
       const destino =
@@ -104,9 +87,7 @@ export default function useLoginForm() {
     [navigate]
   )
 
-  /**
-   * Envía las credenciales al backend.
-   */
+  // Envía credenciales de autenticación al backend y almacena el JWT
   const handleSubmit = useCallback(
     async (event) => {
       event.preventDefault()
@@ -198,9 +179,7 @@ export default function useLoginForm() {
     ]
   )
 
-  /**
-   * Alterna la visibilidad de la contraseña.
-   */
+  // Alterna la visibilidad del campo contraseña
   const togglePassword = useCallback(() => {
     setShowPassword((valorAnterior) => !valorAnterior)
   }, [])

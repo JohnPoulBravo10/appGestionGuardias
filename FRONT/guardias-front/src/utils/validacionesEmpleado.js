@@ -1,16 +1,9 @@
 /**
  * Módulo de validaciones para el formulario de empleados.
- *
- * Cada función recibe el valor del campo y retorna:
- * - null  → el campo es válido
- * - string → mensaje de error a mostrar debajo del input
- *
- * Se utilizan expresiones regulares con soporte Unicode para
- * aceptar letras acentuadas y la ñ en nombre/apellido.
+ * Cada función retorna `null` si el campo es válido o un `string` con el mensaje de error.
  */
 
-// ── Constantes de límites ──────────────────────────────────────
-
+// Límites de longitud para campos de empleado
 const LIMITES = Object.freeze({
   USUARIO_MIN: 4,
   USUARIO_MAX: 20,
@@ -30,31 +23,16 @@ const LIMITES = Object.freeze({
 
 export { LIMITES }
 
-// ── Regex reutilizables ────────────────────────────────────────
-
-/** Solo letras (incluyendo acentos y ñ) y espacios */
-const REGEX_SOLO_LETRAS = /^[a-záéíóúüñA-ZÁÉÍÓÚÜÑ\s]+$/
-
-/** Solo letras, números y guión bajo */
-const REGEX_USUARIO = /^[a-zA-Z0-9_]+$/
-
-/** Contiene al menos una letra */
+// Patrones regulares para validación de formato
+const REGEX_SOLO_LETRAS = /^[a-záéíóúüñA-ZÁÉÍÓÚÜÑ\s]+$/ // Letras con soporte para acentos, diéresis, ñ y espacios
+const REGEX_USUARIO = /^[a-zA-Z0-9_]+$/ // Alfanumérico y guión bajo
 const REGEX_AL_MENOS_UNA_LETRA = /[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]/
-
-/** Contiene al menos un número */
 const REGEX_AL_MENOS_UN_NUMERO = /[0-9]/
-
-/** Solo dígitos numéricos */
 const REGEX_SOLO_NUMEROS = /^\d+$/
-
-/** Formato básico de email */
 const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-// ── Funciones de validación ────────────────────────────────────
-
 /**
- * Valida el campo "usuario".
- * Reglas: obligatorio, 4-20 caracteres, solo letras/números/guión bajo.
+ * Valida el nombre de usuario (requerido, 4-20 caracteres alfanuméricos o guión bajo).
  */
 export function validarUsuario(valor) {
   const valorLimpio = (valor ?? '').trim()
@@ -78,8 +56,7 @@ export function validarUsuario(valor) {
 }
 
 /**
- * Valida el campo "password".
- * Reglas: obligatorio, 6-30 caracteres, al menos 1 letra y 1 número.
+ * Valida la contraseña (requerida, 6-30 caracteres, al menos 1 letra y 1 número).
  */
 export function validarPassword(valor) {
   const valorCrudo = valor ?? ''
@@ -107,11 +84,7 @@ export function validarPassword(valor) {
 }
 
 /**
- * Valida un campo de nombre o apellido.
- * Reglas: obligatorio, 2-50 caracteres, solo letras y espacios.
- *
- * @param {string} valor     - Valor del campo
- * @param {string} etiqueta  - "nombre" o "apellido" para el mensaje
+ * Función base para validar nombre o apellido (requerido, 2-50 caracteres alfabéticos).
  */
 function validarNombreGenerico(valor, etiqueta) {
   const valorLimpio = (valor ?? '').trim()
@@ -134,19 +107,22 @@ function validarNombreGenerico(valor, etiqueta) {
   return null
 }
 
-/** Valida el campo "nombre" */
+/**
+ * Valida el nombre del empleado.
+ */
 export function validarNombre(valor) {
   return validarNombreGenerico(valor, 'nombre')
 }
 
-/** Valida el campo "apellido" */
+/**
+ * Valida el apellido del empleado.
+ */
 export function validarApellido(valor) {
   return validarNombreGenerico(valor, 'apellido')
 }
 
 /**
- * Valida el campo "DNI" (formato argentino).
- * Reglas: obligatorio, solo números, entre 7 y 8 dígitos.
+ * Valida el DNI según formato argentino (requerido, solo dígitos, 7 a 8 caracteres).
  */
 export function validarDni(valor) {
   const valorLimpio = String(valor ?? '').trim()
@@ -170,8 +146,7 @@ export function validarDni(valor) {
 }
 
 /**
- * Valida el campo "email".
- * Reglas: obligatorio, formato email válido, máx 50 caracteres.
+ * Valida el correo electrónico (requerido, formato email estándar, máx 50 caracteres).
  */
 export function validarEmail(valor) {
   const valorLimpio = (valor ?? '').trim()
@@ -192,8 +167,7 @@ export function validarEmail(valor) {
 }
 
 /**
- * Valida el campo "teléfono".
- * Reglas: obligatorio, solo números, entre 7 y 15 dígitos.
+ * Valida el número de teléfono (requerido, solo dígitos, 7 a 15 números).
  */
 export function validarTelefono(valor) {
   const valorLimpio = String(valor ?? '').trim()
@@ -217,13 +191,11 @@ export function validarTelefono(valor) {
 }
 
 /**
- * Valida el campo "dirección".
- * Reglas: opcional, máx 100 caracteres si se completa.
+ * Valida la dirección postal (opcional, máximo 100 caracteres si se ingresa).
  */
 export function validarDireccion(valor) {
   const valorLimpio = (valor ?? '').trim()
 
-  /* Campo opcional: si está vacío, es válido */
   if (valorLimpio.length === 0) {
     return null
   }
@@ -236,11 +208,11 @@ export function validarDireccion(valor) {
 }
 
 /**
- * Ejecuta todas las validaciones sobre el objeto empleado.
+ * Valida la totalidad de campos de un empleado.
  *
- * @param {object}  empleado  - Estado actual del formulario
- * @param {boolean} esEdicion - true si se está editando (omite usuario/password)
- * @returns {object|null} Objeto { campo: mensajeError } o null si todo es válido
+ * @param {Object} empleado - Datos del formulario
+ * @param {boolean} esEdicion - Si es edición, se omiten las credenciales (usuario y contraseña)
+ * @returns {Object|null} Mapa de errores por campo `{ campo: mensaje }` o `null` si no hay errores
  */
 export function validarEmpleado(empleado, esEdicion) {
   const errores = {}

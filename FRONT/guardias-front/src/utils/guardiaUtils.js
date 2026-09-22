@@ -1,3 +1,15 @@
+/**
+ * Utilidades para cálculo de estados, formateo y validación de disponibilidad de guardias.
+ */
+
+/**
+ * Calcula el estado operativo de una guardia ('SIN ASIGNAR', 'SIN DATOS', 'PROXIMA', 'EN CURSO', 'TERMINADA').
+ * Soporta guardias nocturnas que finalizan al día siguiente.
+ *
+ * @param {Object} guardia - Objeto con datos de la guardia ({ empleadoId, fecha, horaInicio, horaFin })
+ * @param {Date} [fechaActual=new Date()] - Fecha/hora de referencia para evaluar el estado
+ * @returns {string} Estado computado de la guardia
+ */
 export function calcularEstadoGuardia(
   guardia,
   fechaActual = new Date()
@@ -34,6 +46,7 @@ export function calcularEstadoGuardia(
     return 'SIN DATOS'
   }
 
+  // Si la hora de fin es menor o igual al inicio, la guardia cruza la medianoche (termina al día siguiente)
   if (fechaHoraFin <= fechaHoraInicio) {
     fechaHoraFin.setDate(
       fechaHoraFin.getDate() + 1
@@ -54,6 +67,9 @@ export function calcularEstadoGuardia(
   return 'PROXIMA'
 }
 
+/**
+ * Retorna el texto legible para mostrar al usuario según el estado de la guardia.
+ */
 export function formatearEstadoGuardia(
   estado
 ) {
@@ -68,6 +84,9 @@ export function formatearEstadoGuardia(
   return textos[estado] || estado
 }
 
+/**
+ * Convierte el estado en una clase CSS válida (minúsculas, sin acentos y separada por guiones).
+ */
 export function obtenerClaseEstadoGuardia(
   estado
 ) {
@@ -80,16 +99,15 @@ export function obtenerClaseEstadoGuardia(
 
 /**
  * Determina si dos rangos horarios en la misma fecha se solapan.
- * Compara con límites abiertos: dos guardias consecutivas
- * (fin de una = inicio de otra) NO se consideran solapadas.
+ * Utiliza intervalos semiabiertos [inicio, fin): dos guardias consecutivas no generan conflicto.
  *
  * @param {string} fecha1 - Fecha de la primera guardia (YYYY-MM-DD)
- * @param {string} inicio1 - Hora de inicio de la primera guardia (HH:mm)
- * @param {string} fin1 - Hora de fin de la primera guardia (HH:mm)
+ * @param {string} inicio1 - Hora de inicio (HH:mm)
+ * @param {string} fin1 - Hora de fin (HH:mm)
  * @param {string} fecha2 - Fecha de la segunda guardia (YYYY-MM-DD)
- * @param {string} inicio2 - Hora de inicio de la segunda guardia (HH:mm)
- * @param {string} fin2 - Hora de fin de la segunda guardia (HH:mm)
- * @returns {boolean} true si los rangos se solapan
+ * @param {string} inicio2 - Hora de inicio (HH:mm)
+ * @param {string} fin2 - Hora de fin (HH:mm)
+ * @returns {boolean} true si existe solapamiento
  */
 export function tienenSolapamientoHorario(
   fecha1,
@@ -103,23 +121,18 @@ export function tienenSolapamientoHorario(
     return false
   }
 
-  /*
-   * Dos rangos [A, B) y [C, D) se solapan si A < D && C < B.
-   * Se compara como string ya que el formato HH:mm es lexicográficamente ordenable.
-   */
+  // Dos rangos [A, B) y [C, D) se solapan si A < D y C < B (comparación lexicográfica válida para HH:mm)
   return inicio1 < fin2 && inicio2 < fin1
 }
 
 /**
- * Filtra una lista de empleados excluyendo aquellos que ya tienen
- * una guardia asignada que se solapa con la guardia en creación/edición.
+ * Filtra la lista de empleados excluyendo aquellos con guardias solapadas en el horario indicado.
  *
- * @param {Array} empleados - Lista de empleados candidatos (con propiedad `dni`)
- * @param {Array} guardiasExistentes - Todas las guardias del sistema
- * @param {Object} datosGuardia - Datos de la guardia actual { fecha, horaInicio, horaFin }
- * @param {number|null} [guardiaIdExcluir=null] - ID de la guardia que se está editando
- *   (se excluye de la comparación para que el empleado asignado actual siga disponible)
- * @returns {Array} empleados que no tienen conflicto horario
+ * @param {Array} empleados - Candidatos a asignar (deben poseer propiedad `dni`)
+ * @param {Array} guardiasExistentes - Lista completa de guardias registradas
+ * @param {Object} datosGuardia - Horario objetivo { fecha, horaInicio, horaFin }
+ * @param {number|null} [guardiaIdExcluir=null] - ID de la guardia en edición a omitir en la comprobación
+ * @returns {Array} Empleados con disponibilidad horaria
  */
 export function filtrarEmpleadosDisponibles(
   empleados,
@@ -130,19 +143,15 @@ export function filtrarEmpleadosDisponibles(
   const { fecha, horaInicio, horaFin } =
     datosGuardia
 
-  /* Si faltan datos de horario, no se puede filtrar; mostrar todos */
   if (!fecha || !horaInicio || !horaFin) {
     return empleados
   }
 
-  /**
-   * Conjunto de IDs de empleados que ya tienen una guardia
-   * solapada con el rango horario de la guardia actual.
-   */
+  // Identificadores de empleados con conflicto de horario
   const empleadosOcupados = new Set()
 
   for (const guardia of guardiasExistentes) {
-    /* Excluir la guardia que se está editando */
+    // Se ignora la propia guardia si estamos editando
     if (
       guardiaIdExcluir !== null &&
       guardia.id === guardiaIdExcluir
@@ -150,7 +159,6 @@ export function filtrarEmpleadosDisponibles(
       continue
     }
 
-    /* Solo considerar guardias con empleado asignado */
     if (
       guardia.empleadoId === null ||
       guardia.empleadoId === undefined

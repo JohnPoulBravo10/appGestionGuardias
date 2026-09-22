@@ -1,36 +1,23 @@
 /**
- * Módulo de validaciones para los formularios de guardias.
- *
- * Cada función recibe el valor del campo y retorna:
- * - null   → el campo es válido
- * - string → mensaje de error a mostrar debajo del input
- *
- * Se mantiene la misma convención que validacionesEmpleado.js
- * para que ambos formularios compartan la misma UX.
+ * Módulo de validaciones para formularios de guardias.
+ * Cada función retorna `null` si el campo es válido o un mensaje de error (`string` u `objeto`).
  */
 
-// ── Constantes ─────────────────────────────────────────────────
-
-/** Roles válidos para una guardia */
+// Roles y áreas operativas permitidas
 const ROLES_VALIDOS = [
   'ENFERMERIA',
   'LIMPIEZA',
   'MANTENIMIENTO',
 ]
 
-/** Duración mínima de una guardia en horas */
+// Límites de duración permitidos por guardia
 const DURACION_MIN_HORAS = 4
-
-/** Duración máxima de una guardia en horas */
 const DURACION_MAX_HORAS = 12
 
 export { ROLES_VALIDOS }
 
-// ── Helpers ────────────────────────────────────────────────────
-
 /**
- * Obtiene la fecha de hoy en formato YYYY-MM-DD
- * usando la zona horaria local del navegador.
+ * Retorna la fecha actual en formato local "YYYY-MM-DD".
  */
 function obtenerFechaHoy() {
   const ahora = new Date()
@@ -41,8 +28,7 @@ function obtenerFechaHoy() {
 }
 
 /**
- * Determina si un horario es PM (>= 12:00).
- * Recibe un string en formato "HH:mm".
+ * Determina si una hora (formato "HH:mm") corresponde a la tarde/noche (>= 12:00).
  */
 function esHorarioPM(hora) {
   const [horas] = hora.split(':').map(Number)
@@ -50,16 +36,14 @@ function esHorarioPM(hora) {
 }
 
 /**
- * Determina si un horario es AM (< 12:00).
- * Recibe un string en formato "HH:mm".
+ * Determina si una hora (formato "HH:mm") corresponde a la mañana (< 12:00).
  */
 function esHorarioAM(hora) {
   return !esHorarioPM(hora)
 }
 
 /**
- * Obtiene la hora actual en formato "HH:mm"
- * usando la zona horaria local del navegador.
+ * Retorna la hora actual en formato local "HH:mm".
  */
 function obtenerHoraActual() {
   const ahora = new Date()
@@ -69,12 +53,8 @@ function obtenerHoraActual() {
 }
 
 /**
- * Calcula la duración en horas entre dos horarios.
- * Soporta guardias nocturnas (que cruzan la medianoche).
- *
- * @param {string} horaInicio - formato "HH:mm"
- * @param {string} horaFin    - formato "HH:mm"
- * @returns {number} duración en horas (decimal)
+ * Calcula la duración en horas entre dos horarios ("HH:mm").
+ * Contempla guardias nocturnas que finalizan al día siguiente.
  */
 function calcularDuracionHoras(horaInicio, horaFin) {
   const [hInicio, mInicio] = horaInicio.split(':').map(Number)
@@ -83,7 +63,7 @@ function calcularDuracionHoras(horaInicio, horaFin) {
   const minutosInicio = hInicio * 60 + mInicio
   const minutosFin = hFin * 60 + mFin
 
-  /* Si fin < inicio, la guardia cruza la medianoche */
+  // Si fin < inicio, la guardia cruza la medianoche (se suman los minutos restantes del día)
   const duracionMinutos = minutosFin >= minutosInicio
     ? minutosFin - minutosInicio
     : (24 * 60 - minutosInicio) + minutosFin
@@ -91,11 +71,8 @@ function calcularDuracionHoras(horaInicio, horaFin) {
   return duracionMinutos / 60
 }
 
-// ── Validaciones individuales ──────────────────────────────────
-
 /**
- * Valida el campo "fecha".
- * Reglas: obligatorio, no puede ser anterior a hoy.
+ * Valida que la fecha sea obligatoria y no anterior al día de hoy.
  */
 export function validarFecha(fecha) {
   const valor = (fecha ?? '').trim()
@@ -114,8 +91,7 @@ export function validarFecha(fecha) {
 }
 
 /**
- * Valida el campo "horaInicio".
- * Reglas: obligatorio.
+ * Valida que la hora de inicio sea obligatoria.
  */
 export function validarHoraInicio(horaInicio) {
   const valor = (horaInicio ?? '').trim()
@@ -128,8 +104,7 @@ export function validarHoraInicio(horaInicio) {
 }
 
 /**
- * Valida el campo "horaFin".
- * Reglas: obligatorio.
+ * Valida que la hora de fin sea obligatoria.
  */
 export function validarHoraFin(horaFin) {
   const valor = (horaFin ?? '').trim()
@@ -142,20 +117,16 @@ export function validarHoraFin(horaFin) {
 }
 
 /**
- * Valida la coherencia entre hora de inicio y hora de fin.
+ * Valida la coherencia horaria: no igualdad, orden cronológico (excepto turno noche) y duración permitida (4-12h).
  *
- * Reglas:
- * - No pueden ser iguales.
- * - El inicio debe ser anterior al fin, salvo guardias nocturnas
- *   (inicio PM y fin AM → se asume que cruza la medianoche).
- *
- * @returns {{ horaFin: string } | null} Error asociado a horaFin o null
+ * @param {string} horaInicio - "HH:mm"
+ * @param {string} horaFin - "HH:mm"
+ * @returns {{ horaFin: string } | null} Error asignado al campo horaFin o null si es válido
  */
 export function validarHorario(horaInicio, horaFin) {
   const inicio = (horaInicio ?? '').trim()
   const fin = (horaFin ?? '').trim()
 
-  /* Si alguno está vacío, se captura en las validaciones individuales */
   if (inicio.length === 0 || fin.length === 0) {
     return null
   }
@@ -167,10 +138,7 @@ export function validarHorario(horaInicio, horaFin) {
     }
   }
 
-  /*
-   * Guardia nocturna: si inicio es PM y fin es AM,
-   * se asume que la guardia cruza la medianoche → es válido.
-   */
+  // Turno noche: inicio en PM y fin en AM se interpreta como turno que cruza la medianoche
   const esGuardiaNocturna =
     esHorarioPM(inicio) && esHorarioAM(fin)
 
@@ -181,7 +149,6 @@ export function validarHorario(horaInicio, horaFin) {
     }
   }
 
-  /* Validación de duración mínima y máxima */
   const duracion = calcularDuracionHoras(inicio, fin)
 
   if (duracion < DURACION_MIN_HORAS) {
@@ -202,12 +169,7 @@ export function validarHorario(horaInicio, horaFin) {
 }
 
 /**
- * Valida que, si la fecha es hoy, la hora de inicio
- * sea posterior a la hora actual.
- *
- * @param {string} fecha      - formato "YYYY-MM-DD"
- * @param {string} horaInicio - formato "HH:mm"
- * @returns {{ horaInicio: string } | null}
+ * Para guardias programadas para hoy, valida que la hora de inicio sea posterior a la hora actual.
  */
 export function validarHoraInicioHoy(fecha, horaInicio) {
   const fechaValor = (fecha ?? '').trim()
@@ -230,8 +192,7 @@ export function validarHoraInicioHoy(fecha, horaInicio) {
 }
 
 /**
- * Valida el campo "rol" (área de trabajo).
- * Reglas: obligatorio, debe ser un rol válido.
+ * Valida que el área de trabajo (rol) sea requerida y pertenezca a los roles válidos.
  */
 export function validarRol(rol) {
   const valor = (rol ?? '').trim()
@@ -247,13 +208,11 @@ export function validarRol(rol) {
   return null
 }
 
-// ── Validación completa ────────────────────────────────────────
-
 /**
- * Ejecuta todas las validaciones sobre el objeto guardia.
+ * Valida la totalidad de campos de una guardia y sus reglas cruzadas.
  *
- * @param {object} guardia - Estado actual del formulario
- * @returns {object|null} Objeto { campo: mensajeError } o null si todo es válido
+ * @param {Object} guardia - Datos de la guardia { fecha, horaInicio, horaFin, rol }
+ * @returns {Object|null} Mapa de errores `{ campo: mensaje }` o `null` si no hay errores
  */
 export function validarGuardia(guardia) {
   const errores = {}
@@ -275,10 +234,7 @@ export function validarGuardia(guardia) {
   const errorRol = validarRol(guardia.rol)
   if (errorRol) errores.rol = errorRol
 
-  /*
-   * Validar que si la fecha es hoy, la hora de inicio sea futura.
-   * Solo si la fecha y hora de inicio pasaron la validación individual.
-   */
+  // Si la fecha y hora de inicio son válidas individualmente, verificar que no sea una hora pasada de hoy
   if (!errores.fecha && !errores.horaInicio) {
     const erroresHoraHoy = validarHoraInicioHoy(
       guardia.fecha,
@@ -290,10 +246,7 @@ export function validarGuardia(guardia) {
     }
   }
 
-  /*
-   * Validar coherencia de horario solo si ambos campos
-   * individuales pasaron la validación (evitar errores duplicados).
-   */
+  // Si inicio y fin son válidos individualmente, verificar coherencia de rango y duración
   if (!errores.horaInicio && !errores.horaFin) {
     const erroresHorario = validarHorario(
       guardia.horaInicio,

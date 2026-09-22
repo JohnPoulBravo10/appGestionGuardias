@@ -17,12 +17,7 @@ import {
 
 const API_BASE_URL = 'http://localhost:8090'
 
-/**
- * Pantalla "Mi Historial" del módulo empleado.
- *
- * Componente de solo lectura que muestra las guardias terminadas
- * del empleado autenticado. No permite realizar solicitudes de cambio.
- */
+// Pantalla de historial para empleados: listado de guardias finalizadas (estado TERMINADA) con filtro por fecha.
 function MiHistorial() {
   const [loading, setLoading] =
     useState(true)
@@ -36,6 +31,7 @@ function MiHistorial() {
   const [filtroFecha, setFiltroFecha] =
     useState('')
 
+  // Fecha actual para recalcular dinámicamente el estado de las guardias cada 1 minuto
   const [ahora, setAhora] =
     useState(new Date())
 
@@ -53,6 +49,7 @@ function MiHistorial() {
     obtenerGuardias(empleadoId)
   }, [])
 
+  // Intervalo de actualización del reloj cada 60 segundos
   useEffect(() => {
     const intervalo = setInterval(() => {
       setAhora(new Date())
@@ -63,6 +60,7 @@ function MiHistorial() {
     }
   }, [])
 
+  // Consulta al backend el historial de guardias asignadas al empleado
   const obtenerGuardias = async (
     empleadoId
   ) => {
@@ -136,10 +134,7 @@ function MiHistorial() {
     }
   }
 
-  /**
-   * Filtra las guardias para mostrar únicamente las terminadas,
-   * aplicando además el filtro de fecha.
-   */
+  // Filtra las guardias para mostrar únicamente las terminadas y coincide con el filtro de fecha si fue ingresado
   const guardiasVisibles = useMemo(() => {
     return guardias.filter((guardia) => {
       const estadoCalculado =
@@ -148,7 +143,6 @@ function MiHistorial() {
           ahora
         )
 
-      // Solo mostrar guardias terminadas
       if (estadoCalculado !== 'TERMINADA') {
         return false
       }
@@ -165,6 +159,7 @@ function MiHistorial() {
     ahora,
   ])
 
+  // Restablece el filtro de fecha
   const limpiarFiltros = () => {
     setFiltroFecha('')
   }

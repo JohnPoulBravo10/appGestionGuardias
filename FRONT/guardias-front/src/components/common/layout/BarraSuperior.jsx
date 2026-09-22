@@ -11,27 +11,14 @@ import {
 
 const API_BASE_URL = 'http://localhost:8090'
 
-/**
- * Barra superior compartida por AdminLayout y EmpleadoLayout.
- *
- * Incluye el botón de campanita que:
- * - Muestra un punto blanco cuando existen notificaciones no leídas.
- * - Abre un modal con la lista completa de notificaciones al hacer click.
- */
+// Barra superior común: muestra el subtítulo institucional y el botón de notificaciones con indicador de mensajes no leídos.
 function BarraSuperior() {
-
   const [modalVisible, setModalVisible] = useState(false)
   const [tieneNoLeidas, setTieneNoLeidas] = useState(false)
 
-  /**
-   * Consulta la API para verificar si el usuario tiene
-   * notificaciones sin leer. Si es ADMINISTRADOR, también
-   * comprueba las notificaciones dirigidas al rol.
-   */
+  // Consulta la existencia de notificaciones no leídas (personales y por rol si es administrador)
   const verificarNoLeidas = useCallback(async () => {
-
     try {
-
       const empleadoId = getEmpleadoIdFromToken()
       const token = getToken()
 
@@ -59,16 +46,12 @@ function BarraSuperior() {
 
       let hayNoLeidas = lista.some((n) => !n.leida)
 
-      // Si es administrador y aún no hay no leídas personales,
-      // verificar también las notificaciones dirigidas al rol
+      // Si es administrador, comprobar también notificaciones globales dirigidas al rol
       if (!hayNoLeidas) {
-
         const rol = getRolFromToken()
 
         if (rol === 'ADMINISTRADOR') {
-
           try {
-
             const responseRol = await fetch(
               `${API_BASE_URL}/api/notificaciones/rol/${rol}`,
               { method: 'GET', headers }
@@ -79,7 +62,6 @@ function BarraSuperior() {
               const listaRol = Array.isArray(dataRol) ? dataRol : []
               hayNoLeidas = listaRol.some((n) => !n.leida)
             }
-
           } catch (errRol) {
             console.error('Error al verificar notificaciones por rol:', errRol)
           }
@@ -87,7 +69,6 @@ function BarraSuperior() {
       }
 
       setTieneNoLeidas(hayNoLeidas)
-
     } catch (err) {
       console.error('Error al verificar notificaciones no leídas:', err)
     }
@@ -97,10 +78,8 @@ function BarraSuperior() {
     verificarNoLeidas()
   }, [verificarNoLeidas])
 
-  // Escuchar cuando otro componente (ej: PanelEmpleado) marca
-  // una notificación como leída, para actualizar el punto blanco
+  // Escucha el evento global 'notificacion-leida' para actualizar el indicador visual (punto blanco)
   useEffect(() => {
-
     const handleNotificacionLeida = () => {
       verificarNoLeidas()
     }
@@ -112,10 +91,7 @@ function BarraSuperior() {
     }
   }, [verificarNoLeidas])
 
-  /**
-   * Se invoca desde el modal cuando el usuario marca una
-   * notificación como leída, para recalcular el indicador.
-   */
+  // Callback para recalcular el indicador tras marcar como leída dentro del modal
   const handleNotificacionLeida = () => {
     verificarNoLeidas()
   }

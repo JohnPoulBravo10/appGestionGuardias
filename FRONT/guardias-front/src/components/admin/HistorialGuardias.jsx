@@ -14,10 +14,7 @@ import { getToken } from '../../utils/authUtils'
 
 const API_BASE_URL = 'http://localhost:8090'
 
-/**
- * Componente de solo lectura que muestra el historial de guardias terminadas.
- * No permite crear, editar ni eliminar guardias.
- */
+// Historial de guardias (solo lectura): lista las guardias pasadas / concluidas con soporte para filtros por búsqueda, área y fecha.
 function HistorialGuardias() {
   const [guardias, setGuardias] =
     useState([])
@@ -41,6 +38,7 @@ function HistorialGuardias() {
     obtenerGuardias()
   }, [])
 
+  // Actualiza la referencia temporal cada minuto para actualizar automáticamente el paso de guardias a terminadas
   useEffect(() => {
     const intervalo = setInterval(() => {
       setAhora(new Date())
@@ -51,6 +49,7 @@ function HistorialGuardias() {
     }
   }, [])
 
+  // Carga todas las guardias registradas
   const obtenerGuardias = async () => {
     try {
       setLoading(true)
@@ -84,10 +83,7 @@ function HistorialGuardias() {
     }
   }
 
-  /**
-   * Filtra las guardias para mostrar únicamente las terminadas,
-   * aplicando además los filtros de búsqueda, área y fecha.
-   */
+  // Filtra exclusivamente las guardias terminadas y las ordena cronológicamente
   const guardiasVisibles = useMemo(() => {
     const textoNormalizado =
       textoBusqueda
@@ -110,7 +106,7 @@ function HistorialGuardias() {
             ahora
           )
 
-        // Solo mostrar guardias terminadas
+        // Solo incluir guardias que hayan finalizado
         if (estadoCalculado !== 'TERMINADA') {
           return false
         }
@@ -139,7 +135,6 @@ function HistorialGuardias() {
         )
       })
       .sort((a, b) => {
-        // Ordenar por fecha ascendente; si coinciden, por hora de inicio
         const comparacionFecha =
           (a.fecha ?? '').localeCompare(
             b.fecha ?? ''
@@ -161,6 +156,7 @@ function HistorialGuardias() {
     ahora,
   ])
 
+  // Restablece los filtros aplicados
   const limpiarFiltros = () => {
     setTextoBusqueda('')
     setFiltroArea('TODAS')

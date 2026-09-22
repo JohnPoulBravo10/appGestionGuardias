@@ -1,9 +1,11 @@
 /**
- * Decodifica el payload de un JWT.
- *
- * Importante:
- * esto solamente sirve para leer los datos del token en el frontend.
- * La validación real del token siempre la realiza el backend.
+ * Utilidades de autenticación y manejo de tokens JWT en el cliente.
+ * Nota: La validación criptográfica real del token la realiza el backend.
+ */
+
+/**
+ * Decodifica y parsea el payload de un token JWT (base64url).
+ * Retorna el objeto JSON del payload o null si el token es inválido.
  */
 export function decodeJwtPayload(token) {
   if (!token) {
@@ -17,6 +19,7 @@ export function decodeJwtPayload(token) {
       return null
     }
 
+    // Normalización de base64url a base64 estándar con padding adecuado
     const payloadBase64 = partes[1]
       .replace(/-/g, '+')
       .replace(/_/g, '/')
@@ -34,14 +37,14 @@ export function decodeJwtPayload(token) {
 }
 
 /**
- * Obtiene el token almacenado durante el login.
+ * Obtiene el token JWT almacenado en localStorage.
  */
 export function getToken() {
   return localStorage.getItem('token')
 }
 
 /**
- * Obtiene los datos del usuario autenticado.
+ * Retorna los claims/datos del usuario autenticado decodificando el token actual.
  */
 export function getUsuarioAutenticado() {
   const token = getToken()
@@ -60,10 +63,8 @@ export function getUsuarioAutenticado() {
 }
 
 /**
- * Intenta obtener el identificador del empleado desde el JWT.
- *
- * Se contemplan distintos nombres posibles porque depende de cómo
- * esté construido el token en autenticacion-service.
+ * Extrae el identificador o DNI del empleado desde el JWT.
+ * Contempla múltiples nombres de claim por compatibilidad con el backend.
  */
 export function getEmpleadoIdFromToken() {
   const payload = getUsuarioAutenticado()
@@ -86,7 +87,8 @@ export function getEmpleadoIdFromToken() {
 }
 
 /**
- * Obtiene el rol principal del usuario.
+ * Extrae el rol principal del usuario, normalizando strings o listas de authorities.
+ * Elimina el prefijo 'ROLE_' si estuviera presente.
  */
 export function getRolFromToken() {
   const payload = getUsuarioAutenticado()
@@ -115,7 +117,7 @@ export function getRolFromToken() {
 }
 
 /**
- * Elimina la sesión actual.
+ * Elimina la sesión activa limpiando el token del almacenamiento local.
  */
 export function cerrarSesion() {
   localStorage.removeItem('token')

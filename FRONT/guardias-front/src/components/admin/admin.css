@@ -1,14 +1,6 @@
-/* ==========================================================================
-   ADMIN.CSS — Estilos exclusivos del módulo administrador
-   Prefijo: admin-
-   ========================================================================== */
+/* Estilos exclusivos del módulo administrador (calendario, formularios, tablas y panel principal) */
 
-
-/* =========================================================
-   CALENDARIO DE GUARDIAS
-   Usado por: CalendarioGuardias
-   ========================================================= */
-
+/* Calendario de guardias */
 .admin-contenedor-calendario {
   width: 100%;
   max-width: 1100px;
@@ -139,8 +131,7 @@
   text-align: right;
 }
 
-/* ── Guardias del calendario ── */
-
+/* Guardias dentro del calendario */
 .admin-guardia {
   margin-bottom: 4px;
   padding: 3px 5px;
@@ -191,12 +182,7 @@
   background: #d32f2f;
 }
 
-/* =========================================================
-   FORMULARIOS
-   Usado por: EditarGuardia, FormularioCrearEmpleado,
-              FormularioCrearGuardias
-   ========================================================= */
-
+/* Formularios (creación y edición de guardias y empleados) */
 .admin-form-container {
   width: 100%;
   max-width: 650px;
@@ -303,8 +289,7 @@ select.admin-input-estilo {
   resize: none;
 }
 
-/* ── Errores de validación inline ── */
-
+/* Errores de validación inline */
 .admin-campo-error {
   display: block;
 
@@ -338,7 +323,6 @@ select.admin-input-estilo {
   border-color: #f44336;
   box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.12);
 }
-
 
 .admin-btn-volver {
   margin-bottom: 20px;
@@ -394,11 +378,7 @@ select.admin-input-estilo {
   transform: translateY(1px);
 }
 
-/* =========================================================
-   TABLAS
-   Usado por: GestionEmpleados, GestionGuardias, PanelPrincipal
-   ========================================================= */
-
+/* Tablas de gestión y dashboard */
 .admin-tabla-container {
   width: 100%;
 
@@ -478,11 +458,7 @@ select.admin-input-estilo {
   border-left: 2px solid #f44336;
 }
 
-/* =========================================================
-   BOTÓN NUEVO
-   Usado por: GestionEmpleados, GestionGuardias
-   ========================================================= */
-
+/* Botón Nuevo */
 .admin-btn-nuevo {
   padding: 10px 18px;
 
@@ -506,11 +482,7 @@ select.admin-input-estilo {
   border-color: #555555;
 }
 
-/* =========================================================
-   BUSCADOR Y FILTROS
-   Usado por: GestionEmpleados
-   ========================================================= */
-
+/* Buscador y filtros de tablas */
 .admin-input-busqueda {
   width: 100%;
 
@@ -569,11 +541,7 @@ select.admin-input-estilo {
   font-size: 13px;
 }
 
-/* =========================================================
-   ACCIONES DE TABLA
-   Usado por: GestionEmpleados, GestionGuardias
-   ========================================================= */
-
+/* Acciones en filas de tablas */
 .admin-acciones {
   display: flex;
   align-items: center;
@@ -618,11 +586,7 @@ select.admin-input-estilo {
   opacity: 0.5;
 }
 
-/* =========================================================
-   BADGES
-   Usado por: GestionGuardias, PanelPrincipal
-   ========================================================= */
-
+/* Badges de estado */
 .admin-badge {
   display: inline-block;
 
@@ -668,11 +632,7 @@ select.admin-input-estilo {
   font-weight: 500;
 }
 
-/* =========================================================
-   PANEL PRINCIPAL (Dashboard Administrador)
-   Usado por: PanelPrincipal
-   ========================================================= */
-
+/* Panel Principal (Dashboard) */
 .admin-panel-principal {
   width: 100%;
   max-width: 960px;
@@ -692,8 +652,7 @@ select.admin-input-estilo {
   letter-spacing: 0.04em;
 }
 
-/* ── Tarjetas de resumen ── */
-
+/* Tarjetas de resumen */
 .admin-panel-tarjetas {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -758,8 +717,7 @@ select.admin-input-estilo {
   color: #888888;
 }
 
-/* ── Tabla de guardias activas ── */
-
+/* Tabla de guardias activas */
 .admin-panel-tabla-container {
   padding: 22px 24px;
 
@@ -813,10 +771,7 @@ select.admin-input-estilo {
   font-size: 12px;
 }
 
-/* =========================================================
-   FILTROS DE GUARDIAS
-========================================================= */
-
+/* Filtros de guardias */
 .admin-filtros-guardias {
   width: 100%;
   margin: 20px 0 10px;
@@ -929,10 +884,7 @@ select.admin-input-estilo {
   }
 }
 
-/* =========================================================
-   RESPONSIVE — CALENDARIO
-   ========================================================= */
-
+/* Responsive — Calendario */
 @media (max-width: 900px) {
   .admin-form-container {
     max-width: 100%;
@@ -982,10 +934,7 @@ select.admin-input-estilo {
   }
 }
 
-/* =========================================================
-   RESPONSIVE — FILTROS Y TABLA DE EMPLEADOS
-   ========================================================= */
-
+/* Responsive — Filtros y tabla de empleados */
 @media (max-width: 1100px) {
   .admin-filtros-orden {
     flex-wrap: wrap;
@@ -1025,10 +974,7 @@ select.admin-input-estilo {
   }
 }
 
-/* =========================================================
-   RESPONSIVE — PANEL PRINCIPAL
-   ========================================================= */
-
+/* Responsive — Panel principal */
 @media (max-width: 768px) {
   .admin-panel-tarjetas {
     grid-template-columns: 1fr;
@@ -1049,11 +995,7 @@ select.admin-input-estilo {
   }
 }
 
-/* =========================================================
-   TABLA DE SOLICITUDES
-   Usado por: GestionSolicitudes
-   ========================================================= */
-
+/* Tabla de solicitudes de cambio */
 .admin-tabla-solicitudes {
   width: 100%;
 
@@ -1093,8 +1035,7 @@ select.admin-input-estilo {
   background: #1e1e1e;
 }
 
-/* ── Botones circulares de acción (aprobar / rechazar) ── */
-
+/* Botones circulares de acción (aprobar / rechazar) */
 .admin-btn-accion-aprobar,
 .admin-btn-accion-rechazar {
   width: 32px;
@@ -1151,11 +1092,7 @@ select.admin-input-estilo {
   transform: scale(0.92);
 }
 
-/* =========================================================
-   MODAL DE RESOLUCIÓN
-   Usado por: ModalResolucionSolicitud
-   ========================================================= */
-
+/* Modal de resolución de solicitudes */
 .admin-modal-resolucion {
   max-width: 480px;
 }
@@ -1197,8 +1134,7 @@ select.admin-input-estilo {
   background: #388e3c;
 }
 
-/* ── Botón cerrar error en la tabla ── */
-
+/* Botón cerrar error en tabla */
 .admin-btn-cerrar-error {
   margin-left: 12px;
   padding: 2px 6px;
@@ -1220,10 +1156,7 @@ select.admin-input-estilo {
   color: #ff6659;
 }
 
-/* =========================================================
-   RESPONSIVE — SOLICITUDES
-   ========================================================= */
-
+/* Responsive — Solicitudes */
 @media (max-width: 1100px) {
   .admin-tabla-solicitudes {
     min-width: 750px;

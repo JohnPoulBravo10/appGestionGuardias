@@ -1,7 +1,4 @@
-/* =========================================================
-   ESTILOS GENERALES
-========================================================= */
-
+/* Normalización de herencia para controles de formulario */
 button,
 input,
 select,
@@ -13,6 +10,7 @@ button {
   color: inherit;
 }
 
+/* Personalización de barra de desplazamiento para navegadores WebKit (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;

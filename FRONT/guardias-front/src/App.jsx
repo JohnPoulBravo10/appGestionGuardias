@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import {
   Navigate,
   Route,
@@ -32,10 +32,12 @@ import MisGuardias from './components/empleado/MisGuardias'
 import SolicitarCambio from './components/empleado/SolicitarCambio'
 import CalendarioMisGuardias from './components/empleado/CalendarioMisGuardias'
 
+// Componente raíz de la aplicación: define el enrutamiento general y el título dinámico.
 function App() {
   const navigate = useNavigate()
   const location = useLocation()
 
+  // Actualiza dinámicamente el título del documento según el prefijo de la ruta activa
   useEffect(() => {
     const path = location.pathname
 
@@ -52,11 +54,13 @@ function App() {
 
   return (
     <Routes>
+      {/* Redirección por defecto a Login */}
       <Route
         path="/"
         element={<Navigate to="/login" replace />}
       />
 
+      {/* Ruta pública: Formulario de inicio de sesión */}
       <Route
         path="/login"
         element={
@@ -66,9 +70,7 @@ function App() {
         }
       />
 
-      {/* =========================
-          RUTAS DE ADMINISTRADOR
-          ========================= */}
+      {/* Rutas de Administrador: anidadas bajo AdminLayout (barra de navegación y estructura común) */}
       <Route
         path="/admin"
         element={<AdminLayout />}
@@ -129,9 +131,7 @@ function App() {
         />
       </Route>
 
-      {/* =========================
-          RUTAS DE EMPLEADO
-          ========================= */}
+      {/* Rutas de Empleado: anidadas bajo EmpleadoLayout */}
       <Route
         path="/empleado"
         element={<EmpleadoLayout />}
@@ -162,6 +162,7 @@ function App() {
         />
       </Route>
 
+      {/* Ruta comodín (404): Redirige y muestra acción para volver al login */}
       <Route
         path="*"
         element={

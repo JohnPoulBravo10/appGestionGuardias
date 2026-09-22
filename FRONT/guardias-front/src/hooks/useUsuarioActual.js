@@ -4,7 +4,9 @@ import { decodeJwtPayload } from '../utils/authUtils'
 
 const API_BASE_URL = 'http://localhost:8090'
 
-
+/**
+ * Hook para consultar y proveer los datos del empleado correspondiente al usuario autenticado.
+ */
 export default function useUsuarioActual() {
   const navigate = useNavigate()
   const navigateRef = useRef(navigate)
@@ -13,18 +15,12 @@ export default function useUsuarioActual() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
-  /*
-   * Conservamos siempre la versión actual de navigate,
-   * pero sin volver a ejecutar la consulta.
-   */
+  // Mantiene la referencia actualizada de navigate sin disparar re-ejecuciones de efectos
   useEffect(() => {
     navigateRef.current = navigate
   }, [navigate])
 
-  /*
-   * Este efecto se ejecuta una sola vez cuando se monta
-   * la barra lateral.
-   */
+  // Consulta el perfil del empleado al montar el hook
   useEffect(() => {
     const controller = new AbortController()
 
@@ -39,7 +35,6 @@ export default function useUsuarioActual() {
           navigateRef.current('/login', {
             replace: true,
           })
-
           return
         }
 
@@ -71,6 +66,7 @@ export default function useUsuarioActual() {
         })
 
         if (!response.ok) {
+          // Si el token expiró o no está autorizado, limpiar sesión y redirigir a login
           if (
             response.status === 401 ||
             response.status === 403

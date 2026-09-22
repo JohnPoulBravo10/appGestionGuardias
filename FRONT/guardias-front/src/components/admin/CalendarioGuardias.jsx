@@ -4,28 +4,21 @@ import { getToken } from '../../utils/authUtils'
 
 const API_BASE_URL = 'http://localhost:8090'
 
+// Calendario interactivo de guardias: permite navegar por mes, filtrar por área de trabajo y visualizar guardias asignadas o abiertas.
 function CalendarioGuardias() {
-    // ===========================
-    // Fecha mostrada en el calendario
-    // ===========================
     const [fechaActual, setFechaActual] = useState(new Date());
 
     const mes = fechaActual.getMonth();
     const anio = fechaActual.getFullYear();
 
-    // ===========================
-    // Estados y Filtros
-    // ===========================
     const [guardias, setGuardias] = useState([]);
     const [filtroArea, setFiltroArea] = useState("Todas las Áreas");
 
-    // ===========================
-    // Obtener guardias
-    // ===========================
     useEffect(() => {
         obtenerGuardias();
     }, []);
 
+    // Consulta la lista total de guardias del sistema
     const obtenerGuardias = async () => {
         try {
             const token = getToken()
@@ -44,9 +37,6 @@ function CalendarioGuardias() {
         }
     };
 
-    // ===========================
-    // Meses y Días
-    // ===========================
     const meses = [
         "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
         "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
@@ -54,11 +44,13 @@ function CalendarioGuardias() {
 
     const diasSemana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
+    // Cálculo de días del mes y desplazamiento del primer día de la semana
     const diasDelMes = new Date(anio, mes + 1, 0).getDate();
     const primerDia = new Date(anio, mes, 1).getDay();
 
     const diasCalendario = [];
 
+    // Celdas vacías antes del primer día del mes
     for (let i = 0; i < primerDia; i++) {
         diasCalendario.push(null);
     }
@@ -67,13 +59,12 @@ function CalendarioGuardias() {
         diasCalendario.push(i);
     }
 
+    // Celdas vacías al final para completar la última semana
     while (diasCalendario.length % 7 !== 0) {
         diasCalendario.push(null);
     }
 
-    // ===========================
-    // Navegación
-    // ===========================
+    // Navegación entre meses
     const mesAnterior = () => {
         setFechaActual(new Date(anio, mes - 1, 1));
     };
@@ -82,9 +73,7 @@ function CalendarioGuardias() {
         setFechaActual(new Date(anio, mes + 1, 1));
     };
 
-    // ===========================
-    // Obtener clase CSS según la guardia
-    // ===========================
+    // Determina la clase CSS de color según si la guardia está abierta o según el área
     const obtenerClaseGuardia = (g) => {
         let clase = "admin-guardia";
 

@@ -12,6 +12,7 @@ import { getToken } from '../../utils/authUtils'
 
 const API_BASE_URL = 'http://localhost:8090'
 
+// Pantalla de gestión de empleados: listado, filtros, búsqueda, ordenamiento dinámico, alta y baja lógica del personal.
 function GestionEmpleados() {
   const navigate = useNavigate()
   const [empleados, setEmpleados] =
@@ -41,6 +42,7 @@ function GestionEmpleados() {
     mensaje: '',
   })
 
+  // Carga la lista completa de empleados desde el backend
   const fetchEmpleados = async () => {
     try {
       setLoading(true)
@@ -86,6 +88,7 @@ function GestionEmpleados() {
     fetchEmpleados()
   }, [])
 
+  // Aplica filtros de búsqueda textual y área, junto con el ordenamiento seleccionado
   const empleadosVisibles = useMemo(() => {
     const textoNormalizado =
       textoBusqueda
@@ -182,12 +185,14 @@ function GestionEmpleados() {
     orden,
   ])
 
+  // Redirige al formulario enviando el empleado a editar
   const editarEmpleado = (
     empleado
   ) => {
     navigate('/admin/empleados/nuevo', { state: { empleadoEditar: empleado } })
   }
 
+  // Abre el modal de confirmación de baja lógica
   const solicitarEliminarEmpleado = (
     empleado
   ) => {
@@ -198,6 +203,7 @@ function GestionEmpleados() {
     setEmpleadoAEliminar(null)
   }
 
+  // Ejecuta la baja lógica del empleado en el backend
   const confirmarEliminacion =
     async () => {
       if (!empleadoAEliminar) {

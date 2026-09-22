@@ -1,3 +1,4 @@
+/* Reset global de estilos y configuración de scrollbar */
 * {
   margin: 0;
   padding: 0;
@@ -6,6 +7,7 @@
   scrollbar-color: #333333 #121212;
 }
 
+/* Ocupar el alto completo del viewport */
 html,
 body,
 #root {
@@ -14,6 +16,7 @@ body,
   min-height: 100%;
 }
 
+/* Tema base oscuro y tipografía global */
 body {
   background: #0a0a0a;
   color: #ffffff;

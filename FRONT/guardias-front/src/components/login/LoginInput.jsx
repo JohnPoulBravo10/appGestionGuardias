@@ -1,3 +1,4 @@
+// Campo de entrada reutilizable para el login con soporte para ícono lateral, alternador de contraseña y errores de validación.
 function LoginInput({
   id,
   label,
@@ -95,6 +96,7 @@ function LoginInput({
   )
 }
 
+// Ícono SVG de ojo para mostrar contraseña
 function EyeIcon() {
   return (
     <svg
@@ -112,6 +114,7 @@ function EyeIcon() {
   )
 }
 
+// Ícono SVG de ojo tachado para ocultar contraseña
 function EyeOffIcon() {
   return (
     <svg
