@@ -5,8 +5,7 @@ import com.sistema.guardias.empleado_service.model.Empleado;
 import com.sistema.guardias.empleado_service.model.Rol;
 import com.sistema.guardias.empleado_service.service.EmpleadoService;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -19,9 +18,8 @@ import io.github.resilience4j.retry.annotation.Retry;
    ya existe (por DNI duplicado), se loguea el conflicto sin propagar la excepción
    para evitar reintentos infinitos del consumer. */
 @Service
+@Slf4j
 public class UsuarioRegistradoConsumer {
-
-    private static final Logger log = LoggerFactory.getLogger(UsuarioRegistradoConsumer.class);
 
     private final EmpleadoService empleadoService;
 

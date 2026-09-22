@@ -10,6 +10,7 @@ import com.sistema.guardias.autenticacion_service.model.Usuario;
 import com.sistema.guardias.autenticacion_service.producer.UsuarioRegistradoProducer;
 import com.sistema.guardias.autenticacion_service.repository.UsuarioRepository;
 import com.sistema.guardias.autenticacion_service.security.JwtProvider;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 
 /* Servicio central para la lógica de registro y autenticación de usuarios. */
 @Service
+@Slf4j
 public class AuthService {
 
     @Autowired
@@ -44,6 +46,7 @@ public class AuthService {
     public UsuarioResponseDto registrar(RegistroRequestDto dto) {
         if (com.sistema.guardias.autenticacion_service.model.Rol.ADMINISTRADOR.equals(dto.getRolUsuario()) || 
             "ADMINISTRADOR".equalsIgnoreCase(dto.getRolEmpleado())) {
+            log.warn("Intento denegado de registrar usuario ADMINISTRADOR por endpoint público. Usuario: {}", dto.getUsuario());
             throw new IllegalArgumentException("No está permitido crear usuarios administradores a través del registro público.");
         }
 
@@ -85,6 +88,9 @@ public class AuthService {
                 .build();
         
         usuarioRegistradoProducer.publicarEvento(evento);
+
+        log.info("Usuario '{}' registrado exitosamente (rol: {}, DNI: {})",
+                usuarioGuardado.getUsuario(), usuarioGuardado.getRol(), usuarioGuardado.getEmpleadoDni());
         
         return UsuarioResponseDto.builder()
                 .id(usuarioGuardado.getId())
@@ -102,6 +108,7 @@ public class AuthService {
         );
 
         String jwt = jwtProvider.generateToken(authentication);
+        log.info("Inicio de sesión exitoso para el usuario '{}'", dto.getUsuario());
         return new TokenDto(jwt);
     }
 

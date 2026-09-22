@@ -40,6 +40,7 @@ function App() {
   // Actualiza dinámicamente el título del documento según el prefijo de la ruta activa
   useEffect(() => {
     const path = location.pathname
+    console.info(`[APP] Navegación a ruta: ${path}`)
 
     if (path.startsWith('/admin')) {
       document.title = 'SGGS — Vista Administrador'
@@ -171,7 +172,10 @@ function App() {
 
             <button
               type="button"
-              onClick={() => navigate('/login')}
+              onClick={() => {
+                console.warn(`[APP] Redirigiendo desde ruta no encontrada (${location.pathname}) hacia /login`)
+                navigate('/login')
+              }}
             >
               Volver al login
             </button>

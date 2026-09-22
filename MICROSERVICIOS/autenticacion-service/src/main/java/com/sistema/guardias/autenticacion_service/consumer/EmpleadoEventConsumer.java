@@ -36,12 +36,12 @@ public class EmpleadoEventConsumer {
             return;
         }
 
-        log.info("[autenticacion-service] Empleado desactivado, DNI: {}. Dando de baja al usuario asociado...", evento.getEmpleadoDni());
+        log.info("Evento de empleado desactivado recibido, DNI: {}. Dando de baja al usuario asociado...", evento.getEmpleadoDni());
 
         Optional<Usuario> usuarioOpt = usuarioRepository.findByEmpleadoDni(evento.getEmpleadoDni());
 
         if (usuarioOpt.isEmpty()) {
-            log.error("[autenticacion-service] No se encontró usuario asociado al DNI: {}", evento.getEmpleadoDni());
+            log.warn("No se encontró usuario asociado al DNI: {}", evento.getEmpleadoDni());
             return;
         }
 
@@ -49,11 +49,11 @@ public class EmpleadoEventConsumer {
         usuario.setActivo(false);
         usuarioRepository.save(usuario);
 
-        log.info("[autenticacion-service] Usuario '{}' dado de baja exitosamente.", usuario.getUsuario());
+        log.info("Usuario '{}' dado de baja exitosamente tras desactivación de empleado.", usuario.getUsuario());
     }
 
     public void fallbackProcesamiento(EmpleadoEvent evento, Exception e) {
-        log.error("Error definitivo al procesar evento de empleado en autenticacion-service. Evento: {}, Error: {}", evento, e.getMessage());
+        log.error("Error definitivo al procesar evento de empleado. Evento: {}, Error: {}", evento, e.getMessage());
         // Se registra la falla tras agotar reintentos para evitar un Poison Pill y avanzar el offset
     }
 }

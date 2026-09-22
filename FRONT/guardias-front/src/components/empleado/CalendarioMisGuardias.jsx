@@ -93,7 +93,7 @@ function CalendarioMisGuardias() {
         setGuardias(data)
       } catch (err) {
         console.error(
-          'Error al cargar guardias del área:',
+          '[CALENDARIO_EMPLEADO] Error al cargar guardias del área:',
           err
         )
 

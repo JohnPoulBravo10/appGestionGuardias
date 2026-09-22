@@ -2,6 +2,7 @@ package com.jpbravo.api_gateway.filter;
 
 import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import reactor.core.publisher.Mono;
 /* Fabrica de filtros Gateway para aplicar Rate Limiting usando Resilience4j.
    Limita la cantidad de peticiones que un cliente puede hacer a una ruta específica. */
 @Component
+@Slf4j
 public class Resilience4jRateLimiterGatewayFilterFactory extends AbstractGatewayFilterFactory<Resilience4jRateLimiterGatewayFilterFactory.Config> {
 
     private final RateLimiterRegistry rateLimiterRegistry;
@@ -33,7 +35,11 @@ public class Resilience4jRateLimiterGatewayFilterFactory extends AbstractGateway
                 if (permission) {
                     return chain.filter(exchange); // Permiso concedido, continuar filtro
                 } else {
-                    // Límite excedido, responder con 429 Too Many Requests
+                    // Límite excedido, registrar advertencia y responder con 429 Too Many Requests
+                    log.warn("Límite de peticiones excedido (RateLimiter: '{}') para {} {}",
+                            config.getInstanceName(),
+                            exchange.getRequest().getMethod(),
+                            exchange.getRequest().getURI().getPath());
                     exchange.getResponse().setStatusCode(HttpStatus.TOO_MANY_REQUESTS);
                     return exchange.getResponse().setComplete();
                 }

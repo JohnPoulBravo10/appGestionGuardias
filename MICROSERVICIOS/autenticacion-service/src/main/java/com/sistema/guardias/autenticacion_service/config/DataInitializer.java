@@ -33,7 +33,7 @@ public class DataInitializer {
                     adminDto.setDireccion("Av. Principal 100");
 
                     authService.registrarSistema(adminDto);
-                    log.info("✓ Usuario de prueba creado: admin (rol: ADMINISTRADOR)");
+                    log.info("Usuario de prueba creado: admin (rol: ADMINISTRADOR)");
                 }
 
                 if (repository.findByUsuario("enfermeria").isEmpty()) {
@@ -50,7 +50,7 @@ public class DataInitializer {
                     enfermeriaDto.setDireccion("Calle Salud 200");
 
                     authService.registrarSistema(enfermeriaDto);
-                    log.info("✓ Usuario de prueba creado: enfermeria (rol: ENFERMERIA)");
+                    log.info("Usuario de prueba creado: enfermeria (rol: ENFERMERIA)");
                 }
 
                 if (repository.findByUsuario("mantenimiento").isEmpty()) {
@@ -67,7 +67,7 @@ public class DataInitializer {
                     mantenimientoDto.setDireccion("Calle Herramienta 300");
 
                     authService.registrarSistema(mantenimientoDto);
-                    log.info("✓ Usuario de prueba creado: mantenimiento (rol: MANTENIMIENTO)");
+                    log.info("Usuario de prueba creado: mantenimiento (rol: MANTENIMIENTO)");
                 }
 
                 if (repository.findByUsuario("limpieza").isEmpty()) {
@@ -84,7 +84,7 @@ public class DataInitializer {
                     limpiezaDto.setDireccion("Calle Escoba 400");
 
                     authService.registrarSistema(limpiezaDto);
-                    log.info("✓ Usuario de prueba creado: limpieza (rol: LIMPIEZA)");
+                    log.info("Usuario de prueba creado: limpieza (rol: LIMPIEZA)");
                 }
             } catch (Exception e) {
                 log.error("Error al inicializar datos: {}", e.getMessage());

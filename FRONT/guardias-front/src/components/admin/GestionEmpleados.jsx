@@ -68,7 +68,7 @@ function GestionEmpleados() {
       )
     } catch (error) {
       console.error(
-        'Error al obtener empleados:',
+        '[GESTION_EMPLEADOS] Error al obtener empleados:',
         error
       )
 
@@ -240,6 +240,10 @@ function GestionEmpleados() {
             )
         )
 
+        console.info(
+          `[GESTION_EMPLEADOS] Empleado DNI ${empleadoAEliminar.dni} dado de baja exitosamente`
+        )
+
         setModal({
           visible: true,
           tipo: 'exito',
@@ -249,7 +253,7 @@ function GestionEmpleados() {
         })
       } catch (error) {
         console.error(
-          'Error al eliminar empleado:',
+          '[GESTION_EMPLEADOS] Error al dar de baja al empleado:',
           error
         )
 

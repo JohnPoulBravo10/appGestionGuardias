@@ -24,7 +24,8 @@ public class SolicitudEventProducer {
     @CircuitBreaker(name = "kafkaCB", fallbackMethod = "fallbackPublicacion")
     public void publicarEvento(SolicitudEvent evento) {
 
-        log.info("PUBLICANDO EVENTO DE SOLICITUD: {}", evento);
+        log.info("Publicando evento de solicitud (tipo: {}, solicitudId: {}, empleadoDni: {}) en topic '{}'",
+                evento.getTipoEvento(), evento.getSolicitudId(), evento.getEmpleadoDni(), TOPIC);
 
         kafkaTemplate.send(TOPIC, evento);
     }

@@ -71,6 +71,7 @@ export default function useUsuarioActual() {
             response.status === 401 ||
             response.status === 403
           ) {
+            console.warn('[USE_USUARIO_ACTUAL] Sesión expirada o token no autorizado (401/403). Redirigiendo a /login')
             localStorage.removeItem('token')
 
             navigateRef.current('/login', {
@@ -94,6 +95,10 @@ export default function useUsuarioActual() {
         const datosEmpleado =
           await response.json()
 
+        console.info(
+          `[USE_USUARIO_ACTUAL] Perfil cargado para usuario ID ${usuarioId} (DNI: ${datosEmpleado.dni})`
+        )
+
         setEmpleado(datosEmpleado)
       } catch (err) {
         if (err.name === 'AbortError') {
@@ -101,7 +106,7 @@ export default function useUsuarioActual() {
         }
 
         console.error(
-          'Error al cargar datos del usuario:',
+          '[USE_USUARIO_ACTUAL] Error al cargar datos del usuario:',
           err
         )
 

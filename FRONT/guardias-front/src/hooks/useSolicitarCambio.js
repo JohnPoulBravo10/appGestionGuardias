@@ -134,7 +134,7 @@ export default function useSolicitarCambio(options = {}) {
         return ids
       } catch (err) {
         console.error(
-          'Error al cargar solicitudes pendientes:',
+          '[USE_SOLICITAR_CAMBIO] Error al cargar solicitudes pendientes:',
           err
         )
 
@@ -185,7 +185,7 @@ export default function useSolicitarCambio(options = {}) {
         )
       } catch (err) {
         console.error(
-          'Error al cargar guardias:',
+          '[USE_SOLICITAR_CAMBIO] Error al cargar guardias:',
           err
         )
 
@@ -239,7 +239,7 @@ export default function useSolicitarCambio(options = {}) {
         setCompaneros(sinElPropio)
       } catch (err) {
         console.error(
-          'Error al cargar compañeros:',
+          '[USE_SOLICITAR_CAMBIO] Error al cargar compañeros:',
           err
         )
 
@@ -421,6 +421,10 @@ export default function useSolicitarCambio(options = {}) {
           throw new Error(mensaje)
         }
 
+        console.info(
+          `[USE_SOLICITAR_CAMBIO] Solicitud creada exitosamente para guardia ID ${guardia.id}`
+        )
+
         setExito(
           '¡Solicitud enviada correctamente! Será revisada por un administrador.'
         )
@@ -433,7 +437,7 @@ export default function useSolicitarCambio(options = {}) {
         }
       } catch (err) {
         console.error(
-          'Error al enviar solicitud:',
+          '[USE_SOLICITAR_CAMBIO] Error al enviar solicitud:',
           err
         )
 

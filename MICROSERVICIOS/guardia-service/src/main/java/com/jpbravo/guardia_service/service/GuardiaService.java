@@ -11,6 +11,7 @@ import com.jpbravo.guardia_service.producer.GuardiaEventProducer;
 import com.jpbravo.guardia_service.repository.EmpleadoCacheRepository;
 import com.jpbravo.guardia_service.repository.GuardiaRepository;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class GuardiaService {
 
@@ -58,6 +60,10 @@ public class GuardiaService {
 
         Guardia guardiaGuardada = repository.save(guardia);
 
+        log.info("Guardia ID {} creada exitosamente (Fecha: {}, Horario: {}-{}, Rol: {}, Estado: {})",
+                guardiaGuardada.getId(), guardiaGuardada.getFecha(), guardiaGuardada.getHoraInicio(),
+                guardiaGuardada.getHoraFin(), guardiaGuardada.getRol(), guardiaGuardada.getEstado());
+
         if (guardiaGuardada.getEmpleadoId() != null) {
 
             GuardiaEvent evento = GuardiaEvent.builder()
@@ -84,6 +90,7 @@ public class GuardiaService {
                 .orElseThrow(() -> new RuntimeException("Guardia no encontrada"));
 
         repository.deleteById(id);
+        log.info("Guardia ID {} eliminada exitosamente", id);
 
         if (guardia.getEmpleadoId() != null) {
 
@@ -128,7 +135,11 @@ public class GuardiaService {
             guardia.setEstado(EstadoGuardia.PROXIMA);
         }
 
-        return repository.save(guardia);
+        Guardia guardada = repository.save(guardia);
+        log.info("Guardia ID {} reasignada: empleado DNI={}, nuevo estado={}",
+                guardiaId, empleadoId, guardada.getEstado());
+
+        return guardada;
     }
 
     // Actualiza una guardia
@@ -150,6 +161,9 @@ public class GuardiaService {
         }
 
         Guardia guardiaGuardada = repository.save(guardia);
+        log.info("Guardia ID {} actualizada exitosamente (Fecha: {}, Horario: {}-{}, Rol: {}, Estado: {})",
+                guardiaGuardada.getId(), guardiaGuardada.getFecha(), guardiaGuardada.getHoraInicio(),
+                guardiaGuardada.getHoraFin(), guardiaGuardada.getRol(), guardiaGuardada.getEstado());
 
         if (guardiaGuardada.getEmpleadoId() != null) {
 

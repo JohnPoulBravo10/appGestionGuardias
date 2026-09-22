@@ -71,7 +71,7 @@ export default function useGestionSolicitudes() {
       )
     } catch (err) {
       console.error(
-        'Error al cargar solicitudes:',
+        '[USE_GESTION_SOLICITUDES] Error al cargar solicitudes:',
         err
       )
 
@@ -108,7 +108,7 @@ export default function useGestionSolicitudes() {
       )
     } catch (err) {
       console.error(
-        'Error al cargar empleados:',
+        '[USE_GESTION_SOLICITUDES] Error al cargar empleados:',
         err
       )
     }
@@ -199,12 +199,16 @@ export default function useGestionSolicitudes() {
           )
         )
 
+        console.info(
+          `[USE_GESTION_SOLICITUDES] Solicitud ID ${solicitudActiva.id} resuelta con éxito (${accionModal})`
+        )
+
         cerrarModal()
 
         return true
       } catch (err) {
         console.error(
-          `Error al ${accionModal} solicitud:`,
+          `[USE_GESTION_SOLICITUDES] Error al ${accionModal} solicitud:`,
           err
         )
 

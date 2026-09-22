@@ -121,7 +121,7 @@ function MiHistorial() {
       )
     } catch (errorPeticion) {
       console.error(
-        'Error al obtener guardias:',
+        '[MI_HISTORIAL] Error al obtener historial de guardias del empleado:',
         errorPeticion
       )
 

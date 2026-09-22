@@ -80,7 +80,7 @@ function PanelEmpleado() {
 
       setGuardias(Array.isArray(data) ? data : [])
     } catch (err) {
-      console.error('Error al cargar guardias del empleado:', err)
+      console.error('[PANEL_EMPLEADO] Error al cargar guardias del empleado:', err)
       setError(err.message)
     } finally {
       setLoading(false)
@@ -133,7 +133,7 @@ function PanelEmpleado() {
 
       setNotificaciones(lista)
     } catch (err) {
-      console.error('Error al cargar notificaciones:', err)
+      console.error('[PANEL_EMPLEADO] Error al cargar notificaciones:', err)
       setErrorNotificaciones(err.message)
     } finally {
       setLoadingNotificaciones(false)
@@ -176,9 +176,10 @@ function PanelEmpleado() {
         )
       )
 
+      console.info(`[PANEL_EMPLEADO] Notificación ID ${id} marcada como leída`)
       window.dispatchEvent(new CustomEvent('notificacion-leida'))
     } catch (err) {
-      console.error('Error al marcar notificación como leída:', err)
+      console.error('[PANEL_EMPLEADO] Error al marcar notificación como leída:', err)
       setErrorNotificaciones('No se pudo marcar la notificación como leída.')
     }
   }

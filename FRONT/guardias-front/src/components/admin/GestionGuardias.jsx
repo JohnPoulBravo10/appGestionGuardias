@@ -94,7 +94,7 @@ function GestionGuardias() {
       )
     } catch (error) {
       console.error(
-        'Error al obtener guardias:',
+        '[GESTION_GUARDIAS] Error al obtener guardias:',
         error
       )
     } finally {
@@ -227,6 +227,10 @@ function GestionGuardias() {
           )
       )
 
+      console.info(
+        `[GESTION_GUARDIAS] Guardia ID ${id} eliminada correctamente`
+      )
+
       setModal({
         visible: true,
         tipo: 'exito',
@@ -236,7 +240,7 @@ function GestionGuardias() {
       })
     } catch (error) {
       console.error(
-        'Error al eliminar guardia:',
+        '[GESTION_GUARDIAS] Error al eliminar guardia:',
         error
       )
 

@@ -6,14 +6,15 @@ import com.jpbravo.solicitudes_service.dto.SolicitudResponseDto;
 import com.jpbravo.solicitudes_service.model.EstadoSolicitud;
 import com.jpbravo.solicitudes_service.service.SolicitudCambioGuardiaService;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
-import org.springframework.web.server.ResponseStatusException;
-
+@Slf4j
 @RestController
 @RequestMapping("/api/solicitudes")
 public class SolicitudCambioGuardiaController {
@@ -116,6 +117,7 @@ public class SolicitudCambioGuardiaController {
     /* Verifica si el usuario tiene rol ADMIN */
     private void requireAdmin(String roles) {
         if (!isAdmin(roles)) {
+            log.warn("Acceso denegado: se requiere rol ADMIN (roles recibidos: '{}')", roles);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado: Se requiere rol ADMIN");
         }
     }
@@ -123,6 +125,8 @@ public class SolicitudCambioGuardiaController {
     /* Verifica si el usuario tiene rol ADMIN o es el dueño de la solicitud */
     private void requireAdminOrOwner(String roles, String userDni, String targetDni) {
         if (!isAdmin(roles) && (userDni == null || !userDni.equals(targetDni))) {
+            log.warn("Acceso denegado: solicitud pertenece a otro usuario (roles: '{}', userToken: '{}', targetDni: '{}')",
+                    roles, userDni, targetDni);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado: No tiene permisos para este recurso");
         }
     }

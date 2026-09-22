@@ -75,7 +75,7 @@ function HistorialGuardias() {
       )
     } catch (error) {
       console.error(
-        'Error al obtener guardias:',
+        '[HISTORIAL_GUARDIAS] Error al obtener historial de guardias:',
         error
       )
     } finally {

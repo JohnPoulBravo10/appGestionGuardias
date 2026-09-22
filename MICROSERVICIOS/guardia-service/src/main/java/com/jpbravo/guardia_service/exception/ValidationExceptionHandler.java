@@ -1,5 +1,6 @@
 package com.jpbravo.guardia_service.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -12,6 +13,7 @@ import java.util.Map;
 /* Manejador global de excepciones de validación para guardia-service.
    Captura errores de Jakarta Validation y devuelve un JSON estructurado
    para que el frontend muestre errores inline. */
+@Slf4j
 @RestControllerAdvice
 public class ValidationExceptionHandler {
 
@@ -28,6 +30,8 @@ public class ValidationExceptionHandler {
                 .forEach(error -> erroresCampo.put(
                         error.getField(),
                         error.getDefaultMessage()));
+
+        log.warn("Validación de entrada fallida en guardias: {}", erroresCampo.keySet());
 
         Map<String, Object> respuesta = new HashMap<>();
         respuesta.put("errores", erroresCampo);

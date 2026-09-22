@@ -1,5 +1,6 @@
 package com.jpbravo.solicitudes_service.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -14,6 +15,7 @@ import java.util.Map;
 
 /* Manejo global y centralizado de excepciones para el microservicio.
    Devuelve respuestas JSON estandarizadas con timestamp, status, error y mensaje. */
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -24,6 +26,8 @@ public class GlobalExceptionHandler {
         List<String> errores = ex.getBindingResult().getFieldErrors().stream()
                 .map(FieldError::getDefaultMessage)
                 .toList();
+
+        log.warn("Validación de entrada fallida en solicitud: {}", errores);
 
         Map<String, Object> body = buildResponseBody(
                 HttpStatus.BAD_REQUEST,
@@ -38,6 +42,8 @@ public class GlobalExceptionHandler {
        Devuelve un HTTP 404. */
     @ExceptionHandler(SolicitudNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleNotFound(SolicitudNotFoundException ex) {
+        log.warn("Solicitud no encontrada: {}", ex.getMessage());
+
         Map<String, Object> body = buildResponseBody(
                 HttpStatus.NOT_FOUND,
                 ex.getMessage(),
@@ -51,6 +57,8 @@ public class GlobalExceptionHandler {
        Devuelve un HTTP 409 Conflict. */
     @ExceptionHandler(InvalidStateTransitionException.class)
     public ResponseEntity<Map<String, Object>> handleInvalidTransition(InvalidStateTransitionException ex) {
+        log.warn("Conflicto de estado en solicitud: {}", ex.getMessage());
+
         Map<String, Object> body = buildResponseBody(
                 HttpStatus.CONFLICT,
                 ex.getMessage(),

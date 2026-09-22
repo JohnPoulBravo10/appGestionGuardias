@@ -99,6 +99,7 @@ export default function useLoginForm() {
       }
 
       setIsLoading(true)
+      console.info(`[USE_LOGIN_FORM] Intentando autenticación para usuario: "${usuario.trim()}"`)
 
       try {
         const response = await fetch(
@@ -121,10 +122,13 @@ export default function useLoginForm() {
             response.status === 401 ||
             response.status === 403
           ) {
+            console.warn(`[USE_LOGIN_FORM] Credenciales inválidas para usuario: "${usuario.trim()}"`)
             setError('Usuario o contraseña incorrectos')
           } else if (response.status === 429) {
+            console.warn(`[USE_LOGIN_FORM] Rate limiter activo (429) para usuario: "${usuario.trim()}"`)
             setError('Demasiados intentos fallidos. Intente nuevamente en 1 minuto.')
           } else {
+            console.warn(`[USE_LOGIN_FORM] Error en autenticación (${response.status}) para usuario: "${usuario.trim()}"`)
             setError(
               `Error del servidor (${response.status}). Intente nuevamente.`
             )
@@ -154,15 +158,17 @@ export default function useLoginForm() {
 
         if (!rol) {
           localStorage.removeItem('token')
+          console.warn('[USE_LOGIN_FORM] No se pudo identificar el rol del usuario en el token')
           setError(
             'No se pudo identificar el rol del usuario'
           )
           return
         }
 
+        console.info(`[USE_LOGIN_FORM] Login exitoso para usuario: "${usuario.trim()}" (Rol: ${rol})`)
         redirigirPorRol(rol)
       } catch (err) {
-        console.error('Error durante el login:', err)
+        console.error('[USE_LOGIN_FORM] Error durante el login:', err)
 
         setError(
           'No se pudo conectar con el servidor. Verifique que el servicio esté activo.'

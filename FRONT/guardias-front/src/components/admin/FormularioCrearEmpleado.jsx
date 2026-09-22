@@ -309,6 +309,10 @@ function FormularioCrearEmpleado() {
         await response.json()
       }
 
+      console.info(
+        `[CREAR_EMPLEADO] Empleado ${esEdicion ? 'modificado' : 'creado'} exitosamente (DNI: ${empleado.dni}, Rol: ${empleado.rol})`
+      )
+
       setModal({
         visible: true,
         tipo: 'exito',
@@ -325,7 +329,7 @@ function FormularioCrearEmpleado() {
       })
     } catch (error) {
       console.error(
-        'Error al guardar empleado:',
+        '[CREAR_EMPLEADO] Error al guardar empleado:',
         error
       )
 

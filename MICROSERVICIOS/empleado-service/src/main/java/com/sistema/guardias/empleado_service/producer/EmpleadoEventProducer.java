@@ -26,6 +26,9 @@ public class EmpleadoEventProducer {
     @Retry(name = "kafkaRetry", fallbackMethod = "fallbackPublicacion")
     @CircuitBreaker(name = "kafkaCB", fallbackMethod = "fallbackPublicacion")
     public void publicarEvento(EmpleadoEvent evento) {
+        log.info("Publicando evento de empleado (tipo: {}, DNI: {}) en topic '{}'",
+                evento.getTipoEvento(), evento.getEmpleadoDni(), TOPIC);
+
         kafkaTemplate.send(
                 TOPIC,
                 String.valueOf(evento.getEmpleadoDni()),

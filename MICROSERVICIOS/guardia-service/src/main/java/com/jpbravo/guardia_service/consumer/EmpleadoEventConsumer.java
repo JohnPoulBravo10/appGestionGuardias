@@ -8,8 +8,7 @@ import com.jpbravo.guardia_service.model.Guardia;
 import com.jpbravo.guardia_service.repository.EmpleadoCacheRepository;
 import com.jpbravo.guardia_service.repository.GuardiaRepository;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -25,10 +24,9 @@ import java.util.List;
      con los datos del empleado.
    - EMPLEADO_DESACTIVADO: marca al empleado como inactivo en la
      caché y libera las guardias futuras asignadas a ese empleado. */
+@Slf4j
 @Service
 public class EmpleadoEventConsumer {
-
-    private static final Logger log = LoggerFactory.getLogger(EmpleadoEventConsumer.class);
 
     private final EmpleadoCacheRepository empleadoCacheRepository;
     private final GuardiaRepository guardiaRepository;
@@ -86,7 +84,7 @@ public class EmpleadoEventConsumer {
 
         empleadoCacheRepository.save(cache);
 
-        log.info("[guardia-service] Caché actualizada para empleado DNI: {} ({})",
+        log.info("Caché actualizada para empleado DNI: {} ({})",
                 evento.getEmpleadoDni(), evento.getTipoEvento());
     }
 
@@ -102,7 +100,7 @@ public class EmpleadoEventConsumer {
                     empleadoCacheRepository.save(cache);
                 });
 
-        log.info("[guardia-service] Empleado desactivado, DNI: {}. Liberando guardias futuras...",
+        log.info("Empleado desactivado, DNI: {}. Liberando guardias futuras...",
                 evento.getEmpleadoDni());
 
         // Liberar guardias futuras (lógica existente preservada)
@@ -120,7 +118,7 @@ public class EmpleadoEventConsumer {
 
         guardiaRepository.saveAll(guardiasFuturas);
 
-        log.info("[guardia-service] {} guardias liberadas para DNI: {}",
+        log.info("{} guardias liberadas para DNI: {}",
                 guardiasFuturas.size(), evento.getEmpleadoDni());
     }
 }

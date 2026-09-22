@@ -4,8 +4,7 @@ import com.jpbravo.api_gateway.config.JwtConfig;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -29,9 +28,9 @@ import java.util.stream.Collectors;
    - Sanitizar e inyectar cabeceras internas (X-User-*) con datos del JWT validado 
      para prevenir suplantación de identidad en los microservicios. */
 @Component
+@Slf4j
 public class JwtAuthFilter implements GlobalFilter, Ordered {
 
-    private static final Logger log = LoggerFactory.getLogger(JwtAuthFilter.class);
     private static final String BEARER_PREFIX = "Bearer ";
     private static final String HEADER_USER_ID = "X-User-Id";
     private static final String HEADER_USER_DNI = "X-User-Dni";
@@ -93,6 +92,8 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
                     .header(HEADER_USER_DNI, extractClaim(claims, "empleadoDni"))
                     .header(HEADER_USER_ROLES, extractRoles(claims))
                     .build();
+
+            log.debug("Token JWT validado para usuario '{}' en {} {}", claims.getSubject(), request.getMethod(), path);
 
             return chain.filter(exchange.mutate().request(mutatedRequest).build());
 

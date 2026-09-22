@@ -73,6 +73,11 @@
 			<artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
 		<!-- Observabilidad: Prometheus para métricas y Loki para logs (Actuator ya incluido) -->
 		<dependency>
 			<groupId>io.micrometer</groupId>

@@ -3,6 +3,7 @@ package com.jpbravo.notification_service.controller;
 import com.jpbravo.notification_service.model.Notificacion;
 import com.jpbravo.notification_service.service.NotificacionService;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/notificaciones")
 public class NotificacionController {
@@ -88,6 +90,8 @@ public class NotificacionController {
     // Verifica que el usuario sea el dueño de la notificación o un administrador.
     private void requireAdminOrOwner(String roles, String userDni, Long targetDni) {
         if (!isAdmin(roles) && (userDni == null || !userDni.equals(String.valueOf(targetDni)))) {
+            log.warn("Acceso denegado: las notificaciones pertenecen a otro empleado (roles: '{}', userToken: '{}', targetDni: '{}')",
+                    roles, userDni, targetDni);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado: No tiene permisos para este recurso");
         }
     }

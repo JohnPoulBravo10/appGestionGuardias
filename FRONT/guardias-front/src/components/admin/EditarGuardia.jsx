@@ -137,7 +137,7 @@ function EditarGuardia() {
       }
     } catch (error) {
       console.error(
-        'Error al cargar empleados:',
+        '[EDITAR_GUARDIA] Error al cargar empleados:',
         error
       )
     }
@@ -281,6 +281,10 @@ function EditarGuardia() {
         return
       }
 
+      console.info(
+        `[EDITAR_GUARDIA] Guardia ID ${guardiaEditar.id} modificada exitosamente (${guardia.fecha} ${guardia.horaInicio}-${guardia.horaFin} - ${guardia.rol})`
+      )
+
       setModal({
         visible: true,
         tipo: 'exito',
@@ -291,7 +295,7 @@ function EditarGuardia() {
       })
     } catch (error) {
       console.error(
-        'Error al modificar guardia:',
+        '[EDITAR_GUARDIA] Error al modificar guardia:',
         error
       )
 

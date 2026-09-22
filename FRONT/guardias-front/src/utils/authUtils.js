@@ -31,7 +31,7 @@ export function decodeJwtPayload(token) {
 
     return JSON.parse(payloadJson)
   } catch (error) {
-    console.error('No se pudo decodificar el JWT:', error)
+    console.error('[AUTH_UTILS] No se pudo decodificar el payload del JWT:', error)
     return null
   }
 }
@@ -120,5 +120,6 @@ export function getRolFromToken() {
  * Elimina la sesión activa limpiando el token del almacenamiento local.
  */
 export function cerrarSesion() {
+  console.info('[AUTH_UTILS] Sesión cerrada, token removido de localStorage')
   localStorage.removeItem('token')
 }

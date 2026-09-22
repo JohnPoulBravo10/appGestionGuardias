@@ -33,7 +33,7 @@ function CalendarioGuardias() {
             const data = await response.json();
             setGuardias(data);
         } catch (error) {
-            console.error(error);
+            console.error('[CALENDARIO_GUARDIAS] Error al obtener guardias:', error);
         }
     };
 

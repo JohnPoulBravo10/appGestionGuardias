@@ -32,7 +32,8 @@ public class GuardiaEventConsumer {
     @CircuitBreaker(name = "consumerCB", fallbackMethod = "fallbackProcesamiento")
     public void consumirEvento(GuardiaEvent evento) {
 
-        log.info("EVENTO RECIBIDO DESDE KAFKA: {}", evento);
+        log.info("Evento de guardia recibido (tipo: {}, guardiaId: {}, empleadoId: {})",
+                evento.getTipoEvento(), evento.getGuardiaId(), evento.getEmpleadoId());
 
         if (evento.getTipoEvento() == null) {
             return;

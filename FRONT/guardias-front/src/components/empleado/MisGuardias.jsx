@@ -86,7 +86,7 @@ function MisGuardias() {
         setGuardiasConSolicitud(ids)
       } catch (err) {
         console.error(
-          'Error al obtener solicitudes pendientes:',
+          '[MIS_GUARDIAS] Error al obtener solicitudes pendientes:',
           err
         )
       }
@@ -181,7 +181,7 @@ function MisGuardias() {
       )
     } catch (errorPeticion) {
       console.error(
-        'Error al obtener guardias:',
+        '[MIS_GUARDIAS] Error al obtener guardias del empleado:',
         errorPeticion
       )
 

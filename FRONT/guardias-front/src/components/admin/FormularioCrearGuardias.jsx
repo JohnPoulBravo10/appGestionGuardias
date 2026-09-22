@@ -137,7 +137,7 @@ function FormularioCrearGuardias() {
       }
     } catch (error) {
       console.error(
-        'Error al cargar empleados:',
+        '[CREAR_GUARDIA] Error al cargar empleados:',
         error
       )
 
@@ -283,6 +283,10 @@ function FormularioCrearGuardias() {
       setGuardia(guardiaInicial)
       setEmpleados([])
 
+      console.info(
+        `[CREAR_GUARDIA] Guardia creada exitosamente (${guardia.fecha} ${guardia.horaInicio}-${guardia.horaFin} - ${guardia.rol})`
+      )
+
       setModal({
         visible: true,
         tipo: 'exito',
@@ -293,7 +297,7 @@ function FormularioCrearGuardias() {
       })
     } catch (error) {
       console.error(
-        'Error al crear guardia:',
+        '[CREAR_GUARDIA] Error al crear guardia:',
         error
       )
 

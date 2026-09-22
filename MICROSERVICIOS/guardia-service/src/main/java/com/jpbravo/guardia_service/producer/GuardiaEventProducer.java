@@ -29,6 +29,9 @@ public class GuardiaEventProducer {
     public void publicarEvento(
             GuardiaEvent evento
     ) {
+        log.info("Publicando evento de guardia (tipo: {}, ID: {}, empleadoId: {}) en topic '{}'",
+                evento.getTipoEvento(), evento.getGuardiaId(), evento.getEmpleadoId(), TOPIC);
+
         kafkaTemplate.send(
                 TOPIC,
                 String.valueOf(evento.getGuardiaId()),

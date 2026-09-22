@@ -63,14 +63,14 @@ function BarraSuperior() {
               hayNoLeidas = listaRol.some((n) => !n.leida)
             }
           } catch (errRol) {
-            console.error('Error al verificar notificaciones por rol:', errRol)
+            console.error('[BARRA_SUPERIOR] Error al verificar notificaciones por rol:', errRol)
           }
         }
       }
 
       setTieneNoLeidas(hayNoLeidas)
     } catch (err) {
-      console.error('Error al verificar notificaciones no leídas:', err)
+      console.error('[BARRA_SUPERIOR] Error al verificar notificaciones no leídas:', err)
     }
   }, [])
 

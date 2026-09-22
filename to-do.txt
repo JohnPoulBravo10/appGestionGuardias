@@ -59,5 +59,5 @@ Pantallas Empleado:
   + unificar bd mongo notificaciones y solicitudes
   + eliminar dependencias no utilizadas
   + buscar codigo en desuso y eliminarlo
-  - mejorar logeo de la aplicacion
-  - mejorar y unificar estilo de comentarios
+  + mejorar y unificar estilo de comentarios
+  + mejorar logeo de la aplicacion

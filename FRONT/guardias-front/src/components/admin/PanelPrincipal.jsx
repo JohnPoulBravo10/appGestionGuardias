@@ -60,7 +60,7 @@ function PanelPrincipal() {
       const data = await response.json()
       setGuardiasActivas(data)
     } catch (err) {
-      console.error('Error al cargar guardias activas:', err)
+      console.error('[ADMIN_PANEL] Error al cargar guardias activas:', err)
       setError(err.message)
     } finally {
       setLoading(false)
@@ -87,7 +87,7 @@ function PanelPrincipal() {
       const data = await response.json()
       setSolicitudesPendientes(Array.isArray(data) ? data.length : 0)
     } catch (err) {
-      console.error('Error al cargar solicitudes pendientes:', err)
+      console.error('[ADMIN_PANEL] Error al cargar solicitudes pendientes:', err)
     } finally {
       setLoadingSolicitudes(false)
     }
@@ -140,13 +140,13 @@ function PanelPrincipal() {
             lista = [...lista, ...nuevasDeRol]
           }
         } catch (errRol) {
-          console.error('Error al obtener notificaciones por rol:', errRol)
+          console.error('[ADMIN_PANEL] Error al obtener notificaciones por rol:', errRol)
         }
       }
 
       setCantidadNoLeidas(lista.filter((n) => !n.leida).length)
     } catch (err) {
-      console.error('Error al cargar notificaciones no leídas:', err)
+      console.error('[ADMIN_PANEL] Error al cargar notificaciones no leídas:', err)
     }
   }
 

@@ -1,8 +1,7 @@
 package com.sistema.guardias.autenticacion_service.producer;
 
 import com.sistema.guardias.autenticacion_service.event.UsuarioRegistradoEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -12,9 +11,9 @@ import io.github.resilience4j.retry.annotation.Retry;
    Utiliza el DNI como key para garantizar orden de procesamiento
    por partición para un mismo empleado. */
 @Service
+@Slf4j
 public class UsuarioRegistradoProducer {
 
-    private static final Logger log = LoggerFactory.getLogger(UsuarioRegistradoProducer.class);
     private static final String TOPIC = "usuario-registrado";
 
     private final KafkaTemplate<String, UsuarioRegistradoEvent> kafkaTemplate;

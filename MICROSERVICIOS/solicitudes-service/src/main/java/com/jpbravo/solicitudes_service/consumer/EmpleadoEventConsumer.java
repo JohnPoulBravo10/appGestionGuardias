@@ -40,7 +40,7 @@ public class EmpleadoEventConsumer {
 
         String empleadoDni = String.valueOf(evento.getEmpleadoDni());
 
-        log.info("[solicitudes-service] Empleado desactivado, DNI: {}. Rechazando solicitudes pendientes...", empleadoDni);
+        log.info("Empleado desactivado, DNI: {}. Rechazando solicitudes pendientes...", empleadoDni);
 
         List<SolicitudCambioGuardia> solicitudesPendientes = solicitudRepository
                 .findByEmpleadoDniAndEstado(empleadoDni, EstadoSolicitud.PENDIENTE);
@@ -53,7 +53,7 @@ public class EmpleadoEventConsumer {
 
         solicitudRepository.saveAll(solicitudesPendientes);
 
-        log.info("[solicitudes-service] {} solicitudes rechazadas para DNI: {}", solicitudesPendientes.size(), empleadoDni);
+        log.info("{} solicitudes rechazadas para DNI: {}", solicitudesPendientes.size(), empleadoDni);
     }
 
     public void fallbackProcesamiento(EmpleadoEvent evento, Exception e) {

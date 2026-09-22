@@ -35,7 +35,8 @@ public class SolicitudEventConsumer {
     @CircuitBreaker(name = "consumerCB", fallbackMethod = "fallbackProcesamiento")
     public void consumirEvento(SolicitudEvent evento) {
 
-        log.info("EVENTO DE SOLICITUD RECIBIDO: {}", evento);
+        log.info("Evento de solicitud recibido (tipo: {}, guardiaId: {}, empleadoDni: {})",
+                evento.getTipoEvento(), evento.getGuardiaId(), evento.getEmpleadoDni());
 
         if (evento.getTipoEvento() == null) {
             return;

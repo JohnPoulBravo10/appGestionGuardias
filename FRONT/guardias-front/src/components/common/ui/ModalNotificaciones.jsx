@@ -79,7 +79,7 @@ function ModalNotificaciones({ visible, onCerrar, onNotificacionLeida }) {
             lista = [...lista, ...nuevasDeRol]
           }
         } catch (errRol) {
-          console.error('Error al obtener notificaciones por rol:', errRol)
+          console.error('[MODAL_NOTIFICACIONES] Error al obtener notificaciones por rol:', errRol)
         }
       }
 
@@ -92,7 +92,7 @@ function ModalNotificaciones({ visible, onCerrar, onNotificacionLeida }) {
 
       setNotificaciones(lista)
     } catch (err) {
-      console.error('Error al cargar notificaciones en modal:', err)
+      console.error('[MODAL_NOTIFICACIONES] Error al cargar notificaciones en modal:', err)
       setError(err.message)
     } finally {
       setLoading(false)
@@ -162,13 +162,14 @@ function ModalNotificaciones({ visible, onCerrar, onNotificacionLeida }) {
         )
       )
 
+      console.info(`[MODAL_NOTIFICACIONES] Notificación ID ${id} marcada como leída`)
       window.dispatchEvent(new CustomEvent('notificacion-leida'))
 
       if (onNotificacionLeida) {
         onNotificacionLeida()
       }
     } catch (err) {
-      console.error('Error al marcar notificación como leída:', err)
+      console.error('[MODAL_NOTIFICACIONES] Error al marcar notificación como leída:', err)
       setError('No se pudo marcar la notificación como leída.')
     }
   }

@@ -3,6 +3,7 @@ package com.sistema.guardias.empleado_service.controller;
 import com.sistema.guardias.empleado_service.model.Empleado;
 import com.sistema.guardias.empleado_service.model.Rol;
 import com.sistema.guardias.empleado_service.service.EmpleadoService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import java.util.List;
    Requiere rol ADMIN para operaciones de modificación y listado global. */
 @RestController
 @RequestMapping("/api/empleados")
+@Slf4j
 public class EmpleadoController {
 
     @Autowired
@@ -142,6 +144,7 @@ public class EmpleadoController {
     // Verifica si el usuario es ADMIN.
     private void requireAdmin(String roles) {
         if (!isAdmin(roles)) {
+            log.warn("Acceso denegado: se requiere rol ADMIN (roles recibidos: '{}')", roles);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado: Se requiere rol ADMIN");
         }
     }
@@ -149,6 +152,8 @@ public class EmpleadoController {
     // Verifica si el usuario es ADMIN o el dueño del recurso.
     private void requireAdminOrOwner(String roles, String tokenVal, String targetVal) {
         if (!isAdmin(roles) && (tokenVal == null || !tokenVal.equals(targetVal))) {
+            log.warn("Acceso denegado: recurso no pertenece al usuario autenticado (roles: '{}', userToken: '{}', target: '{}')",
+                    roles, tokenVal, targetVal);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "Acceso denegado: No tiene permisos para este recurso");
         }

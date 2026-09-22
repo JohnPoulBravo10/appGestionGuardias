@@ -8,6 +8,7 @@ import com.jpbravo.guardia_service.model.Rol;
 import com.jpbravo.guardia_service.service.GuardiaService;
 import com.jpbravo.guardia_service.validation.GuardiaValidator;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/guardias")
 public class GuardiaContoller {
@@ -124,6 +126,7 @@ public class GuardiaContoller {
                 );
 
         if (!erroresHorario.isEmpty()) {
+            log.warn("Petición rechazada por horarios de guardia inválidos al crear: {}", erroresHorario);
             Map<String, Object> respuesta = new HashMap<>();
             respuesta.put("errores", erroresHorario);
 
@@ -180,6 +183,7 @@ public class GuardiaContoller {
                 );
 
         if (!erroresHorario.isEmpty()) {
+            log.warn("Petición rechazada por horarios de guardia inválidos al actualizar guardia ID {}: {}", id, erroresHorario);
             Map<String, Object> respuesta = new HashMap<>();
             respuesta.put("errores", erroresHorario);
 
@@ -221,6 +225,7 @@ public class GuardiaContoller {
     // Requiere que el usuario sea admin
     private void requireAdmin(String roles) {
         if (!isAdmin(roles)) {
+            log.warn("Acceso denegado: se requiere rol ADMIN (roles recibidos: '{}')", roles);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado: Se requiere rol ADMIN");
         }
     }
@@ -228,6 +233,8 @@ public class GuardiaContoller {
     // Requiere que el usuario sea admin o el dueño de la guardia
     private void requireAdminOrOwner(String roles, String userDni, Long targetDni) {
         if (!isAdmin(roles) && (userDni == null || !userDni.equals(String.valueOf(targetDni)))) {
+            log.warn("Acceso denegado: recurso no pertenece al usuario autenticado (roles: '{}', userToken: '{}', target: '{}')",
+                    roles, userDni, targetDni);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado: No tiene permisos para este recurso");
         }
     }

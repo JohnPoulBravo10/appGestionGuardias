@@ -12,12 +12,14 @@ import com.jpbravo.solicitudes_service.model.SolicitudCambioGuardia;
 import com.jpbravo.solicitudes_service.producer.SolicitudEventProducer;
 import com.jpbravo.solicitudes_service.repository.SolicitudCambioGuardiaRepository;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 public class SolicitudCambioGuardiaService {
 
@@ -44,6 +46,10 @@ public class SolicitudCambioGuardiaService {
                 .build();
 
         SolicitudCambioGuardia guardada = repository.save(solicitud);
+
+        log.info("Solicitud de cambio creada exitosamente (ID: {}, Empleado: '{}' [DNI: {}], Guardia: {})",
+                guardada.getId(), guardada.getNombreEmpleado(), guardada.getEmpleadoDni(),
+                guardada.getInfoGuardia().getGuardiaId());
 
         SolicitudEvent evento = SolicitudEvent.builder()
                 .tipoEvento(TipoSolicitudEvent.SOLICITUD_CAMBIO_CREADA)
@@ -111,6 +117,10 @@ public class SolicitudCambioGuardiaService {
 
         SolicitudCambioGuardia actualizada = repository.save(solicitud);
 
+        log.info("Solicitud ID {} aprobada (Guardia: {}, Reemplazo: '{}' [DNI: {}])",
+                actualizada.getId(), actualizada.getInfoGuardia().getGuardiaId(),
+                actualizada.getNombreEmpleadoReemplazo(), actualizada.getEmpleadoReemplazoDni());
+
         // El evento SOLICITUD_CAMBIO_ACEPTADA incluye los datos de reasignación
         // para que guardia-service los consuma de forma asíncrona vía Kafka.
         SolicitudEvent evento = SolicitudEvent.builder()
@@ -143,6 +153,8 @@ public class SolicitudCambioGuardiaService {
 
         SolicitudCambioGuardia actualizada = repository.save(solicitud);
 
+        log.info("Solicitud ID {} rechazada", actualizada.getId());
+
         SolicitudEvent evento = SolicitudEvent.builder()
                 .tipoEvento(TipoSolicitudEvent.SOLICITUD_CAMBIO_RECHAZADA)
                 .solicitudId(actualizada.getId())
@@ -163,6 +175,8 @@ public class SolicitudCambioGuardiaService {
     private void validarEstadoPendiente(SolicitudCambioGuardia solicitud, EstadoSolicitud estadoDeseado) {
 
         if (solicitud.getEstado() != EstadoSolicitud.PENDIENTE) {
+            log.warn("Transición de estado inválida para solicitud ID {}: estado actual '{}', estado deseado '{}'",
+                    solicitud.getId(), solicitud.getEstado(), estadoDeseado);
             throw new InvalidStateTransitionException(
                     solicitud.getEstado(),
                     estadoDeseado
