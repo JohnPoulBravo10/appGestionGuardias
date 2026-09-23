@@ -55,7 +55,7 @@ Pantallas Empleado:
 + Implementar Monitoreo y Logs
 ------------------------------------------------------------------------------------------
 
-- Refactorizacion de codigo:
++ Refactorizacion de codigo:
   + unificar bd mongo notificaciones y solicitudes
   + eliminar dependencias no utilizadas
   + buscar codigo en desuso y eliminarlo

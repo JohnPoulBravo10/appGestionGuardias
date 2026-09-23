@@ -282,7 +282,7 @@ function EditarGuardia() {
       }
 
       console.info(
-        `[EDITAR_GUARDIA] Guardia ID ${guardiaEditar.id} modificada exitosamente (${guardia.fecha} ${guardia.horaInicio}-${guardia.horaFin} - ${guardia.rol})`
+        `[EDITAR_GUARDIA] Guardia ID ${guardiaEditar.id} modificada exitosamente (${guardiaEditar.fecha} ${guardiaEditar.horaInicio}-${guardiaEditar.horaFin} - ${guardiaEditar.rol})`
       )
 
       setModal({
