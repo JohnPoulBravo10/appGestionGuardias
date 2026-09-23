@@ -8,8 +8,7 @@ import com.jpbravo.guardia_service.model.Guardia;
 import com.jpbravo.guardia_service.repository.EmpleadoCacheRepository;
 import com.jpbravo.guardia_service.repository.GuardiaRepository;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -19,21 +18,15 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Consumidor Kafka que reacciona a eventos del ciclo de vida de empleados.
- *
- * <p>Responsabilidades:</p>
- * <ul>
- *   <li>{@code EMPLEADO_CREADO} / {@code EMPLEADO_ACTUALIZADO}: sincroniza la
- *       caché local {@code empleados_cache} con los datos del empleado.</li>
- *   <li>{@code EMPLEADO_DESACTIVADO}: marca al empleado como inactivo en la
- *       caché y libera las guardias futuras asignadas a ese empleado.</li>
- * </ul>
- */
+/* Consumidor Kafka que reacciona a eventos del ciclo de vida de empleados.
+   Responsabilidades:
+   - EMPLEADO_CREADO / EMPLEADO_ACTUALIZADO: sincroniza la caché local
+     con los datos del empleado.
+   - EMPLEADO_DESACTIVADO: marca al empleado como inactivo en la
+     caché y libera las guardias futuras asignadas a ese empleado. */
+@Slf4j
 @Service
 public class EmpleadoEventConsumer {
-
-    private static final Logger log = LoggerFactory.getLogger(EmpleadoEventConsumer.class);
 
     private final EmpleadoCacheRepository empleadoCacheRepository;
     private final GuardiaRepository guardiaRepository;
@@ -73,10 +66,8 @@ public class EmpleadoEventConsumer {
         // Se registra la falla tras agotar reintentos para evitar un Poison Pill y avanzar el offset
     }
 
-    /**
-     * Inserta o actualiza la caché local con los datos del empleado
-     * recibidos en el evento Kafka.
-     */
+    /* Inserta o actualiza la caché local con los datos del empleado
+       recibidos en el evento Kafka. */
     private void actualizarCache(EmpleadoEvent evento) {
 
         EmpleadoCache cache = empleadoCacheRepository.findById(evento.getEmpleadoDni())
@@ -93,14 +84,12 @@ public class EmpleadoEventConsumer {
 
         empleadoCacheRepository.save(cache);
 
-        log.info("[guardia-service] Caché actualizada para empleado DNI: {} ({})",
+        log.info("Caché actualizada para empleado DNI: {} ({})",
                 evento.getEmpleadoDni(), evento.getTipoEvento());
     }
 
-    /**
-     * Marca al empleado como inactivo en la caché y libera todas sus
-     * guardias futuras con estado PROXIMA, cambiándolas a ABIERTA.
-     */
+    /* Marca al empleado como inactivo en la caché y libera todas sus
+       guardias futuras con estado PROXIMA, cambiándolas a ABIERTA. */
     private void procesarDesactivacion(EmpleadoEvent evento) {
 
         // Actualizar caché marcando como inactivo
@@ -111,7 +100,7 @@ public class EmpleadoEventConsumer {
                     empleadoCacheRepository.save(cache);
                 });
 
-        log.info("[guardia-service] Empleado desactivado, DNI: {}. Liberando guardias futuras...",
+        log.info("Empleado desactivado, DNI: {}. Liberando guardias futuras...",
                 evento.getEmpleadoDni());
 
         // Liberar guardias futuras (lógica existente preservada)
@@ -129,7 +118,7 @@ public class EmpleadoEventConsumer {
 
         guardiaRepository.saveAll(guardiasFuturas);
 
-        log.info("[guardia-service] {} guardias liberadas para DNI: {}",
+        log.info("{} guardias liberadas para DNI: {}",
                 guardiasFuturas.size(), evento.getEmpleadoDni());
     }
 }

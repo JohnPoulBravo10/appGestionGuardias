@@ -10,6 +10,7 @@ import javax.crypto.SecretKey;
 import java.util.Base64;
 import java.util.Date;
 
+/* Componente encargado de la generación, validación y extracción de datos (claims) de tokens JWT. */
 @Component
 public class JwtProvider {
 
@@ -24,6 +25,7 @@ public class JwtProvider {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
+    // Genera un token inyectando el ID, DNI y roles del usuario en el payload para ser usados por el Gateway.
     public String generateToken(Authentication authentication) {
         UserDetailsImpl usuarioPrincipal = (UserDetailsImpl) authentication.getPrincipal();
         
@@ -38,6 +40,7 @@ public class JwtProvider {
             .compact();
     }
 
+    // Extrae el nombre de usuario (subject) desencriptando la firma del token.
     public String getUserNameFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody().getSubject();
     }

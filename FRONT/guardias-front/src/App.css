@@ -1,29 +1,4 @@
-/* =========================================================
-   CONFIGURACIÓN GENERAL
-========================================================= */
-
-* {
-  box-sizing: border-box;
-  scrollbar-width: thin;
-  scrollbar-color: #333333 #121212;
-}
-
-html,
-body,
-#root {
-  width: 100%;
-  height: 100%;
-  min-height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  background: #0a0a0a;
-  color: #ffffff;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
-
+/* Normalización de herencia para controles de formulario */
 button,
 input,
 select,
@@ -35,6 +10,7 @@ button {
   color: inherit;
 }
 
+/* Personalización de barra de desplazamiento para navegadores WebKit (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;

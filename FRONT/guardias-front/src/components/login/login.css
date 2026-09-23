@@ -1,14 +1,6 @@
-/* =========================================================
-   Login Screen — SGGS
-   Paleta oscura consistente con las vistas de admin/empleados:
-   - Fondo general:   #0a0a0a
-   - Superficies:     #1a1a1a
-   - Bordes sutiles:  #2a2a2a / #333
-   - Texto primario:  #ffffff
-   - Texto secundario:#888
-   ========================================================= */
+/* Estilos de la pantalla de Login (SGGS) */
 
-/* --- CONTENEDOR PRINCIPAL --- */
+/* Contenedor principal de la vista */
 .login-page {
   display: flex;
   justify-content: center;
@@ -18,7 +10,7 @@
   padding: 20px;
 }
 
-/* --- CARD CENTRAL --- */
+/* Tarjeta central */
 .login-card {
   background: #1a1a1a;
   border: 1px solid #2a2a2a;
@@ -44,7 +36,7 @@
   }
 }
 
-/* --- HEADER (escudo + título) --- */
+/* Encabezado: isotipo y títulos */
 .login-header {
   display: flex;
   flex-direction: column;
@@ -75,14 +67,13 @@
   letter-spacing: 0.3px;
 }
 
-/* --- FORMULARIO --- */
+/* Formulario e inputs */
 .login-form {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-/* --- GRUPO DE INPUT --- */
 .login-field {
   display: flex;
   flex-direction: column;
@@ -95,7 +86,6 @@
   font-weight: 500;
 }
 
-/* Wrapper del input con ícono */
 .login-input-wrapper {
   position: relative;
   display: flex;
@@ -138,12 +128,10 @@
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.04);
 }
 
-/* Input de contraseña con padding extra a la derecha para el toggle */
 .login-input--password {
   padding-right: 46px;
 }
 
-/* Toggle de visibilidad de contraseña */
 .login-toggle-password {
   position: absolute;
   right: 14px;
@@ -167,7 +155,7 @@
   height: 18px;
 }
 
-/* --- BOTÓN DE SUBMIT --- */
+/* Botón de envío y estado de carga */
 .login-submit {
   width: 100%;
   padding: 15px;
@@ -202,7 +190,6 @@
   cursor: not-allowed;
 }
 
-/* --- ESTADO DE CARGA --- */
 .login-submit--loading {
   display: flex;
   align-items: center;
@@ -225,7 +212,7 @@
   }
 }
 
-/* --- MENSAJE DE ERROR --- */
+/* Alerta y feedback de error */
 .login-error {
   background: rgba(244, 67, 54, 0.08);
   border: 1px solid rgba(244, 67, 54, 0.25);
@@ -274,7 +261,7 @@
   }
 }
 
-/* --- VALIDACIÓN DE INPUT --- */
+/* Indicadores de error en inputs */
 .login-input--invalid {
   border-color: rgba(244, 67, 54, 0.5);
 }

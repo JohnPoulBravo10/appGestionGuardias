@@ -1,5 +1,6 @@
 package com.jpbravo.solicitudes_service.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -12,22 +13,21 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Manejo global y centralizado de excepciones para el microservicio.
- * Devuelve respuestas JSON estandarizadas con timestamp, status, error y mensaje.
- */
+/* Manejo global y centralizado de excepciones para el microservicio.
+   Devuelve respuestas JSON estandarizadas con timestamp, status, error y mensaje. */
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /**
-     * Maneja errores de validación de entrada (Bean Validation).
-     * Devuelve un HTTP 400 con la lista de campos inválidos.
-     */
+    /* Maneja errores de validación de entrada (Bean Validation).
+       Devuelve un HTTP 400 con la lista de campos inválidos. */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationErrors(MethodArgumentNotValidException ex) {
         List<String> errores = ex.getBindingResult().getFieldErrors().stream()
                 .map(FieldError::getDefaultMessage)
                 .toList();
+
+        log.warn("Validación de entrada fallida en solicitud: {}", errores);
 
         Map<String, Object> body = buildResponseBody(
                 HttpStatus.BAD_REQUEST,
@@ -38,12 +38,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(body);
     }
 
-    /**
-     * Maneja solicitudes no encontradas.
-     * Devuelve un HTTP 404.
-     */
+    /* Maneja solicitudes no encontradas.
+       Devuelve un HTTP 404. */
     @ExceptionHandler(SolicitudNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleNotFound(SolicitudNotFoundException ex) {
+        log.warn("Solicitud no encontrada: {}", ex.getMessage());
+
         Map<String, Object> body = buildResponseBody(
                 HttpStatus.NOT_FOUND,
                 ex.getMessage(),
@@ -53,12 +53,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
-    /**
-     * Maneja transiciones de estado inválidas.
-     * Devuelve un HTTP 409 Conflict.
-     */
+    /* Maneja transiciones de estado inválidas.
+       Devuelve un HTTP 409 Conflict. */
     @ExceptionHandler(InvalidStateTransitionException.class)
     public ResponseEntity<Map<String, Object>> handleInvalidTransition(InvalidStateTransitionException ex) {
+        log.warn("Conflicto de estado en solicitud: {}", ex.getMessage());
+
         Map<String, Object> body = buildResponseBody(
                 HttpStatus.CONFLICT,
                 ex.getMessage(),
@@ -69,14 +69,7 @@ public class GlobalExceptionHandler {
     }
 
 
-    /**
-     * Construye el cuerpo de respuesta estándar para errores.
-     *
-     * @param status  código HTTP del error
-     * @param mensaje descripción del error
-     * @param detalles detalles adicionales (puede ser null)
-     * @return mapa con la estructura de respuesta
-     */
+    // Construye el cuerpo de respuesta estándar para errores.
     private Map<String, Object> buildResponseBody(HttpStatus status, String mensaje, Object detalles) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());

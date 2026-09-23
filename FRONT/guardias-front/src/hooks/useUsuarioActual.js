@@ -1,28 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { decodeJwtPayload } from '../utils/authUtils'
 
 const API_BASE_URL = 'http://localhost:8090'
 
-function decodeJwtPayload(token) {
-  const partes = token.split('.')
-
-  if (partes.length !== 3) {
-    throw new Error('Token JWT con formato inválido')
-  }
-
-  const payloadBase64 = partes[1]
-    .replace(/-/g, '+')
-    .replace(/_/g, '/')
-
-  const padding = '='.repeat(
-    (4 - (payloadBase64.length % 4)) % 4
-  )
-
-  const payloadJson = atob(payloadBase64 + padding)
-
-  return JSON.parse(payloadJson)
-}
-
+/**
+ * Hook para consultar y proveer los datos del empleado correspondiente al usuario autenticado.
+ */
 export default function useUsuarioActual() {
   const navigate = useNavigate()
   const navigateRef = useRef(navigate)
@@ -31,18 +15,12 @@ export default function useUsuarioActual() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
-  /*
-   * Conservamos siempre la versión actual de navigate,
-   * pero sin volver a ejecutar la consulta.
-   */
+  // Mantiene la referencia actualizada de navigate sin disparar re-ejecuciones de efectos
   useEffect(() => {
     navigateRef.current = navigate
   }, [navigate])
 
-  /*
-   * Este efecto se ejecuta una sola vez cuando se monta
-   * la barra lateral.
-   */
+  // Consulta el perfil del empleado al montar el hook
   useEffect(() => {
     const controller = new AbortController()
 
@@ -57,11 +35,14 @@ export default function useUsuarioActual() {
           navigateRef.current('/login', {
             replace: true,
           })
-
           return
         }
 
         const payload = decodeJwtPayload(token)
+
+        if (!payload) {
+          throw new Error('Token JWT con formato inválido o no se pudo decodificar')
+        }
 
         const usuarioId =
           payload.id || payload.usuarioId
@@ -85,10 +66,12 @@ export default function useUsuarioActual() {
         })
 
         if (!response.ok) {
+          // Si el token expiró o no está autorizado, limpiar sesión y redirigir a login
           if (
             response.status === 401 ||
             response.status === 403
           ) {
+            console.warn('[USE_USUARIO_ACTUAL] Sesión expirada o token no autorizado (401/403). Redirigiendo a /login')
             localStorage.removeItem('token')
 
             navigateRef.current('/login', {
@@ -112,6 +95,10 @@ export default function useUsuarioActual() {
         const datosEmpleado =
           await response.json()
 
+        console.info(
+          `[USE_USUARIO_ACTUAL] Perfil cargado para usuario ID ${usuarioId} (DNI: ${datosEmpleado.dni})`
+        )
+
         setEmpleado(datosEmpleado)
       } catch (err) {
         if (err.name === 'AbortError') {
@@ -119,7 +106,7 @@ export default function useUsuarioActual() {
         }
 
         console.error(
-          'Error al cargar datos del usuario:',
+          '[USE_USUARIO_ACTUAL] Error al cargar datos del usuario:',
           err
         )
 

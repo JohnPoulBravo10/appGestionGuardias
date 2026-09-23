@@ -13,14 +13,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-/**
- * Inicializador de datos de prueba para el servicio de guardias.
- * Crea 12 guardias distribuidas entre ayer, hoy, mañana y pasado mañana.
- * - Incluye un turno por cada rol (ENFERMERIA, LIMPIEZA, MANTENIMIENTO) por día.
- * - Las guardias de ayer están en estado COMPLETADA.
- * - Las demás están en estado ABIERTA.
- * - Todas se inician sin empleado asignado.
- */
+/* Inicializador de datos de prueba para el servicio de guardias
+   Crea 12 guardias distribuidas entre ayer, hoy, mañana y pasado mañana.
+   Incluye un turno por cada rol (ENFERMERIA, LIMPIEZA, MANTENIMIENTO) por día*/
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -28,6 +23,7 @@ public class DataInitializer implements CommandLineRunner {
 
     private final GuardiaRepository guardiaRepository;
 
+    // Devuelve el estado de la guardia según la hora actual
     private EstadoGuardia getEstadoHoy(LocalTime inicio, LocalTime fin) {
         LocalTime ahora = LocalTime.now();
         if (ahora.isAfter(fin) || ahora.equals(fin)) return EstadoGuardia.COMPLETADA;
@@ -37,11 +33,9 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        /*
-         * Se eliminan las guardias previas para garantizar que los datos
-         * de prueba siempre reflejen la definición actual del código,
-         * independientemente de reinicios con una BD persistente (MySQL).
-         */
+        /* Se eliminan las guardias previas para garantizar que los datos
+           de prueba siempre reflejen la definición actual del código,
+           independientemente de reinicios con una BD persistente (MySQL). */
         guardiaRepository.deleteAll();
         log.info("Datos previos eliminados. Insertando guardias de prueba…");
 

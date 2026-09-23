@@ -8,25 +8,14 @@ import {
 import useUsuarioActual from './useUsuarioActual'
 import { getToken } from '../utils/authUtils'
 
-/**
- * URL base del API Gateway.
- * Centralizada para evitar repetición en múltiples fetch.
- */
 const API_BASE_URL = 'http://localhost:8090'
 
 /**
- * Hook que encapsula la lógica del formulario "Solicitar Cambio de Guardia".
+ * Hook para la gestión del formulario de solicitud de cambio de guardia (vista Empleado).
+ * Permite listar guardias futuras disponibles (sin solicitud pendiente previa), listar compañeros del mismo rol y enviar la petición.
  *
- * Responsabilidades:
- * 1. Obtener los datos del empleado autenticado (nombre, DNI, rol).
- * 2. Cargar las guardias PRÓXIMAS asignadas al empleado (fecha ≥ hoy),
- *    excluyendo aquellas que ya tienen una solicitud PENDIENTE.
- * 3. Cargar los compañeros que comparten el mismo rol (excluyendo al propio).
- * 4. Gestionar el estado del formulario (guardia, compañero, motivo).
- * 5. Enviar la solicitud al solicitudes-service vía POST.
- *
- * @param {Object} [options] — opciones de configuración
- * @param {string} [options.initialGuardiaId] — ID de guardia a pre-seleccionar
+ * @param {Object} [options] - Opciones de inicialización
+ * @param {string} [options.initialGuardiaId] - ID de guardia a preseleccionar si viene desde otra vista
  */
 export default function useSolicitarCambio(options = {}) {
   const { initialGuardiaId = '' } = options
@@ -36,55 +25,40 @@ export default function useSolicitarCambio(options = {}) {
     error: errorEmpleado,
   } = useUsuarioActual()
 
-  /* ── Estado del formulario ── */
+  // Estado de inputs del formulario
   const [guardiaSeleccionada, setGuardiaSeleccionada] =
     useState('')
-
   const [companeroPropuesto, setCompaneroPropuesto] =
     useState('')
-
   const [motivo, setMotivo] = useState('')
 
-  /* ── Datos para los dropdowns ── */
+  // Opciones para selectores
   const [guardias, setGuardias] = useState([])
   const [companeros, setCompaneros] = useState([])
 
-  /* ── Estados de carga / envío ── */
+  // Flags de carga y envío
   const [cargandoGuardias, setCargandoGuardias] =
     useState(false)
-
   const [cargandoCompaneros, setCargandoCompaneros] =
     useState(false)
-
   const [enviando, setEnviando] = useState(false)
 
-  /* ── Feedback al usuario ── */
+  // Mensajes de error / éxito globales
   const [error, setError] = useState('')
   const [exito, setExito] = useState('')
 
-  /* ── Errores de validación por campo ── */
+  // Errores de validación individuales por campo
   const [errorGuardia, setErrorGuardia] = useState('')
   const [errorMotivo, setErrorMotivo] = useState('')
 
-  /**
-   * IDs de guardias que ya tienen una solicitud PENDIENTE.
-   * Se usa para excluirlas del dropdown.
-   */
+  // Conjunto de IDs de guardias con solicitudes PENDIENTES activas (para excluirlas)
   const [guardiasConSolicitudPendiente, setGuardiasConSolicitudPendiente] =
     useState(new Set())
 
-  /**
-   * Ref para evitar seleccionar automáticamente la guardia más de una vez.
-   */
+  // Evita re-aplicar la preselección inicial tras montarse
   const autoSeleccionAplicada = useRef(false)
 
-  /**
-   * Filtra las guardias dejando únicamente las que:
-   * - Tienen fecha igual o posterior a hoy.
-   * - Están en estado PROXIMA.
-   *
-   * Ordena el resultado por fecha + hora de inicio ascendente.
-   */
+  // Filtra guardias próximas (fecha >= hoy, estado PROXIMA) que no posean una solicitud pendiente y las ordena cronológicamente
   const filtrarGuardiasProximas = useCallback(
     (listaGuardias, idsConSolicitud) => {
       const hoy = new Date()
@@ -95,7 +69,6 @@ export default function useSolicitarCambio(options = {}) {
           if (!guardia.fecha) return false
           if (guardia.estado !== 'PROXIMA') return false
 
-          /* Excluir guardias que ya tienen una solicitud pendiente */
           if (idsConSolicitud.has(Number(guardia.id))) {
             return false
           }
@@ -121,10 +94,7 @@ export default function useSolicitarCambio(options = {}) {
     []
   )
 
-  /**
-   * Obtiene las solicitudes pendientes del empleado y devuelve
-   * un Set con los guardiaId que ya tienen solicitud.
-   */
+  // Obtiene el conjunto de IDs de guardias que ya tienen solicitud PENDIENTE para el empleado
   const cargarSolicitudesPendientes = useCallback(
     async (empleadoDni) => {
       try {
@@ -164,7 +134,7 @@ export default function useSolicitarCambio(options = {}) {
         return ids
       } catch (err) {
         console.error(
-          'Error al cargar solicitudes pendientes:',
+          '[USE_SOLICITAR_CAMBIO] Error al cargar solicitudes pendientes:',
           err
         )
 
@@ -174,11 +144,7 @@ export default function useSolicitarCambio(options = {}) {
     []
   )
 
-  /**
-   * Carga las guardias asignadas al empleado logueado,
-   * las filtra para mostrar solo las próximas y excluye
-   * aquellas que ya tienen una solicitud PENDIENTE.
-   */
+  // Consulta en paralelo las guardias asignadas y las solicitudes pendientes del empleado
   const cargarGuardias = useCallback(
     async (empleadoId) => {
       setCargandoGuardias(true)
@@ -190,10 +156,6 @@ export default function useSolicitarCambio(options = {}) {
           throw new Error('No hay una sesión iniciada.')
         }
 
-        /*
-         * Cargamos solicitudes pendientes en paralelo con las guardias
-         * para poder filtrarlas antes de setear el estado.
-         */
         const [responseGuardias, idsConSolicitud] =
           await Promise.all([
             fetch(
@@ -223,7 +185,7 @@ export default function useSolicitarCambio(options = {}) {
         )
       } catch (err) {
         console.error(
-          'Error al cargar guardias:',
+          '[USE_SOLICITAR_CAMBIO] Error al cargar guardias:',
           err
         )
 
@@ -238,10 +200,7 @@ export default function useSolicitarCambio(options = {}) {
     [filtrarGuardiasProximas, cargarSolicitudesPendientes]
   )
 
-  /**
-   * Carga los empleados que comparten el mismo rol,
-   * excluyendo al empleado que realiza la solicitud.
-   */
+  // Consulta compañeros con el mismo rol excluyendo al propio empleado
   const cargarCompaneros = useCallback(
     async (rol, dniPropio) => {
       setCargandoCompaneros(true)
@@ -273,10 +232,6 @@ export default function useSolicitarCambio(options = {}) {
         const data = await response.json()
         const lista = Array.isArray(data) ? data : []
 
-        /*
-         * Excluimos al propio empleado de la lista
-         * para que no se proponga a sí mismo.
-         */
         const sinElPropio = lista.filter(
           (emp) => String(emp.dni) !== String(dniPropio)
         )
@@ -284,7 +239,7 @@ export default function useSolicitarCambio(options = {}) {
         setCompaneros(sinElPropio)
       } catch (err) {
         console.error(
-          'Error al cargar compañeros:',
+          '[USE_SOLICITAR_CAMBIO] Error al cargar compañeros:',
           err
         )
 
@@ -299,10 +254,7 @@ export default function useSolicitarCambio(options = {}) {
     []
   )
 
-  /**
-   * Cuando los datos del empleado estén disponibles,
-   * disparamos la carga de guardias y compañeros.
-   */
+  // Dispara la carga de guardias y compañeros una vez obtenidos los datos del empleado
   useEffect(() => {
     if (!empleado) return
 
@@ -310,11 +262,7 @@ export default function useSolicitarCambio(options = {}) {
     cargarCompaneros(empleado.rol, empleado.dni)
   }, [empleado, cargarGuardias, cargarCompaneros])
 
-  /**
-   * Cuando las guardias terminan de cargar y hay un initialGuardiaId,
-   * lo selecciona automáticamente si existe en la lista filtrada.
-   * Se aplica una sola vez para no interferir con la interacción del usuario.
-   */
+  // Preselecciona la guardia inicial si se especificó vía options
   useEffect(() => {
     if (autoSeleccionAplicada.current) return
     if (!initialGuardiaId) return
@@ -336,27 +284,20 @@ export default function useSolicitarCambio(options = {}) {
     cargandoGuardias,
   ])
 
-  /**
-   * Resetea el formulario a su estado inicial.
-   */
+  // Restablece los campos del formulario
   const resetearFormulario = useCallback(() => {
     setGuardiaSeleccionada('')
     setCompaneroPropuesto('')
     setMotivo('')
   }, [])
 
-  /**
-   * Formatea "HH:MM:SS" o "HH:MM" a "HH:MM" para mostrar en el dropdown.
-   */
+  // Formatea hora a formato legible "HH:MM"
   const formatearHora = useCallback((hora) => {
     if (!hora) return '--:--'
     return hora.substring(0, 5)
   }, [])
 
-  /**
-   * Construye la etiqueta visible del dropdown de guardias.
-   * Ejemplo: "28/05/2026 (08:00 - 16:00) — ENFERMERIA"
-   */
+  // Genera el texto descriptivo para el selector de guardias
   const formatearOpcionGuardia = useCallback(
     (guardia) => {
       const fecha = guardia.fecha || 'Sin fecha'
@@ -373,14 +314,7 @@ export default function useSolicitarCambio(options = {}) {
     [formatearHora]
   )
 
-  /**
-   * Envía la solicitud de cambio de guardia al backend.
-   *
-   * Validaciones previas:
-   * - Guardia seleccionada obligatoria.
-   * - Motivo obligatorio.
-   * - Compañero propuesto es opcional.
-   */
+  // Valida y envía la solicitud de cambio de guardia al microservicio de solicitudes
   const enviarSolicitud = useCallback(
     async (event) => {
       event.preventDefault()
@@ -390,7 +324,6 @@ export default function useSolicitarCambio(options = {}) {
       setErrorGuardia('')
       setErrorMotivo('')
 
-      /* ── Validaciones por campo ── */
       let tieneErrores = false
 
       if (!guardiaSeleccionada) {
@@ -412,7 +345,6 @@ export default function useSolicitarCambio(options = {}) {
         return
       }
 
-      /* Buscamos la guardia seleccionada para armar el DTO */
       const guardia = guardias.find(
         (g) => String(g.id) === String(guardiaSeleccionada)
       )
@@ -433,11 +365,6 @@ export default function useSolicitarCambio(options = {}) {
           throw new Error('No hay una sesión iniciada.')
         }
 
-        /*
-         * Armamos el body según SolicitudRequestDto del backend.
-         * Los campos nombreEmpleadoReemplazo y empleadoReemplazoDni
-         * solo se incluyen si se eligió un compañero.
-         */
         const body = {
           nombreEmpleado:
             `${empleado.nombre} ${empleado.apellido}`,
@@ -452,7 +379,6 @@ export default function useSolicitarCambio(options = {}) {
           motivo: motivo.trim(),
         }
 
-        /* Si se seleccionó un compañero, agregamos sus datos */
         if (companeroPropuesto) {
           const companero = companeros.find(
             (c) =>
@@ -495,22 +421,23 @@ export default function useSolicitarCambio(options = {}) {
           throw new Error(mensaje)
         }
 
+        console.info(
+          `[USE_SOLICITAR_CAMBIO] Solicitud creada exitosamente para guardia ID ${guardia.id}`
+        )
+
         setExito(
           '¡Solicitud enviada correctamente! Será revisada por un administrador.'
         )
 
         resetearFormulario()
 
-        /*
-         * Recargamos la lista de guardias para que la guardia
-         * recién solicitada desaparezca del dropdown.
-         */
+        // Recarga la lista para que la guardia solicitada ya no esté disponible
         if (empleado?.dni) {
           cargarGuardias(empleado.dni)
         }
       } catch (err) {
         console.error(
-          'Error al enviar solicitud:',
+          '[USE_SOLICITAR_CAMBIO] Error al enviar solicitud:',
           err
         )
 
@@ -534,22 +461,18 @@ export default function useSolicitarCambio(options = {}) {
     ]
   )
 
-  /* ── Estado de carga general ── */
   const isLoading =
     cargandoEmpleado ||
     cargandoGuardias ||
     cargandoCompaneros
 
   return {
-    /* Datos del empleado logueado */
     empleado,
     errorEmpleado,
 
-    /* Dropdowns */
     guardias,
     companeros,
 
-    /* Estado del formulario */
     guardiaSeleccionada,
     setGuardiaSeleccionada,
 
@@ -559,13 +482,10 @@ export default function useSolicitarCambio(options = {}) {
     motivo,
     setMotivo,
 
-    /* Acciones */
     enviarSolicitud,
 
-    /* Utilidades de formato */
     formatearOpcionGuardia,
 
-    /* Estado de UI */
     isLoading,
     enviando,
     error,

@@ -10,38 +10,17 @@ import '../common.css'
 
 const API_BASE_URL = 'http://localhost:8090'
 
-/**
- * Modal que muestra la lista completa y navegable de notificaciones
- * del usuario autenticado.
- *
- * Se reutiliza la misma estética de notificaciones de PanelEmpleado
- * (clases empleado-notificacion-*) para mantener consistencia visual.
- *
- * Si el usuario es ADMINISTRADOR, también recupera las notificaciones
- * dirigidas al rol (endpoint /api/notificaciones/rol/{rol}) y las
- * combina con las personales, deduplicando por id.
- *
- * @param {boolean}  visible               - Controla la visibilidad del modal.
- * @param {Function} onCerrar              - Callback para cerrar el modal.
- * @param {Function} onNotificacionLeida   - Callback que se dispara al marcar
- *                                           una notificación como leída, para
- *                                           que el componente padre actualice
- *                                           indicadores (ej: punto blanco).
- */
+// Modal con la lista completa de notificaciones: combina notificaciones personales y por rol (para administradores) y permite marcarlas como leídas.
 function ModalNotificaciones({ visible, onCerrar, onNotificacionLeida }) {
-
   const [notificaciones, setNotificaciones] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   const dialogRef = useRef(null)
 
-  // ── Carga de notificaciones al abrir el modal ──
-
+  // Consulta notificaciones personales y globales por rol (si es admin) deduplicando por ID
   const cargarNotificaciones = useCallback(async () => {
-
     try {
-
       setLoading(true)
       setError(null)
 
@@ -62,7 +41,7 @@ function ModalNotificaciones({ visible, onCerrar, onNotificacionLeida }) {
         Authorization: `Bearer ${token}`,
       }
 
-      // Obtener notificaciones personales del empleado
+      // Notificaciones personales
       const responsePersonales = await fetch(
         `${API_BASE_URL}/api/notificaciones/empleado/${empleadoId}`,
         { method: 'GET', headers }
@@ -77,25 +56,20 @@ function ModalNotificaciones({ visible, onCerrar, onNotificacionLeida }) {
       const dataPersonales = await responsePersonales.json()
       let lista = Array.isArray(dataPersonales) ? dataPersonales : []
 
-      // Si el usuario es administrador, recuperar también
-      // las notificaciones dirigidas al rol ADMINISTRADOR
+      // Si el usuario es administrador, consultar también notificaciones globales del rol
       const rol = getRolFromToken()
 
       if (rol === 'ADMINISTRADOR') {
-
         try {
-
           const responseRol = await fetch(
             `${API_BASE_URL}/api/notificaciones/rol/${rol}`,
             { method: 'GET', headers }
           )
 
           if (responseRol.ok) {
-
             const dataRol = await responseRol.json()
             const listaRol = Array.isArray(dataRol) ? dataRol : []
 
-            // Combinar deduplicando por id
             const idsExistentes = new Set(lista.map((n) => n.id))
 
             const nuevasDeRol = listaRol.filter(
@@ -104,15 +78,12 @@ function ModalNotificaciones({ visible, onCerrar, onNotificacionLeida }) {
 
             lista = [...lista, ...nuevasDeRol]
           }
-
         } catch (errRol) {
-          // No interrumpir si falla la consulta por rol;
-          // las notificaciones personales siguen disponibles.
-          console.error('Error al obtener notificaciones por rol:', errRol)
+          console.error('[MODAL_NOTIFICACIONES] Error al obtener notificaciones por rol:', errRol)
         }
       }
 
-      // Ordenar por fecha de creación descendente (más recientes primero)
+      // Ordenar cronológicamente (más recientes primero)
       lista.sort((a, b) => {
         const fechaA = a.fechaCreacion ? new Date(a.fechaCreacion) : new Date(0)
         const fechaB = b.fechaCreacion ? new Date(b.fechaCreacion) : new Date(0)
@@ -120,14 +91,10 @@ function ModalNotificaciones({ visible, onCerrar, onNotificacionLeida }) {
       })
 
       setNotificaciones(lista)
-
     } catch (err) {
-
-      console.error('Error al cargar notificaciones en modal:', err)
+      console.error('[MODAL_NOTIFICACIONES] Error al cargar notificaciones en modal:', err)
       setError(err.message)
-
     } finally {
-
       setLoading(false)
     }
   }, [])
@@ -138,8 +105,7 @@ function ModalNotificaciones({ visible, onCerrar, onNotificacionLeida }) {
     }
   }, [visible, cargarNotificaciones])
 
-  // ── Cierre con Escape y bloqueo de scroll ──
-
+  // Cierra con Escape y bloquea el desplazamiento del body
   useEffect(() => {
     if (!visible) {
       return
@@ -160,12 +126,9 @@ function ModalNotificaciones({ visible, onCerrar, onNotificacionLeida }) {
     }
   }, [visible, onCerrar])
 
-  // ── Marcar notificación como leída ──
-
+  // Marca una notificación como leída y dispara los eventos/callbacks de sincronización
   const marcarComoLeida = async (id) => {
-
     try {
-
       const token = getToken()
 
       if (!token) {
@@ -199,26 +162,20 @@ function ModalNotificaciones({ visible, onCerrar, onNotificacionLeida }) {
         )
       )
 
-      // Notificar a otros componentes (ej: PanelEmpleado) para
-      // que sincronicen su lista de notificaciones
+      console.info(`[MODAL_NOTIFICACIONES] Notificación ID ${id} marcada como leída`)
       window.dispatchEvent(new CustomEvent('notificacion-leida'))
 
-      // Notificar al padre para que actualice el indicador
       if (onNotificacionLeida) {
         onNotificacionLeida()
       }
-
     } catch (err) {
-
-      console.error('Error al marcar notificación como leída:', err)
+      console.error('[MODAL_NOTIFICACIONES] Error al marcar notificación como leída:', err)
       setError('No se pudo marcar la notificación como leída.')
     }
   }
 
-  // ── Formato de fecha ──
-
+  // Formatea la fecha y hora de la notificación
   const formatearFechaNotificacion = (fecha) => {
-
     if (!fecha) {
       return ''
     }
@@ -231,8 +188,7 @@ function ModalNotificaciones({ visible, onCerrar, onNotificacionLeida }) {
     })
   }
 
-  // ── Cierre al hacer click en el overlay ──
-
+  // Cierra el modal si se hace clic fuera del diálogo
   const handleOverlayClick = (event) => {
     if (event.target === event.currentTarget) {
       onCerrar()
@@ -243,7 +199,6 @@ function ModalNotificaciones({ visible, onCerrar, onNotificacionLeida }) {
     return null
   }
 
-  // Calcular cantidad de no leídas para el badge del header
   const cantidadNoLeidas = notificaciones.filter(
     (n) => !n.leida
   ).length

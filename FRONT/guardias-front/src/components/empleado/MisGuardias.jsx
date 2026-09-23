@@ -1,7 +1,8 @@
 import {
   useEffect,
   useMemo,
-  useState, useCallback,
+  useState,
+  useCallback,
 } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -18,14 +19,7 @@ import {
 
 const API_BASE_URL = 'http://localhost:8090'
 
-/**
- * Pantalla "Mis Guardias" del módulo empleado.
- *
- * Muestra la tabla de guardias asignadas al empleado autenticado
- * con una columna "Acciones" que permite solicitar un cambio de guardia.
- * Si ya existe una solicitud PENDIENTE para una guardia, el botón
- * se deshabilita y muestra "Solicitud realizada".
- */
+// Pantalla de gestión de guardias del empleado: tabla de guardias activas y futuras con opción de solicitar cambio de turno.
 function MisGuardias() {
   const navigate = useNavigate()
 
@@ -44,20 +38,15 @@ function MisGuardias() {
   const [filtroFecha, setFiltroFecha] =
     useState('')
 
+  // Fecha actual para recalcular dinámicamente el estado cada minuto
   const [ahora, setAhora] =
     useState(new Date())
 
-  /**
-   * IDs de guardias que ya tienen una solicitud PENDIENTE.
-   * Se usa un Set para búsquedas O(1) al renderizar cada fila.
-   */
+  // Conjunto de IDs de guardias que ya tienen una solicitud de cambio PENDIENTE
   const [guardiasConSolicitud, setGuardiasConSolicitud] =
     useState(new Set())
 
-  /**
-   * Obtiene las solicitudes pendientes del empleado autenticado
-   * y extrae los guardiaId para saber qué guardias ya tienen solicitud.
-   */
+  // Consulta solicitudes pendientes del empleado para deshabilitar la acción en guardias ya solicitadas
   const obtenerSolicitudesPendientes = useCallback(
     async (empleadoDni) => {
       try {
@@ -82,10 +71,6 @@ function MisGuardias() {
 
         if (!Array.isArray(data)) return
 
-        /*
-         * Filtramos solo las solicitudes con estado PENDIENTE
-         * y extraemos el guardiaId del subdocumento infoGuardia.
-         */
         const ids = new Set(
           data
             .filter(
@@ -100,9 +85,8 @@ function MisGuardias() {
 
         setGuardiasConSolicitud(ids)
       } catch (err) {
-        /* Fallo silencioso: los botones quedarán habilitados */
         console.error(
-          'Error al obtener solicitudes pendientes:',
+          '[MIS_GUARDIAS] Error al obtener solicitudes pendientes:',
           err
         )
       }
@@ -125,6 +109,7 @@ function MisGuardias() {
     obtenerSolicitudesPendientes(empleadoId)
   }, [obtenerSolicitudesPendientes])
 
+  // Actualiza el reloj local cada 60 segundos
   useEffect(() => {
     const intervalo = setInterval(() => {
       setAhora(new Date())
@@ -135,6 +120,7 @@ function MisGuardias() {
     }
   }, [])
 
+  // Consulta las guardias asignadas al empleado autenticado
   const obtenerGuardias = async (
     empleadoId
   ) => {
@@ -195,7 +181,7 @@ function MisGuardias() {
       )
     } catch (errorPeticion) {
       console.error(
-        'Error al obtener guardias:',
+        '[MIS_GUARDIAS] Error al obtener guardias del empleado:',
         errorPeticion
       )
 
@@ -208,27 +194,18 @@ function MisGuardias() {
     }
   }
 
-  /**
-   * Determina si una guardia ya tiene una solicitud pendiente.
-   * @param {number|string} guardiaId — ID de la guardia
-   * @returns {boolean}
-   */
+  // Verifica si una guardia ya tiene una solicitud pendiente
   const tieneSolicitudPendiente = (guardiaId) =>
     guardiasConSolicitud.has(Number(guardiaId))
 
-  /**
-   * Navega a la pantalla de solicitud de cambio,
-   * pasando el ID de la guardia como state de navegación
-   * para que el formulario la pre-seleccione automáticamente.
-   *
-   * @param {number|string} guardiaId — ID de la guardia seleccionada
-   */
+  // Redirige al formulario de solicitud pasando el ID de la guardia en el state de navegación
   const solicitarCambio = (guardiaId) => {
     navigate('/empleado/solicitar-cambio', {
       state: { guardiaId: String(guardiaId) },
     })
   }
 
+  // Filtra guardias activas o futuras (excluyendo TERMINADAS) aplicando los filtros de estado y fecha
   const guardiasVisibles = useMemo(() => {
     return guardias.filter((guardia) => {
       const estadoCalculado =
@@ -262,6 +239,7 @@ function MisGuardias() {
     ahora,
   ])
 
+  // Restablece los filtros de búsqueda
   const limpiarFiltros = () => {
     setFiltroEstado('TODOS')
     setFiltroFecha('')

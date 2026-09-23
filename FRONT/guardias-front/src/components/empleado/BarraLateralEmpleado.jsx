@@ -8,6 +8,7 @@ import LogoutIcon from '../common/icons/LogoutIcon'
 import useUsuarioActual from '../../hooks/useUsuarioActual'
 import { cerrarSesion } from '../../utils/authUtils'
 
+// Barra lateral de navegación para el módulo de empleados: perfil del usuario, enlaces de navegación y modal de cierre de sesión.
 function BarraLateralEmpleado() {
   const navigate = useNavigate()
 
@@ -19,6 +20,7 @@ function BarraLateralEmpleado() {
     error,
   } = useUsuarioActual()
 
+  // Cierra sesión eliminando el token y redirige a la pantalla de login
   const confirmarCierreSesion = () => {
     cerrarSesion()
     setMostrarModal(false)
@@ -28,6 +30,7 @@ function BarraLateralEmpleado() {
     })
   }
 
+  // Clase dinámica para resaltar el ítem de navegación activo
   const claseMenu = ({ isActive }) =>
     `common-btn-menu ${isActive ? 'activo' : ''}`
 

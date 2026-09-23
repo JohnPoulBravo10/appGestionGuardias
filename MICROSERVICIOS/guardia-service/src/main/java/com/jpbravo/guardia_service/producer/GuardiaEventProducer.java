@@ -7,6 +7,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 
+// Productor Kafka responsable de publicar eventos de guardias.
 @Service
 @Slf4j
 public class GuardiaEventProducer {
@@ -28,6 +29,9 @@ public class GuardiaEventProducer {
     public void publicarEvento(
             GuardiaEvent evento
     ) {
+        log.info("Publicando evento de guardia (tipo: {}, ID: {}, empleadoId: {}) en topic '{}'",
+                evento.getTipoEvento(), evento.getGuardiaId(), evento.getEmpleadoId(), TOPIC);
+
         kafkaTemplate.send(
                 TOPIC,
                 String.valueOf(evento.getGuardiaId()),

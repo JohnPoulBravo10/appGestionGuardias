@@ -22,7 +22,7 @@
     </properties>
 
     <dependencies>
-        <!-- Dependencias de producción -->
+        <!-- Dependencias base para MongoDB, validación y REST web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
@@ -35,12 +35,14 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <!-- Cliente Eureka para descubrimiento de servicios -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
 
 
+        <!-- Utilidades (Lombok) para reducir verbosidad -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -53,10 +55,12 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Kafka para comunicación basada en eventos -->
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
         </dependency>
+        <!-- Resilience4j para tolerancia a fallos -->
         <dependency>
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-spring-boot3</artifactId>
@@ -67,6 +71,7 @@
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
     
+		<!-- Cliente Config Server para obtener configuración centralizada -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-config</artifactId>

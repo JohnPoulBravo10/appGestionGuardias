@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 
 import '../common.css'
 
+// Modal de mensaje informativo (éxito o advertencia) con soporte para cierre con Escape y clic en el fondo.
 function ModalMensaje({
   visible,
   tipo = 'exito',
@@ -9,6 +10,7 @@ function ModalMensaje({
   mensaje,
   onCerrar,
 }) {
+  // Manejo de tecla Escape y bloqueo de desplazamiento en el body
   useEffect(() => {
     if (!visible) {
       return
@@ -41,6 +43,7 @@ function ModalMensaje({
     return null
   }
 
+  // Cierra al hacer clic en el backdrop/overlay
   const cerrarDesdeFondo = (event) => {
     if (event.target === event.currentTarget) {
       onCerrar()

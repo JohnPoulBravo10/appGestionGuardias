@@ -11,6 +11,7 @@ import com.jpbravo.guardia_service.producer.GuardiaEventProducer;
 import com.jpbravo.guardia_service.repository.EmpleadoCacheRepository;
 import com.jpbravo.guardia_service.repository.GuardiaRepository;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class GuardiaService {
 
@@ -32,18 +34,22 @@ public class GuardiaService {
     @Autowired
     private GuardiaEventProducer guardiaEventProducer;
 
+    // Devuelve todas las guardias
     public List<Guardia> obtenerTodas() {
         return repository.findAll();
     }
 
+    // Devuelve las guardias activas
     public List<GuardiaResponseDto> obtenerGuardiasActivas() {
         return convertirGuardiasConEmpleado(repository.findByEstado(EstadoGuardia.ENCURSO));
     }
 
+    // Devuelve una guardia por su ID
     public Optional<Guardia> obtenerPorId(Long id) {
         return repository.findById(id);
     }
 
+    // Crea una guardia
     public Guardia guardarGuardia(Guardia guardia) {
 
         if (guardia.getEmpleadoId() == null) {
@@ -53,6 +59,10 @@ public class GuardiaService {
         }
 
         Guardia guardiaGuardada = repository.save(guardia);
+
+        log.info("Guardia ID {} creada exitosamente (Fecha: {}, Horario: {}-{}, Rol: {}, Estado: {})",
+                guardiaGuardada.getId(), guardiaGuardada.getFecha(), guardiaGuardada.getHoraInicio(),
+                guardiaGuardada.getHoraFin(), guardiaGuardada.getRol(), guardiaGuardada.getEstado());
 
         if (guardiaGuardada.getEmpleadoId() != null) {
 
@@ -73,12 +83,14 @@ public class GuardiaService {
         return guardiaGuardada;
     }
 
+    // Elimina una guardia
     public void eliminarGuardia(Long id) {
 
         Guardia guardia = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Guardia no encontrada"));
 
         repository.deleteById(id);
+        log.info("Guardia ID {} eliminada exitosamente", id);
 
         if (guardia.getEmpleadoId() != null) {
 
@@ -97,18 +109,17 @@ public class GuardiaService {
         }
     }
 
+    // Devuelve las guardias de un empleado
     public List<Guardia> obtenerGuardiasEmpleado(Long idEmpleado) {
         return repository.findByEmpleadoId(idEmpleado);
     }
 
+    // Devuelve las guardias por area
     public List<Guardia> obtenerGuardiasPorArea(Rol rol) {
         return repository.findByRol(rol);
     }
 
-    /*
-     * Método agregado para solicitudes-service.
-     * Permite cambiar solamente el empleado de una guardia.
-     */
+    // Permite cambiar solamente el empleado de una guardia.
     public Guardia reasignarEmpleado(Long guardiaId, Long empleadoId) {
 
         Guardia guardia = repository.findById(guardiaId)
@@ -124,9 +135,14 @@ public class GuardiaService {
             guardia.setEstado(EstadoGuardia.PROXIMA);
         }
 
-        return repository.save(guardia);
+        Guardia guardada = repository.save(guardia);
+        log.info("Guardia ID {} reasignada: empleado DNI={}, nuevo estado={}",
+                guardiaId, empleadoId, guardada.getEstado());
+
+        return guardada;
     }
 
+    // Actualiza una guardia
     public Guardia actualizarGuardia(Long id, Guardia guardiaActualizada) {
 
         Guardia guardia = repository.findById(id)
@@ -145,6 +161,9 @@ public class GuardiaService {
         }
 
         Guardia guardiaGuardada = repository.save(guardia);
+        log.info("Guardia ID {} actualizada exitosamente (Fecha: {}, Horario: {}-{}, Rol: {}, Estado: {})",
+                guardiaGuardada.getId(), guardiaGuardada.getFecha(), guardiaGuardada.getHoraInicio(),
+                guardiaGuardada.getHoraFin(), guardiaGuardada.getRol(), guardiaGuardada.getEstado());
 
         if (guardiaGuardada.getEmpleadoId() != null) {
 
@@ -165,14 +184,17 @@ public class GuardiaService {
         return guardiaGuardada;
     }
 
+    // Devuelve todas las guardias con información del empleado
     public List<GuardiaResponseDto> obtenerTodasConEmpleado() {
         return convertirGuardiasConEmpleado(repository.findAll());
     }
 
+    // Devuelve guardias por area con información del empleado
     public List<GuardiaResponseDto> obtenerPorAreaConEmpleado(Rol rol) {
         return convertirGuardiasConEmpleado(repository.findByRol(rol));
     }
 
+    // Convierte guardias a DTO con nombre de empleado
     private List<GuardiaResponseDto> convertirGuardiasConEmpleado(List<Guardia> guardias) {
 
         Map<Long, String> nombresEmpleados = new HashMap<>();
@@ -204,14 +226,7 @@ public class GuardiaService {
                 .toList();
     }
 
-    /**
-     * Resuelve el nombre completo de un empleado consultando la caché local.
-     * Reemplaza la antigua llamada HTTP síncrona a empleado-service,
-     * eliminando el acoplamiento temporal entre servicios.
-     *
-     * @param dni DNI del empleado a buscar en la caché
-     * @return nombre completo o mensaje de fallback si no se encuentra
-     */
+    // Resuelve el nombre completo de un empleado consultando la caché local.
     private String obtenerNombreEmpleado(Long dni) {
 
         Optional<EmpleadoCache> cacheOpt = empleadoCacheRepository.findById(dni);

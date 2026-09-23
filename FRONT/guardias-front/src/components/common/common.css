@@ -1,14 +1,6 @@
-/* ==========================================================================
-   COMMON.CSS — Estilos compartidos (layout, sidebar, modal, barra superior)
-   Prefijo: common-
-   ========================================================================== */
+/* Estilos compartidos (layout, barra lateral, barra superior y modales) */
 
-
-/* =========================================================
-   LAYOUT PRINCIPAL
-   Usado por: AdminLayout, EmpleadoLayout
-   ========================================================= */
-
+/* Layout principal (usado en AdminLayout y EmpleadoLayout) */
 .common-center {
   width: 100%;
   height: 100vh;
@@ -22,11 +14,7 @@
   overflow: hidden;
 }
 
-/* =========================================================
-   ÁREA DERECHA
-   Usado por: AdminLayout, EmpleadoLayout
-   ========================================================= */
-
+/* Área derecha (barra superior + contenido) */
 .common-area-derecha {
   flex: 1;
   min-width: 0;
@@ -40,11 +28,7 @@
   overflow: hidden;
 }
 
-/* =========================================================
-   CONTENIDO
-   Usado por: AdminLayout, EmpleadoLayout
-   ========================================================= */
-
+/* Contenedor de contenido scrollable */
 .common-contenedor-contenido {
   flex: 1;
 
@@ -63,11 +47,7 @@
   overflow-y: auto;
 }
 
-/* =========================================================
-   BARRA LATERAL
-   Usado por: BarraLateral (admin), BarraLateralEmpleado
-   ========================================================= */
-
+/* Barra lateral */
 .common-barralateral {
   width: 236px;
   min-width: 236px;
@@ -84,8 +64,7 @@
   overflow: hidden;
 }
 
-/* ── Perfil compacto ── */
-
+/* Perfil de usuario en la barra lateral */
 .common-perfil {
   width: 100%;
 
@@ -145,8 +124,7 @@
   text-transform: uppercase;
 }
 
-/* ── Menú ── */
-
+/* Menú de navegación */
 .common-menu {
   width: 100%;
   flex: 1;
@@ -156,11 +134,7 @@
   gap: 8px;
 }
 
-/* =========================================================
-   BOTÓN DE MENÚ
-   Usado por: BarraLateral (admin), BarraLateralEmpleado, BotonMenu
-   ========================================================= */
-
+/* Botones del menú */
 .common-btn-menu {
   position: relative;
 
@@ -213,8 +187,7 @@
   font-weight: 600;
 }
 
-/* ── Cerrar sesión ── */
-
+/* Botón cerrar sesión */
 .common-cerrar-sesion {
   width: 100%;
   min-height: 37px;
@@ -256,11 +229,7 @@
   margin-right: 10px;
 }
 
-/* =========================================================
-   BARRA SUPERIOR
-   Usado por: BarraSuperior
-   ========================================================= */
-
+/* Barra superior */
 .common-barra-superior {
   width: 100%;
   height: 64px;
@@ -308,8 +277,7 @@
   color: #ffffff;
 }
 
-/* ── Punto indicador de notificaciones no leídas ── */
-
+/* Indicador de notificaciones pendientes */
 .common-btn-notificacion-punto {
   position: absolute;
   top: 6px;
@@ -325,11 +293,7 @@
   pointer-events: none;
 }
 
-/* =========================================================
-   MODAL DE NOTIFICACIONES
-   Usado por: ModalNotificaciones
-   ========================================================= */
-
+/* Modal de notificaciones */
 .common-modal-dialogo-notificaciones {
   width: 100%;
   max-width: 800px;
@@ -351,8 +315,6 @@
 
   animation: common-slideUp 0.25s ease;
 }
-
-/* ── Header del modal ── */
 
 .common-modal-notif-header {
   display: flex;
@@ -404,8 +366,6 @@
   color: #ffffff;
 }
 
-/* ── Cuerpo scrollable ── */
-
 .common-modal-notif-cuerpo {
   flex: 1;
 
@@ -415,21 +375,13 @@
   overflow-x: hidden;
 }
 
-/* ── Responsive ── */
-
 @media (max-width: 860px) {
   .common-modal-dialogo-notificaciones {
     max-width: 95vw;
   }
 }
 
-/* =========================================================
-   MODALES COMUNES
-   Usado por:
-   - ModalConfirmacion
-   - ModalMensaje
-   ========================================================= */
-
+/* Modales comunes (confirmación y mensaje) */
 .common-modal-overlay {
   position: fixed;
   inset: 0;
@@ -467,10 +419,7 @@
   animation: common-slideUp 0.25s ease;
 }
 
-/* =========================================================
-   ÍCONOS DEL MODAL MENSAJE
-   ========================================================= */
-
+/* Íconos de estado para ModalMensaje */
 .common-modal-icono {
   width: 54px;
   height: 54px;
@@ -507,10 +456,7 @@
   background: rgba(255, 183, 77, 0.08);
 }
 
-/* =========================================================
-   TEXTOS
-   ========================================================= */
-
+/* Textos de modales */
 .common-modal-titulo {
   margin: 0 0 10px;
 
@@ -520,10 +466,7 @@
   font-weight: 700;
 }
 
-/*
- * ModalMensaje incluye un ícono.
- * En ese caso centramos título y mensaje.
- */
+/* Centrado de título si incluye ícono */
 .common-modal-icono+.common-modal-titulo {
   text-align: center;
 }
@@ -537,28 +480,19 @@
   line-height: 1.5;
 }
 
-/*
- * Si el modal tiene ícono, centramos también
- * el texto del mensaje.
- */
+/* Centrado del mensaje si incluye ícono */
 .common-modal-dialogo:has(.common-modal-icono) .common-modal-mensaje {
   text-align: center;
 }
 
-/* =========================================================
-   BOTONES
-   ========================================================= */
-
+/* Botones de acción en modales */
 .common-modal-acciones {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
 }
 
-/*
- * En ModalMensaje existe un solo botón.
- * Lo centramos y permitimos que tenga un ancho cómodo.
- */
+/* Centrado de acciones si incluye ícono */
 .common-modal-dialogo:has(.common-modal-icono) .common-modal-acciones {
   justify-content: center;
 }
@@ -593,8 +527,7 @@
   outline-offset: 3px;
 }
 
-/* Aceptar */
-
+/* Botón Aceptar */
 .common-modal-btn-aceptar {
   background: #ffffff;
   color: #000000;
@@ -609,8 +542,7 @@
   border-color: #949494;
 }
 
-/* Cancelar */
-
+/* Botón Cancelar */
 .common-modal-btn-cancelar {
   background: #252525;
   color: #cccccc;
@@ -625,12 +557,7 @@
   border-color: #4a4a4a;
 }
 
-/*
- * Este botón se usa en ModalConfirmacion.
- * Lo dejamos rojo porque confirma una acción delicada,
- * como eliminar.
- */
-
+/* Botón Confirmar (acción crítica / destructiva) */
 .common-modal-btn-confirmar {
   background: #c0392b;
   color: #ffffff;
@@ -640,14 +567,7 @@
   background: #e74c3c;
 }
 
-/*
- * En ModalMensaje el mismo botón "confirmar"
- * debe funcionar como Aceptar, no como eliminar.
- *
- * Como ModalMensaje tiene un ícono, aprovechamos
- * esa estructura para cambiar el botón.
- */
-
+/* Botón Confirmar dentro de modales informativos */
 .common-modal-dialogo:has(.common-modal-icono) .common-modal-btn-confirmar {
   min-width: 140px;
 
@@ -659,10 +579,7 @@
   background: #ffffff;
 }
 
-/* =========================================================
-   ANIMACIONES
-   ========================================================= */
-
+/* Animaciones */
 @keyframes common-fadeIn {
   from {
     opacity: 0;
@@ -689,10 +606,7 @@
   }
 }
 
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
-
+/* Responsive */
 @media (max-width: 500px) {
   .common-modal-dialogo {
     padding: 24px 20px 20px;
@@ -706,10 +620,6 @@
     width: 100%;
   }
 }
-
-/* =========================================================
-   RESPONSIVE — LAYOUT COMPARTIDO
-   ========================================================= */
 
 @media (max-width: 900px) {
   .common-barralateral {

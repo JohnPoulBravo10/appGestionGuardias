@@ -5,9 +5,9 @@ import {
   getRolFromToken,
 } from '../../utils/authUtils'
 
-/**
- * Mapeo de roles internos a etiquetas legibles para el usuario.
- */
+const API_BASE_URL = 'http://localhost:8090'
+
+// Mapeo de roles a nombres descriptivos para la interfaz
 const ETIQUETA_ROL = {
   ENFERMERIA: 'Enfermería',
   LIMPIEZA: 'Limpieza',
@@ -15,25 +15,15 @@ const ETIQUETA_ROL = {
   ADMINISTRADOR: 'Administración',
 }
 
-/**
- * Panel principal del administrador (sección "Inicio").
- *
- * Muestra:
- * - Tarjeta "Guardias Activas": recuento de guardias sucediendo ahora.
- * - Tarjeta "Personal de turno": empleados asignados a esas guardias activas.
- * - Tarjeta "Solicitudes Pendientes": recuento real obtenido del solicitudes-service.
- * - Tabla con el detalle de las guardias activas.
- */
+// Panel principal del administrador: tarjetas de resumen (guardias activas, solicitudes y notificaciones) y tabla en vivo.
 function PanelPrincipal() {
   const [guardiasActivas, setGuardiasActivas] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  /** Cantidad real de solicitudes pendientes obtenida del servicio */
   const [solicitudesPendientes, setSolicitudesPendientes] = useState(0)
   const [loadingSolicitudes, setLoadingSolicitudes] = useState(true)
 
-  /** Cantidad real de notificaciones no leídas (personales + rol admin) */
   const [cantidadNoLeidas, setCantidadNoLeidas] = useState(0)
 
   useEffect(() => {
@@ -42,10 +32,8 @@ function PanelPrincipal() {
     cargarNotificacionesNoLeidas()
   }, [])
 
-  // Escuchar cuando otro componente marca una notificación
-  // como leída, para sincronizar el conteo de la tarjeta
+  // Sincroniza el contador de notificaciones cuando se despacha el evento global 'notificacion-leida'
   useEffect(() => {
-
     const handleNotificacionLeida = () => {
       cargarNotificacionesNoLeidas()
     }
@@ -57,12 +45,13 @@ function PanelPrincipal() {
     }
   }, [])
 
+  // Consulta las guardias que se encuentran en curso en el momento actual
   const obtenerGuardiasActivas = async () => {
     try {
       const token = getToken()
       const headers = token ? { Authorization: `Bearer ${token}` } : {}
 
-      const response = await fetch('http://localhost:8090/api/guardias/activas', { headers })
+      const response = await fetch(`${API_BASE_URL}/api/guardias/activas`, { headers })
 
       if (!response.ok) {
         throw new Error('Error al obtener las guardias activas')
@@ -71,24 +60,21 @@ function PanelPrincipal() {
       const data = await response.json()
       setGuardiasActivas(data)
     } catch (err) {
-      console.error('Error al cargar guardias activas:', err)
+      console.error('[ADMIN_PANEL] Error al cargar guardias activas:', err)
       setError(err.message)
     } finally {
       setLoading(false)
     }
   }
 
-  /**
-   * Consulta al solicitudes-service la lista de solicitudes con estado
-   * PENDIENTE y almacena el recuento en el estado local.
-   */
+  // Obtiene la cantidad de solicitudes en estado PENDIENTE
   const obtenerSolicitudesPendientes = async () => {
     try {
       const token = getToken()
       const headers = token ? { Authorization: `Bearer ${token}` } : {}
 
       const response = await fetch(
-        'http://localhost:8090/api/solicitudes/estado/PENDIENTE',
+        `${API_BASE_URL}/api/solicitudes/estado/PENDIENTE`,
         { headers }
       )
 
@@ -101,22 +87,15 @@ function PanelPrincipal() {
       const data = await response.json()
       setSolicitudesPendientes(Array.isArray(data) ? data.length : 0)
     } catch (err) {
-      console.error('Error al cargar solicitudes pendientes:', err)
-      // En caso de fallo, se deja el contador en 0 para no bloquear el panel.
+      console.error('[ADMIN_PANEL] Error al cargar solicitudes pendientes:', err)
     } finally {
       setLoadingSolicitudes(false)
     }
   }
 
-  /**
-   * Carga las notificaciones no leídas del usuario autenticado.
-   * Combina las notificaciones personales con las del rol ADMINISTRADOR,
-   * deduplicando por id.
-   */
+  // Cuenta notificaciones no leídas combinando personales y por rol (ADMINISTRADOR) deduplicadas por ID
   const cargarNotificacionesNoLeidas = async () => {
-
     try {
-
       const empleadoId = getEmpleadoIdFromToken()
       const token = getToken()
 
@@ -131,7 +110,7 @@ function PanelPrincipal() {
 
       // Notificaciones personales
       const responsePersonales = await fetch(
-        `http://localhost:8090/api/notificaciones/empleado/${empleadoId}`,
+        `${API_BASE_URL}/api/notificaciones/empleado/${empleadoId}`,
         { method: 'GET', headers }
       )
 
@@ -142,15 +121,13 @@ function PanelPrincipal() {
         lista = Array.isArray(dataPersonales) ? dataPersonales : []
       }
 
-      // Notificaciones del rol ADMINISTRADOR
+      // Notificaciones globales del rol ADMINISTRADOR
       const rol = getRolFromToken()
 
       if (rol === 'ADMINISTRADOR') {
-
         try {
-
           const responseRol = await fetch(
-            `http://localhost:8090/api/notificaciones/rol/${rol}`,
+            `${API_BASE_URL}/api/notificaciones/rol/${rol}`,
             { method: 'GET', headers }
           )
 
@@ -158,37 +135,27 @@ function PanelPrincipal() {
             const dataRol = await responseRol.json()
             const listaRol = Array.isArray(dataRol) ? dataRol : []
 
-            // Combinar deduplicando por id
             const idsExistentes = new Set(lista.map((n) => n.id))
             const nuevasDeRol = listaRol.filter((n) => !idsExistentes.has(n.id))
             lista = [...lista, ...nuevasDeRol]
           }
-
         } catch (errRol) {
-          console.error('Error al obtener notificaciones por rol:', errRol)
+          console.error('[ADMIN_PANEL] Error al obtener notificaciones por rol:', errRol)
         }
       }
 
-      // Contar solo las no leídas
       setCantidadNoLeidas(lista.filter((n) => !n.leida).length)
-
     } catch (err) {
-      console.error('Error al cargar notificaciones no leídas:', err)
+      console.error('[ADMIN_PANEL] Error al cargar notificaciones no leídas:', err)
     }
   }
 
-  /** Cantidad de guardias activas en este momento */
   const cantidadGuardiasActivas = guardiasActivas.length
 
-  /**
-   * Formatea el nombre del rol para mostrarlo de forma legible.
-   * Si no existe en el mapeo, devuelve el valor original capitalizado.
-   */
+  // Obtiene la etiqueta amigable del rol
   const formatearRol = (rol) => ETIQUETA_ROL[rol] ?? rol
 
-  /**
-   * Formatea "HH:MM:SS" o "HH:MM" a "HH:MM" para mostrar en la tabla.
-   */
+  // Formatea horario a formato HH:MM
   const formatearHora = (hora) => {
     if (!hora) return '--:--'
     return hora.substring(0, 5)

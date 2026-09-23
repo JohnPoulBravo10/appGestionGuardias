@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-
+// DTO para la respuesta del servicio de guardias
 @Data
 @Builder
 @NoArgsConstructor

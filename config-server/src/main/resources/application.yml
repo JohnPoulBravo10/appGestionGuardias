@@ -9,12 +9,13 @@ spring:
     config:
       server:
         native:
+          # Ubicación donde se encuentran los archivos .yml o .properties para los demás microservicios
           search-locations: classpath:/config
 
 server:
   port: 8888
 
-# Observabilidad: Actuator + Prometheus (config-server no obtiene config de sí mismo)
+# Observabilidad: Configuración de endpoints de Actuator y métricas.
 management:
   endpoints:
     web:

@@ -4,11 +4,15 @@ import com.sistema.guardias.autenticacion_service.dto.RegistroRequestDto;
 import com.sistema.guardias.autenticacion_service.model.Rol;
 import com.sistema.guardias.autenticacion_service.repository.UsuarioRepository;
 import com.sistema.guardias.autenticacion_service.service.AuthService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/* Inicializa datos de prueba en la base de datos
+    Cuatro usuarios, uno por cada rol disponible*/
 @Configuration
+@Slf4j
 public class DataInitializer {
 
     @Bean
@@ -29,7 +33,7 @@ public class DataInitializer {
                     adminDto.setDireccion("Av. Principal 100");
 
                     authService.registrarSistema(adminDto);
-                    System.out.println("✓ Usuario de prueba creado: admin (rol: ADMINISTRADOR)");
+                    log.info("Usuario de prueba creado: admin (rol: ADMINISTRADOR)");
                 }
 
                 if (repository.findByUsuario("enfermeria").isEmpty()) {
@@ -46,7 +50,7 @@ public class DataInitializer {
                     enfermeriaDto.setDireccion("Calle Salud 200");
 
                     authService.registrarSistema(enfermeriaDto);
-                    System.out.println("✓ Usuario de prueba creado: enfermeria (rol: ENFERMERIA)");
+                    log.info("Usuario de prueba creado: enfermeria (rol: ENFERMERIA)");
                 }
 
                 if (repository.findByUsuario("mantenimiento").isEmpty()) {
@@ -63,7 +67,7 @@ public class DataInitializer {
                     mantenimientoDto.setDireccion("Calle Herramienta 300");
 
                     authService.registrarSistema(mantenimientoDto);
-                    System.out.println("✓ Usuario de prueba creado: mantenimiento (rol: MANTENIMIENTO)");
+                    log.info("Usuario de prueba creado: mantenimiento (rol: MANTENIMIENTO)");
                 }
 
                 if (repository.findByUsuario("limpieza").isEmpty()) {
@@ -80,10 +84,10 @@ public class DataInitializer {
                     limpiezaDto.setDireccion("Calle Escoba 400");
 
                     authService.registrarSistema(limpiezaDto);
-                    System.out.println("✓ Usuario de prueba creado: limpieza (rol: LIMPIEZA)");
+                    log.info("Usuario de prueba creado: limpieza (rol: LIMPIEZA)");
                 }
             } catch (Exception e) {
-                System.err.println("Error al inicializar datos: " + e.getMessage());
+                log.error("Error al inicializar datos: {}", e.getMessage());
             }
         };
     }

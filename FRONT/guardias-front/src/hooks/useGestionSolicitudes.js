@@ -2,44 +2,29 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { getToken } from '../utils/authUtils'
 
-/**
- * URL base del API Gateway.
- */
 const API_BASE_URL = 'http://localhost:8090'
 
 /**
- * Hook que encapsula la lógica de la pantalla "Solicitudes de Cambio"
- * en la vista de administrador.
- *
- * Responsabilidades:
- * 1. Cargar solicitudes con estado PENDIENTE.
- * 2. Cargar la lista completa de empleados (para el modal).
- * 3. Aprobar una solicitud (requiere empleado propuesto).
- * 4. Rechazar una solicitud (empleado propuesto opcional).
- * 5. Gestionar el estado del modal de resolución.
+ * Hook para la gestión y resolución de solicitudes de cambio de guardia (vista Administrador).
+ * Permite listar solicitudes pendientes, cargar empleados para reasignación y aprobar/rechazar peticiones.
  */
 export default function useGestionSolicitudes() {
-  /* ── Datos ── */
+  // Solicitudes pendientes y nómina de empleados
   const [solicitudes, setSolicitudes] = useState([])
   const [empleados, setEmpleados] = useState([])
 
-  /* ── Estado de carga ── */
+  // Estado de carga y error
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
 
-  /* ── Modal de resolución ── */
+  // Estado del modal de resolución (aprobar / rechazar)
   const [modalAbierto, setModalAbierto] = useState(false)
   const [solicitudActiva, setSolicitudActiva] =
     useState(null)
-
-  /** 'aprobar' | 'rechazar' */
   const [accionModal, setAccionModal] = useState('')
   const [procesando, setProcesando] = useState(false)
 
-  /**
-   * Construye los headers con el token JWT.
-   * Lanza un error si no hay sesión activa.
-   */
+  // Configura las cabeceras HTTP con el token de autorización
   const buildHeaders = useCallback((conBody = false) => {
     const token = getToken()
 
@@ -59,9 +44,7 @@ export default function useGestionSolicitudes() {
     return headers
   }, [])
 
-  /**
-   * Carga todas las solicitudes con estado PENDIENTE.
-   */
+  // Consulta solicitudes con estado PENDIENTE
   const cargarSolicitudes = useCallback(async () => {
     setCargando(true)
     setError('')
@@ -88,7 +71,7 @@ export default function useGestionSolicitudes() {
       )
     } catch (err) {
       console.error(
-        'Error al cargar solicitudes:',
+        '[USE_GESTION_SOLICITUDES] Error al cargar solicitudes:',
         err
       )
 
@@ -101,9 +84,7 @@ export default function useGestionSolicitudes() {
     }
   }, [buildHeaders])
 
-  /**
-   * Carga todos los empleados para el dropdown del modal.
-   */
+  // Consulta la lista de empleados para la reasignación en el modal
   const cargarEmpleados = useCallback(async () => {
     try {
       const response = await fetch(
@@ -127,26 +108,19 @@ export default function useGestionSolicitudes() {
       )
     } catch (err) {
       console.error(
-        'Error al cargar empleados:',
+        '[USE_GESTION_SOLICITUDES] Error al cargar empleados:',
         err
       )
     }
   }, [buildHeaders])
 
-  /**
-   * Carga inicial de datos.
-   */
+  // Carga inicial al montar el hook
   useEffect(() => {
     cargarSolicitudes()
     cargarEmpleados()
   }, [cargarSolicitudes, cargarEmpleados])
 
-  /**
-   * Abre el modal de resolución para una solicitud.
-   *
-   * @param {Object} solicitud — la solicitud seleccionada
-   * @param {'aprobar'|'rechazar'} accion — tipo de resolución
-   */
+  // Abre el modal de resolución configurando la solicitud y la acción ('aprobar' | 'rechazar')
   const abrirModal = useCallback(
     (solicitud, accion) => {
       setSolicitudActiva(solicitud)
@@ -156,24 +130,14 @@ export default function useGestionSolicitudes() {
     []
   )
 
-  /**
-   * Cierra el modal y resetea su estado.
-   */
+  // Cierra el modal y restablece la selección
   const cerrarModal = useCallback(() => {
     setModalAbierto(false)
     setSolicitudActiva(null)
     setAccionModal('')
   }, [])
 
-  /**
-   * Ejecuta la resolución de la solicitud (aprobar o rechazar).
-   *
-   * Al aprobar, el empleado propuesto es obligatorio.
-   * Al rechazar, es opcional.
-   *
-   * @param {Object} datos — { empleadoPropuestoDni, observacion }
-   * @returns {Promise<boolean>} true si la operación fue exitosa
-   */
+  // Envía la aprobación o rechazo de la solicitud al backend
   const resolverSolicitud = useCallback(
     async (datos) => {
       if (!solicitudActiva || !accionModal) return false
@@ -193,10 +157,7 @@ export default function useGestionSolicitudes() {
           body.observacion = datos.observacion.trim()
         }
 
-        /*
-         * Si el admin seleccionó un empleado de reemplazo,
-         * incluir su DNI (como número) y su nombre completo.
-         */
+        // Si se asignó un empleado de reemplazo, incluir DNI y nombre completo
         if (datos.empleadoPropuestoDni) {
           body.empleadoReemplazoDni = Number(
             datos.empleadoPropuestoDni
@@ -231,14 +192,15 @@ export default function useGestionSolicitudes() {
           throw new Error(mensaje)
         }
 
-        /*
-         * Removemos la solicitud resuelta de la lista local
-         * para evitar refetch innecesario.
-         */
+        // Remueve la solicitud resuelta de la lista local optimísticamente
         setSolicitudes((previas) =>
           previas.filter(
             (s) => s.id !== solicitudActiva.id
           )
+        )
+
+        console.info(
+          `[USE_GESTION_SOLICITUDES] Solicitud ID ${solicitudActiva.id} resuelta con éxito (${accionModal})`
         )
 
         cerrarModal()
@@ -246,7 +208,7 @@ export default function useGestionSolicitudes() {
         return true
       } catch (err) {
         console.error(
-          `Error al ${accionModal} solicitud:`,
+          `[USE_GESTION_SOLICITUDES] Error al ${accionModal} solicitud:`,
           err
         )
 
@@ -263,30 +225,26 @@ export default function useGestionSolicitudes() {
     [
       solicitudActiva,
       accionModal,
+      empleados,
       buildHeaders,
       cerrarModal,
     ]
   )
 
-  /**
-   * Formatea "HH:MM:SS" o "HH:MM" a "HH:MM".
-   */
+  // Formatea hora a formato legible "HH:MM"
   const formatearHora = useCallback((hora) => {
     if (!hora) return '--:--'
     return hora.substring(0, 5)
   }, [])
 
   return {
-    /* Datos */
     solicitudes,
     empleados,
 
-    /* Estado de carga */
     cargando,
     error,
     setError,
 
-    /* Modal */
     modalAbierto,
     solicitudActiva,
     accionModal,
@@ -295,7 +253,6 @@ export default function useGestionSolicitudes() {
     cerrarModal,
     resolverSolicitud,
 
-    /* Utilidades */
     formatearHora,
     recargar: cargarSolicitudes,
   }

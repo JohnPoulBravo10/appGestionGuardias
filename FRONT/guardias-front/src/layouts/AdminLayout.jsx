@@ -5,6 +5,7 @@ import BarraSuperior from '../components/common/layout/BarraSuperior'
 
 import '../components/admin/admin.css'
 
+// Estructura base para las vistas del Administrador: barra lateral, barra superior y contenedor de rutas anidadas (<Outlet />).
 function AdminLayout() {
   return (
     <section className="common-center">

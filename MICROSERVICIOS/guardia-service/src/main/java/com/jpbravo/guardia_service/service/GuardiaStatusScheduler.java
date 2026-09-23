@@ -14,12 +14,12 @@ public class GuardiaStatusScheduler {
 
     @Scheduled(cron = "0 * * * * *")
     public void checkAndUpdateGuardiaStatus() {
-        log.info("Ejecutando proceso automático de actualización de estados de guardias...");
+        log.debug("Ejecutando proceso automático de actualización de estados de guardias...");
 
         try {
             processor.procesarActualizacionDeEstados().join();
         } catch (Exception e) {
-            log.error("Error (Timeout o Retry Excedido) al procesar actualización de estados de guardias: {}", e.getMessage());
+            log.error("Error al procesar actualización automática de estados de guardias: {}", e.getMessage());
         }
     }
 }

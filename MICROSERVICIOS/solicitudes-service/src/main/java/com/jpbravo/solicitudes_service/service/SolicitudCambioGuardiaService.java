@@ -12,12 +12,14 @@ import com.jpbravo.solicitudes_service.model.SolicitudCambioGuardia;
 import com.jpbravo.solicitudes_service.producer.SolicitudEventProducer;
 import com.jpbravo.solicitudes_service.repository.SolicitudCambioGuardiaRepository;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 public class SolicitudCambioGuardiaService {
 
@@ -27,6 +29,7 @@ public class SolicitudCambioGuardiaService {
     @Autowired
     private SolicitudEventProducer solicitudEventProducer;
 
+    // Crea una nueva solicitud de cambio de guardia 
     public SolicitudResponseDto crearSolicitud(SolicitudRequestDto requestDto) {
 
         InfoGuardia infoGuardia = convertirInfoGuardia(requestDto.getInfoGuardia());
@@ -44,6 +47,10 @@ public class SolicitudCambioGuardiaService {
 
         SolicitudCambioGuardia guardada = repository.save(solicitud);
 
+        log.info("Solicitud de cambio creada exitosamente (ID: {}, Empleado: '{}' [DNI: {}], Guardia: {})",
+                guardada.getId(), guardada.getNombreEmpleado(), guardada.getEmpleadoDni(),
+                guardada.getInfoGuardia().getGuardiaId());
+
         SolicitudEvent evento = SolicitudEvent.builder()
                 .tipoEvento(TipoSolicitudEvent.SOLICITUD_CAMBIO_CREADA)
                 .solicitudId(guardada.getId())
@@ -59,12 +66,14 @@ public class SolicitudCambioGuardiaService {
         return convertirAResponseDto(guardada);
     }
 
+    // Obtiene todas las solicitudes de cambio de guardia
     public List<SolicitudResponseDto> obtenerTodas() {
         return repository.findAll().stream()
                 .map(this::convertirAResponseDto)
                 .toList();
     }
 
+    // Obtiene una solicitud por ID
     public SolicitudResponseDto obtenerPorId(String id) {
 
         SolicitudCambioGuardia solicitud = buscarSolicitudOFallar(id);
@@ -72,18 +81,21 @@ public class SolicitudCambioGuardiaService {
         return convertirAResponseDto(solicitud);
     }
 
+    // Obtiene las solicitudes de un empleado por su DNI
     public List<SolicitudResponseDto> obtenerPorEmpleado(String empleadoDni) {
         return repository.findByEmpleadoDni(empleadoDni).stream()
                 .map(this::convertirAResponseDto)
                 .toList();
     }
 
+    // Obtiene las solicitudes por estado
     public List<SolicitudResponseDto> obtenerPorEstado(EstadoSolicitud estado) {
         return repository.findByEstadoOrderByFechaCreacionDesc(estado).stream()
                 .map(this::convertirAResponseDto)
                 .toList();
     }
 
+    // Aprueba una solicitud de cambio de guardia
     public SolicitudResponseDto aprobarSolicitud(
             String id,
             String observacion,
@@ -105,6 +117,10 @@ public class SolicitudCambioGuardiaService {
 
         SolicitudCambioGuardia actualizada = repository.save(solicitud);
 
+        log.info("Solicitud ID {} aprobada (Guardia: {}, Reemplazo: '{}' [DNI: {}])",
+                actualizada.getId(), actualizada.getInfoGuardia().getGuardiaId(),
+                actualizada.getNombreEmpleadoReemplazo(), actualizada.getEmpleadoReemplazoDni());
+
         // El evento SOLICITUD_CAMBIO_ACEPTADA incluye los datos de reasignación
         // para que guardia-service los consuma de forma asíncrona vía Kafka.
         SolicitudEvent evento = SolicitudEvent.builder()
@@ -124,6 +140,7 @@ public class SolicitudCambioGuardiaService {
         return convertirAResponseDto(actualizada);
     }
 
+    // Rechaza una solicitud de cambio de guardia
     public SolicitudResponseDto rechazarSolicitud(String id, String observacion) {
 
         SolicitudCambioGuardia solicitud = buscarSolicitudOFallar(id);
@@ -135,6 +152,8 @@ public class SolicitudCambioGuardiaService {
         solicitud.setObservacionAdmin(observacion);
 
         SolicitudCambioGuardia actualizada = repository.save(solicitud);
+
+        log.info("Solicitud ID {} rechazada", actualizada.getId());
 
         SolicitudEvent evento = SolicitudEvent.builder()
                 .tipoEvento(TipoSolicitudEvent.SOLICITUD_CAMBIO_RECHAZADA)
@@ -152,9 +171,12 @@ public class SolicitudCambioGuardiaService {
         return convertirAResponseDto(actualizada);
     }
 
+    // Valida que la solicitud esté en estado PENDIENTE
     private void validarEstadoPendiente(SolicitudCambioGuardia solicitud, EstadoSolicitud estadoDeseado) {
 
         if (solicitud.getEstado() != EstadoSolicitud.PENDIENTE) {
+            log.warn("Transición de estado inválida para solicitud ID {}: estado actual '{}', estado deseado '{}'",
+                    solicitud.getId(), solicitud.getEstado(), estadoDeseado);
             throw new InvalidStateTransitionException(
                     solicitud.getEstado(),
                     estadoDeseado
@@ -162,11 +184,13 @@ public class SolicitudCambioGuardiaService {
         }
     }
 
+    // Busca una solicitud por ID o lanza excepción si no existe
     private SolicitudCambioGuardia buscarSolicitudOFallar(String id) {
         return repository.findById(id)
                 .orElseThrow(() -> new SolicitudNotFoundException(id));
     }
 
+    // Convierte InfoGuardiaDto a InfoGuardia
     private InfoGuardia convertirInfoGuardia(SolicitudRequestDto.InfoGuardiaDto dto) {
         return InfoGuardia.builder()
                 .guardiaId(dto.getGuardiaId())
@@ -177,6 +201,7 @@ public class SolicitudCambioGuardiaService {
                 .build();
     }
 
+    // Convierte SolicitudCambioGuardia a SolicitudResponseDto
     private SolicitudResponseDto convertirAResponseDto(SolicitudCambioGuardia solicitud) {
         return SolicitudResponseDto.builder()
                 .id(solicitud.getId())

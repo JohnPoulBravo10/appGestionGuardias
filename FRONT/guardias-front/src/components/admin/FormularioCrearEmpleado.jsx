@@ -2,6 +2,7 @@ import React, {
   useEffect,
   useState,
 } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import ModalMensaje from '../common/ui/ModalMensaje'
 
@@ -14,6 +15,7 @@ import {
 
 const API_BASE_URL = 'http://localhost:8090'
 
+// Mapea el rol del empleado al rol de usuario del sistema de autenticación
 function mapearRolUsuario(rolEmpleado) {
   return rolEmpleado === 'ADMINISTRADOR'
     ? 'ADMINISTRADOR'
@@ -32,23 +34,20 @@ const empleadoVacio = {
   direccion: '',
 }
 
-/**
- * Determina la clase CSS del input según si tiene error de validación.
- * Concatena la clase base con la clase de error cuando corresponde.
- */
+// Asigna clase de error visual al input si existe fallo de validación
 function claseInput(errorCampo) {
   return errorCampo
     ? 'admin-input-estilo admin-input-error'
     : 'admin-input-estilo'
 }
 
-function FormularioCrearEmpleado({
-  setPagina,
-  empleadoEditar,
-  setEmpleadoEditar,
-}) {
-  const esEdicion =
-    empleadoEditar != null
+// Formulario de registro y edición de empleados: valida datos de contacto/credenciales y envía a /auth/register o PUT /api/empleados/{dni}.
+function FormularioCrearEmpleado() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  
+  const empleadoEditar = location.state?.empleadoEditar || null
+  const esEdicion = empleadoEditar != null
 
   const [empleado, setEmpleado] =
     useState(
@@ -58,7 +57,6 @@ function FormularioCrearEmpleado({
   const [guardando, setGuardando] =
     useState(false)
 
-  /** Errores de validación: { campo: mensajeError } */
   const [errores, setErrores] =
     useState({})
 
@@ -70,6 +68,7 @@ function FormularioCrearEmpleado({
     volver: false,
   })
 
+  // Pre-carga datos si se trata de una edición o reinicia a estado vacío si es creación
   useEffect(() => {
     if (empleadoEditar) {
       setEmpleado({
@@ -81,14 +80,10 @@ function FormularioCrearEmpleado({
       setEmpleado(empleadoVacio)
     }
 
-    /* Limpiar errores al cambiar entre creación y edición */
     setErrores({})
   }, [empleadoEditar])
 
-  /**
-   * Actualiza un campo del formulario y limpia
-   * su error de validación asociado si existía.
-   */
+  // Actualiza un campo del formulario y elimina su error de validación previo
   const actualizarCampo = (
     campo,
     valor
@@ -98,7 +93,6 @@ function FormularioCrearEmpleado({
       [campo]: valor,
     }))
 
-    /* Limpiar el error del campo que se está corrigiendo */
     if (errores[campo]) {
       setErrores((erroresActuales) => {
         const nuevosErrores = {
@@ -111,8 +105,7 @@ function FormularioCrearEmpleado({
   }
 
   const volverAGestion = () => {
-    setEmpleadoEditar(null)
-    setPagina('GESTION EMPLEADOS')
+    navigate('/admin/empleados')
   }
 
   const cerrarModal = () => {
@@ -127,19 +120,11 @@ function FormularioCrearEmpleado({
     })
 
     if (debeVolver) {
-      setEmpleado(empleadoVacio)
-      setEmpleadoEditar(null)
-      setPagina('GESTION EMPLEADOS')
+      navigate('/admin/empleados')
     }
   }
 
-  /**
-   * Procesa la respuesta de error del backend y extrae
-   * errores de campo para mostrarlos inline.
-   *
-   * @param {Response} response - respuesta HTTP del backend
-   * @returns {boolean} true si se encontraron errores de campo
-   */
+  // Extrae errores de validación estructurados del backend si están presentes
   const procesarErroresBackend = async (
     response
   ) => {
@@ -162,12 +147,13 @@ function FormularioCrearEmpleado({
         return true
       }
     } catch {
-      /* Si no se puede parsear la respuesta, no hay errores de campo */
+      // Si la respuesta no es JSON, se maneja como error genérico
     }
 
     return false
   }
 
+  // Valida el formulario y despacha la creación (registro completo con credenciales) o actualización
   const guardarEmpleado = async (
     event
   ) => {
@@ -177,7 +163,7 @@ function FormularioCrearEmpleado({
       return
     }
 
-    /* ── Validación frontend ── */
+    // Validación exhaustiva en frontend
     const erroresValidacion =
       validarEmpleado(empleado, esEdicion)
 
@@ -186,7 +172,6 @@ function FormularioCrearEmpleado({
       return
     }
 
-    /* Limpiar errores previos antes de enviar */
     setErrores({})
 
     try {
@@ -234,11 +219,6 @@ function FormularioCrearEmpleado({
                 empleado.direccion?.trim() ??
                 '',
 
-              /*
-               * Conservamos usuarioId porque el
-               * empleado ya está relacionado con
-               * autenticacion-service.
-               */
               usuarioId:
                 empleado.usuarioId,
             }),
@@ -300,12 +280,6 @@ function FormularioCrearEmpleado({
       }
 
       if (!response.ok) {
-        /*
-         * Intentar extraer errores de campo del backend
-         * (usuario duplicado, DNI duplicado, validación Jakarta).
-         * Si el backend devuelve errores estructurados,
-         * se muestran inline y no se muestra el modal genérico.
-         */
         const tieneErroresCampo =
           await procesarErroresBackend(
             response
@@ -332,14 +306,12 @@ function FormularioCrearEmpleado({
           'application/json'
         )
       ) {
-        const data =
-          await response.json()
-
-        console.log(
-          'Empleado guardado:',
-          data
-        )
+        await response.json()
       }
+
+      console.info(
+        `[CREAR_EMPLEADO] Empleado ${esEdicion ? 'modificado' : 'creado'} exitosamente (DNI: ${empleado.dni}, Rol: ${empleado.rol})`
+      )
 
       setModal({
         visible: true,
@@ -357,7 +329,7 @@ function FormularioCrearEmpleado({
       })
     } catch (error) {
       console.error(
-        'Error al guardar empleado:',
+        '[CREAR_EMPLEADO] Error al guardar empleado:',
         error
       )
 

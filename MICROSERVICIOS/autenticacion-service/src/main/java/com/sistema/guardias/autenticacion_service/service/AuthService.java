@@ -10,6 +10,7 @@ import com.sistema.guardias.autenticacion_service.model.Usuario;
 import com.sistema.guardias.autenticacion_service.producer.UsuarioRegistradoProducer;
 import com.sistema.guardias.autenticacion_service.repository.UsuarioRepository;
 import com.sistema.guardias.autenticacion_service.security.JwtProvider;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,7 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+/* Servicio central para la lógica de registro y autenticación de usuarios. */
 @Service
+@Slf4j
 public class AuthService {
 
     @Autowired
@@ -38,16 +41,19 @@ public class AuthService {
     @Autowired
     private UsuarioRegistradoProducer usuarioRegistradoProducer;
 
+    // Registra un nuevo usuario público. No permite crear administradores.
     @Transactional
     public UsuarioResponseDto registrar(RegistroRequestDto dto) {
         if (com.sistema.guardias.autenticacion_service.model.Rol.ADMINISTRADOR.equals(dto.getRolUsuario()) || 
             "ADMINISTRADOR".equalsIgnoreCase(dto.getRolEmpleado())) {
+            log.warn("Intento denegado de registrar usuario ADMINISTRADOR por endpoint público. Usuario: {}", dto.getUsuario());
             throw new IllegalArgumentException("No está permitido crear usuarios administradores a través del registro público.");
         }
 
         return procesarRegistro(dto);
     }
 
+    // Registra un usuario interno del sistema (usado potencialmente por microservicios).
     @Transactional
     public UsuarioResponseDto registrarSistema(RegistroRequestDto dto) {
         return procesarRegistro(dto);
@@ -82,6 +88,9 @@ public class AuthService {
                 .build();
         
         usuarioRegistradoProducer.publicarEvento(evento);
+
+        log.info("Usuario '{}' registrado exitosamente (rol: {}, DNI: {})",
+                usuarioGuardado.getUsuario(), usuarioGuardado.getRol(), usuarioGuardado.getEmpleadoDni());
         
         return UsuarioResponseDto.builder()
                 .id(usuarioGuardado.getId())
@@ -92,15 +101,18 @@ public class AuthService {
                 .build();
     }
 
+    // Valida credenciales contra la BD y si son correctas delega la generación del JWT.
     public TokenDto login(LoginRequestDto dto) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(dto.getUsuario(), dto.getPassword())
         );
 
         String jwt = jwtProvider.generateToken(authentication);
+        log.info("Inicio de sesión exitoso para el usuario '{}'", dto.getUsuario());
         return new TokenDto(jwt);
     }
 
+    // Verifica criptográficamente que el token no ha sido alterado y no ha expirado.
     public TokenDto validate(String token) {
         if (!jwtProvider.validateToken(token)) {
             throw new RuntimeException("Token invalido");

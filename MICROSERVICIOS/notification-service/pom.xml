@@ -103,13 +103,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Pruebas de Kafka; la usaremos más adelante -->
-        <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
         <!-- Observabilidad: Prometheus + Loki (Actuator ya incluido) -->
         <dependency>
             <groupId>io.micrometer</groupId>

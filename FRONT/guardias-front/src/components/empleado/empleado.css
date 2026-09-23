@@ -1,18 +1,9 @@
-/* ==========================================================================
-   EMPLEADO.CSS — Estilos exclusivos del módulo empleado
-   Prefijo: empleado-
-   ========================================================================== */
+/* Estilos del módulo de Empleado (SGGS) */
 
-
-/* =========================================================
-   PANEL EMPLEADO (Dashboard)
-   Usado por: PanelEmpleado
-   ========================================================= */
-
+/* Panel principal (Dashboard) */
 .empleado-panel-principal {
   width: 100%;
   max-width: 960px;
-
   display: flex;
   flex-direction: column;
   gap: 28px;
@@ -20,16 +11,13 @@
 
 .empleado-panel-titulo {
   margin: 0;
-
   color: #ffffff;
-
   font-size: 1.15rem;
   font-weight: 600;
   letter-spacing: 0.04em;
 }
 
-/* ── Tarjetas de resumen ── */
-
+/* Tarjetas de métricas del panel */
 .empleado-panel-tarjetas {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -38,16 +26,12 @@
 
 .empleado-panel-tarjeta {
   padding: 20px 22px;
-
   display: flex;
   flex-direction: column;
   gap: 12px;
-
   background: #1a1a1a;
-
   border: 1px solid #2a2a2a;
   border-radius: 12px;
-
   transition:
     border-color 0.25s ease,
     box-shadow 0.25s ease;
@@ -60,7 +44,6 @@
 
 .empleado-tarjeta-label {
   color: #999999;
-
   font-size: 0.8rem;
   font-weight: 500;
   letter-spacing: 0.02em;
@@ -74,7 +57,6 @@
 
 .empleado-tarjeta-valor {
   color: #ffffff;
-
   font-size: 2.2rem;
   font-weight: 700;
   line-height: 1;
@@ -82,11 +64,9 @@
 
 .empleado-tarjeta-icono {
   color: #555555;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   transition: color 0.2s ease;
 }
 
@@ -96,18 +76,15 @@
 
 .empleado-tarjeta-cargando {
   color: #ffffff;
-
   font-size: 1rem;
 }
 
 .empleado-tarjeta-sin-datos {
   color: #999999;
-
   font-size: 0.85rem;
 }
 
-/* ── Próxima guardia (tarjeta especial) ── */
-
+/* Tarjeta de próxima guardia */
 .empleado-proxima-guardia-info {
   display: flex;
   flex-direction: column;
@@ -116,33 +93,26 @@
 
 .empleado-proxima-guardia-horario {
   color: #ffffff;
-
   font-size: 1rem;
   font-weight: 700;
 }
 
 .empleado-proxima-guardia-area {
   color: #999999;
-
   font-size: 0.8rem;
 }
 
-/* ── Contenedor inferior (notificaciones) ── */
-
+/* Contenedor de notificaciones en el panel */
 .empleado-panel-tabla-container {
   padding: 22px 24px;
-
   background: #1a1a1a;
-
   border: 1px solid #2a2a2a;
   border-radius: 12px;
 }
 
 .empleado-panel-tabla-titulo {
   margin: 0 0 16px;
-
   color: #cccccc;
-
   font-size: 0.95rem;
   font-weight: 600;
 }
@@ -151,9 +121,7 @@
 .empleado-panel-vacio {
   margin: 0;
   padding: 20px 0;
-
   color: #777777;
-
   font-size: 0.9rem;
   text-align: center;
 }
@@ -162,50 +130,35 @@
   color: #f44336;
 }
 
-/* =========================================================
-   MIS GUARDIAS (tabla de guardias del empleado)
-   Usado por: MisGuardias
-   ========================================================= */
-
+/* Tabla de guardias (Mis Guardias e Historial) */
 .empleado-tabla-container {
   width: 100%;
-
   padding: 24px;
-
   background: #1a1a1a;
-
   border: 1px solid #2a2a2a;
   border-radius: 12px;
 }
 
 .empleado-tabla-guardias {
   width: 100%;
-
   border-collapse: collapse;
   table-layout: auto;
 }
 
 .empleado-tabla-guardias th {
   padding: 14px;
-
   color: #888888;
-
   border-bottom: 1px solid #2a2a2a;
-
   font-size: 12px;
   font-weight: 600;
-
   text-align: left;
   text-transform: uppercase;
 }
 
 .empleado-tabla-guardias td {
   padding: 14px;
-
   color: #ffffff;
-
   border-bottom: 1px solid #222222;
-
   font-size: 13px;
 }
 
@@ -219,47 +172,31 @@
 
 .empleado-mensaje-error {
   color: #f44336;
-
   font-size: 0.9rem;
 }
 
-/* Errores de validación inline debajo de cada campo */
-
 .empleado-campo-error {
   color: #f44336;
-
   font-size: 0.82rem;
-
   margin: 2px 0 0;
   padding: 0;
 }
 
-/* =========================================================
-   ACCIONES DE TABLA
-   Usado por: MisGuardias (columna "Acciones")
-   ========================================================= */
-
+/* Acciones en filas de tabla */
 .empleado-acciones {
   display: flex;
   align-items: center;
   white-space: nowrap;
 }
 
-/* ── Botón "Solicitar Cambio" (activo) ── */
-
 .empleado-btn-solicitar-cambio {
   padding: 14px;
-
   background: transparent;
   color: #aaaaaa;
-
   border: none;
-
   cursor: pointer;
-
   font: inherit;
   line-height: 1;
-
   transition:
     color 0.2s ease,
     transform 0.15s ease;
@@ -278,19 +215,12 @@
   opacity: 0.5;
 }
 
-/* =========================================================
-   BADGES
-   Usado por: MisGuardias
-   ========================================================= */
-
+/* Badges de estado de guardia */
 .empleado-badge {
   display: inline-block;
-
   padding: 4px 10px;
-
   border: 1px solid transparent;
   border-radius: 12px;
-
   font-size: 12px;
 }
 
@@ -298,7 +228,6 @@
 .empleado-badge.activo,
 .empleado-badge.PROXIMA {
   color: #4caf50;
-
   background: rgba(76, 175, 80, 0.1);
   border-color: rgba(76, 175, 80, 0.3);
 }
@@ -307,64 +236,45 @@
 .empleado-badge.inactivo,
 .empleado-badge.ABIERTA {
   color: #f44336;
-
   background: rgba(244, 67, 54, 0.1);
   border-color: rgba(244, 67, 54, 0.3);
 }
 
-/* =========================================================
-   SOLICITAR CAMBIO DE GUARDIA
-   Usado por: SolicitarCambio
-   ========================================================= */
-
+/* Formulario de Solicitud de Cambio */
 .empleado-solicitar-cambio {
   width: 100%;
   max-width: 650px;
-
   margin: 0 auto;
   padding: 30px;
-
   background: #1a1a1a;
-
   border: 1px solid #2a2a2a;
   border-radius: 12px;
-
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
 }
 
 .empleado-titulo-formulario {
   margin: 0 0 25px;
-
   color: #ffffff;
-
   font-size: 1.4rem;
 }
 
 .empleado-label-form {
   display: block;
-
   margin-top: 15px;
   margin-bottom: 8px;
-
   color: #cccccc;
-
   font-size: 0.9rem;
 }
 
 .empleado-input-estilo {
   width: 100%;
   min-width: 0;
-
   padding: 12px;
-
   background: #0a0a0a;
   color: #ffffff;
-
   border: 1px solid #333333;
   border-radius: 8px;
-
   outline: none;
-
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease,
@@ -409,21 +319,15 @@
 
 .empleado-btn-enviar {
   width: 100%;
-
   margin-top: 15px;
   padding: 15px;
-
   background: #ffffff;
   color: #000000;
-
   border: none;
   border-radius: 8px;
-
   cursor: pointer;
-
   font-size: 1rem;
   font-weight: 700;
-
   transition:
     background-color 0.2s ease,
     transform 0.2s ease;
@@ -442,6 +346,7 @@
   cursor: not-allowed;
 }
 
+/* Colores de badges por estado dinámico */
 .estado-proxima {
   color: #64b5f6;
   background: rgba(100, 181, 246, 0.12);
@@ -466,29 +371,24 @@
   border-color: rgba(239, 83, 80, 0.35);
 }
 
+/* Barra de filtros */
 .empleado-filtros-guardias {
   display: flex;
   align-items: center;
   gap: 12px;
-
   margin: 18px 0 10px;
 }
 
 .empleado-input-filtro {
   min-width: 180px;
   min-height: 44px;
-
   padding: 10px 12px;
-
   border: 1px solid #383838;
   border-radius: 8px;
-
   background: #111111;
   color: #ffffff;
-
   font-size: 14px;
   font-family: inherit;
-
   outline: none;
   cursor: pointer;
 }
@@ -499,17 +399,12 @@
 
 .empleado-btn-limpiar-filtros {
   min-height: 44px;
-
   padding: 0 16px;
-
   border: 1px solid #424242;
   border-radius: 8px;
-
   background: #222222;
   color: #ffffff;
-
   font-weight: 600;
-
   cursor: pointer;
 }
 
@@ -520,7 +415,6 @@
 
 .empleado-contador-guardias {
   margin: 0 0 14px;
-
   color: #8f8f8f;
   font-size: 13px;
 }
@@ -537,10 +431,7 @@
   }
 }
 
-/* ================================
-   NOTIFICACIONES DEL EMPLEADO
-   ================================ */
-
+/* Lista de notificaciones */
 .empleado-notificaciones-header {
   display: flex;
   justify-content: space-between;
@@ -574,12 +465,9 @@
   grid-template-columns: minmax(0, 1fr) 120px 90px 120px;
   align-items: center;
   gap: 20px;
-
   min-height: 78px;
   padding: 15px 16px;
-
   border-top: 1px solid #292929;
-
   transition:
     background-color 0.2s ease,
     border-color 0.2s ease;
@@ -608,9 +496,7 @@
   width: 8px;
   height: 8px;
   margin-top: 7px;
-
   flex-shrink: 0;
-
   border-radius: 50%;
   background: #fff;
 }
@@ -644,11 +530,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   padding: 5px 9px;
-
   border-radius: 999px;
-
   font-size: 11px;
   font-weight: 600;
 }
@@ -670,17 +553,12 @@
 
 .empleado-btn-marcar-leida {
   padding: 7px 11px;
-
   border: 1px solid #363636;
   border-radius: 7px;
-
   background: transparent;
   color: #ccc;
-
   font-size: 12px;
-
   cursor: pointer;
-
   transition:
     background-color 0.2s ease,
     color 0.2s ease,
@@ -697,10 +575,7 @@
   color: #555;
 }
 
-/* =========================================================
-   RESPONSIVE — PANEL EMPLEADO
-   ========================================================= */
-
+/* Adaptación responsive */
 @media (max-width: 768px) {
   .empleado-panel-tarjetas {
     grid-template-columns: 1fr;

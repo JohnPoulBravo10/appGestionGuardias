@@ -1,16 +1,6 @@
 import { useState, useEffect } from 'react'
 
-/**
- * Modal de resolución de solicitudes de cambio de guardia.
- *
- * Permite al administrador:
- * - Modificar o asignar el empleado propuesto (obligatorio al aprobar).
- * - Añadir una observación de texto (siempre opcional).
- * - Confirmar la acción (aprobar / rechazar).
- *
- * Reutiliza los estilos `common-modal-*` del sistema de diseño compartido,
- * extendidos con clases `admin-modal-*` para los campos de formulario.
- */
+// Modal de resolución de solicitudes de cambio: permite aprobar (con asignación obligatoria de empleado) o rechazar una solicitud.
 function ModalResolucionSolicitud({
   visible,
   solicitud,
@@ -24,10 +14,7 @@ function ModalResolucionSolicitud({
   const [observacion, setObservacion] = useState('')
   const [errorLocal, setErrorLocal] = useState('')
 
-  /*
-   * Al abrirse el modal, pre-seleccionamos el empleado
-   * propuesto original si existe.
-   */
+  // Pre-selecciona el empleado propuesto si ya fue sugerido por el solicitante
   useEffect(() => {
     if (visible && solicitud) {
       setEmpleadoDni(
@@ -42,10 +29,7 @@ function ModalResolucionSolicitud({
 
   const esAprobacion = accion === 'aprobar'
 
-  /**
-   * Valida y envía la resolución.
-   * Al aprobar, el empleado propuesto es obligatorio.
-   */
+  // Valida que se haya seleccionado un empleado de reemplazo antes de aprobar
   const handleConfirmar = () => {
     setErrorLocal('')
 
@@ -62,10 +46,7 @@ function ModalResolucionSolicitud({
     })
   }
 
-  /**
-   * Filtra la lista de empleados para que no se pueda seleccionar el mismo empleado
-   * y que tenga el rol adecuado, segun el rol de la guardia.
-   */
+  // Filtra la lista de personal para requerir el mismo rol que la guardia y excluir al solicitante
   const filtrarEmpleados = (listEmpleados) => {
     return listEmpleados.filter((emp) => {
       return (
@@ -75,18 +56,14 @@ function ModalResolucionSolicitud({
     })
   }
 
-  /**
-   * Cierra el modal con Escape.
-   */
+  // Cierra con Escape si no hay una operación en curso
   const handleKeyDown = (event) => {
     if (event.key === 'Escape' && !procesando) {
       onCancelar()
     }
   }
 
-  /**
-   * Cierra el modal al hacer click en el overlay.
-   */
+  // Cierra al hacer clic en el fondo oscuro
   const handleOverlayClick = (event) => {
     if (
       event.target === event.currentTarget &&

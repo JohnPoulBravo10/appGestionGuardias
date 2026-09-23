@@ -10,6 +10,7 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 
+// Productor de eventos de solicitud
 @Service
 @Slf4j
 public class SolicitudEventProducer {
@@ -23,7 +24,8 @@ public class SolicitudEventProducer {
     @CircuitBreaker(name = "kafkaCB", fallbackMethod = "fallbackPublicacion")
     public void publicarEvento(SolicitudEvent evento) {
 
-        System.out.println("PUBLICANDO EVENTO DE SOLICITUD: " + evento);
+        log.info("Publicando evento de solicitud (tipo: {}, solicitudId: {}, empleadoDni: {}) en topic '{}'",
+                evento.getTipoEvento(), evento.getSolicitudId(), evento.getEmpleadoDni(), TOPIC);
 
         kafkaTemplate.send(TOPIC, evento);
     }

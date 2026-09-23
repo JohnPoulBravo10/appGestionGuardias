@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import {
   Navigate,
   Route,
@@ -32,27 +32,15 @@ import MisGuardias from './components/empleado/MisGuardias'
 import SolicitarCambio from './components/empleado/SolicitarCambio'
 import CalendarioMisGuardias from './components/empleado/CalendarioMisGuardias'
 
-const rutaPorPagina = {
-  INICIO: '/admin',
-  CALENDARIO: '/admin/calendario',
-
-  'GESTION EMPLEADOS': '/admin/empleados',
-  'CREAR EMPLEADO': '/admin/empleados/nuevo',
-
-  'GESTION GUARDIAS': '/admin/guardias',
-  'CREAR GUARDIAS': '/admin/guardias/nueva',
-  'EDITAR GUARDIA': '/admin/guardias/editar',
-
-  'HISTORIAL GUARDIAS': '/admin/historial-guardias',
-  SOLICITUDES: '/admin/solicitudes',
-}
-
+// Componente raíz de la aplicación: define el enrutamiento general y el título dinámico.
 function App() {
   const navigate = useNavigate()
   const location = useLocation()
 
+  // Actualiza dinámicamente el título del documento según el prefijo de la ruta activa
   useEffect(() => {
     const path = location.pathname
+    console.info(`[APP] Navegación a ruta: ${path}`)
 
     if (path.startsWith('/admin')) {
       document.title = 'SGGS — Vista Administrador'
@@ -65,29 +53,15 @@ function App() {
     }
   }, [location.pathname])
 
-  const [empleadoEditar, setEmpleadoEditar] = useState(null)
-  const [guardiaEditar, setGuardiaEditar] = useState(null)
-
-  const setPagina = (nombrePagina) => {
-    const ruta = rutaPorPagina[nombrePagina]
-
-    if (!ruta) {
-      console.error(
-        `No existe una ruta para la página: ${nombrePagina}`
-      )
-      return
-    }
-
-    navigate(ruta)
-  }
-
   return (
     <Routes>
+      {/* Redirección por defecto a Login */}
       <Route
         path="/"
         element={<Navigate to="/login" replace />}
       />
 
+      {/* Ruta pública: Formulario de inicio de sesión */}
       <Route
         path="/login"
         element={
@@ -97,9 +71,7 @@ function App() {
         }
       />
 
-      {/* =========================
-          RUTAS DE ADMINISTRADOR
-          ========================= */}
+      {/* Rutas de Administrador: anidadas bajo AdminLayout (barra de navegación y estructura común) */}
       <Route
         path="/admin"
         element={<AdminLayout />}
@@ -117,51 +89,35 @@ function App() {
         <Route
           path="empleados"
           element={
-            <GestionEmpleados
-              setPagina={setPagina}
-              setEmpleadoEditar={setEmpleadoEditar}
-            />
+            <GestionEmpleados />
           }
         />
 
         <Route
           path="empleados/nuevo"
           element={
-            <FormularioCrearEmpleado
-              setPagina={setPagina}
-              empleadoEditar={empleadoEditar}
-              setEmpleadoEditar={setEmpleadoEditar}
-            />
+            <FormularioCrearEmpleado />
           }
         />
 
         <Route
           path="guardias"
           element={
-            <GestionGuardias
-              setPagina={setPagina}
-              setGuardiaEditar={setGuardiaEditar}
-            />
+            <GestionGuardias />
           }
         />
 
         <Route
           path="guardias/nueva"
           element={
-            <FormularioCrearGuardias
-              setPagina={setPagina}
-            />
+            <FormularioCrearGuardias />
           }
         />
 
         <Route
           path="guardias/editar"
           element={
-            <EditarGuardia
-              setPagina={setPagina}
-              guardiaEditar={guardiaEditar}
-              setGuardiaEditar={setGuardiaEditar}
-            />
+            <EditarGuardia />
           }
         />
 
@@ -176,9 +132,7 @@ function App() {
         />
       </Route>
 
-      {/* =========================
-          RUTAS DE EMPLEADO
-          ========================= */}
+      {/* Rutas de Empleado: anidadas bajo EmpleadoLayout */}
       <Route
         path="/empleado"
         element={<EmpleadoLayout />}
@@ -209,6 +163,7 @@ function App() {
         />
       </Route>
 
+      {/* Ruta comodín (404): Redirige y muestra acción para volver al login */}
       <Route
         path="*"
         element={
@@ -217,7 +172,10 @@ function App() {
 
             <button
               type="button"
-              onClick={() => navigate('/login')}
+              onClick={() => {
+                console.warn(`[APP] Redirigiendo desde ruta no encontrada (${location.pathname}) hacia /login`)
+                navigate('/login')
+              }}
             >
               Volver al login
             </button>

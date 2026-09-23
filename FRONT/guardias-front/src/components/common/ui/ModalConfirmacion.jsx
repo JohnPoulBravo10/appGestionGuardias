@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import '../common.css'
 
+// Modal de confirmación genérico: solicita confirmación al usuario ante acciones críticas (ej: cerrar sesión o eliminar).
 function ModalConfirmacion({
   visible,
   titulo,
@@ -10,6 +11,7 @@ function ModalConfirmacion({
 }) {
   const dialogRef = useRef(null)
 
+  // Cierra con Escape y bloquea el scroll de la página mientras el modal esté visible
   useEffect(() => {
     if (!visible) {
       return
@@ -34,6 +36,7 @@ function ModalConfirmacion({
     return null
   }
 
+  // Cierra el modal al hacer clic en el backdrop/overlay
   const handleOverlayClick = (event) => {
     if (event.target === event.currentTarget) {
       onCancelar()

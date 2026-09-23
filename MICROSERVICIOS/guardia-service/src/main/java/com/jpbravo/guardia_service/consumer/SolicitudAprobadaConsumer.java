@@ -3,25 +3,20 @@ package com.jpbravo.guardia_service.consumer;
 import com.jpbravo.guardia_service.event.SolicitudAprobadaEvent;
 import com.jpbravo.guardia_service.service.GuardiaService;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 
-/**
- * Consumidor Kafka que reacciona a eventos de solicitud de cambio de guardia
- * emitidos por solicitudes-service.
- *
- * <p>Al recibir un evento de tipo {@code SOLICITUD_CAMBIO_ACEPTADA}, reasigna
- * el empleado de la guardia indicada al empleado de reemplazo.
- * Los demás tipos de evento (CREADA, RECHAZADA) se ignoran.</p>
- */
+/* Consumidor Kafka que reacciona a eventos de solicitud de cambio de guardia
+   emitidos por solicitudes-service.
+   Al recibir un evento de tipo SOLICITUD_CAMBIO_ACEPTADA, reasigna
+   el empleado de la guardia indicada al empleado de reemplazo.
+   Los demás tipos de evento (CREADA, RECHAZADA) se ignoran. */
+@Slf4j
 @Service
 public class SolicitudAprobadaConsumer {
-
-    private static final Logger log = LoggerFactory.getLogger(SolicitudAprobadaConsumer.class);
 
     private final GuardiaService guardiaService;
 

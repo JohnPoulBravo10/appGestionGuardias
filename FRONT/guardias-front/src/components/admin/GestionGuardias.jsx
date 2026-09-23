@@ -3,6 +3,7 @@ import React, {
   useMemo,
   useState,
 } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import {
   calcularEstadoGuardia,
@@ -17,10 +18,9 @@ import { getToken } from '../../utils/authUtils'
 
 const API_BASE_URL = 'http://localhost:8090'
 
-function GestionGuardias({
-  setPagina,
-  setGuardiaEditar,
-}) {
+// Pantalla de gestión de guardias: listado, filtros, creación, edición y eliminación de guardias activas o futuras.
+function GestionGuardias() {
+  const navigate = useNavigate()
   const [guardias, setGuardias] =
     useState([])
 
@@ -58,6 +58,7 @@ function GestionGuardias({
     obtenerGuardias()
   }, [])
 
+  // Actualiza la referencia temporal cada minuto para recalcular el estado en vivo de las guardias
   useEffect(() => {
     const intervalo = setInterval(() => {
       setAhora(new Date())
@@ -68,10 +69,10 @@ function GestionGuardias({
     }
   }, [])
 
+  // Carga todas las guardias desde el backend
   const obtenerGuardias = async () => {
     try {
       setLoading(true)
-
       const token = getToken()
       const headers = token ? { Authorization: `Bearer ${token}` } : {}
 
@@ -93,7 +94,7 @@ function GestionGuardias({
       )
     } catch (error) {
       console.error(
-        'Error al obtener guardias:',
+        '[GESTION_GUARDIAS] Error al obtener guardias:',
         error
       )
     } finally {
@@ -101,6 +102,7 @@ function GestionGuardias({
     }
   }
 
+  // Filtra guardias (excluyendo terminadas que van a Historial) y las ordena cronológicamente
   const guardiasVisibles = useMemo(() => {
     const textoNormalizado =
       textoBusqueda
@@ -123,7 +125,7 @@ function GestionGuardias({
             ahora
           )
 
-        // Las guardias terminadas se visualizan en HistorialGuardias
+        // Las guardias terminadas se visualizan exclusivamente en HistorialGuardias
         if (estadoCalculado === 'TERMINADA') {
           return false
         }
@@ -157,7 +159,6 @@ function GestionGuardias({
         )
       })
       .sort((a, b) => {
-        // Ordenar por fecha ascendente; si coinciden, por hora de inicio
         const comparacionFecha =
           (a.fecha ?? '').localeCompare(
             b.fecha ?? ''
@@ -180,6 +181,7 @@ function GestionGuardias({
     ahora,
   ])
 
+  // Abre el modal de confirmación para eliminar una guardia
   const solicitarEliminarGuardia = (
     guardia
   ) => {
@@ -190,6 +192,7 @@ function GestionGuardias({
     setGuardiaAEliminar(null)
   }
 
+  // Ejecuta el borrado de la guardia en el servidor
   const confirmarEliminacion = async () => {
     if (!guardiaAEliminar) {
       return
@@ -224,6 +227,10 @@ function GestionGuardias({
           )
       )
 
+      console.info(
+        `[GESTION_GUARDIAS] Guardia ID ${id} eliminada correctamente`
+      )
+
       setModal({
         visible: true,
         tipo: 'exito',
@@ -233,7 +240,7 @@ function GestionGuardias({
       })
     } catch (error) {
       console.error(
-        'Error al eliminar guardia:',
+        '[GESTION_GUARDIAS] Error al eliminar guardia:',
         error
       )
 
@@ -256,11 +263,12 @@ function GestionGuardias({
     }))
   }
 
+  // Redirige al formulario de edición enviando la guardia en el estado de navegación
   const editarGuardia = (guardia) => {
-    setGuardiaEditar(guardia)
-    setPagina('EDITAR GUARDIA')
+    navigate('/admin/guardias/editar', { state: { guardiaEditar: guardia } })
   }
 
+  // Restablece los filtros aplicados
   const limpiarFiltros = () => {
     setTextoBusqueda('')
     setFiltroArea('TODAS')
@@ -278,7 +286,7 @@ function GestionGuardias({
             type="button"
             className="admin-btn-nuevo"
             onClick={() =>
-              setPagina('CREAR GUARDIAS')
+              navigate('/admin/guardias/nueva')
             }
           >
             + Crear Guardia

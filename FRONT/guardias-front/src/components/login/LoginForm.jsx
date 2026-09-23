@@ -2,6 +2,7 @@ import ShieldIcon from '../common/icons/ShieldIcon'
 import LoginInput from './LoginInput'
 import useLoginForm from '../../hooks/useLoginForm'
 
+// Componente de formulario de autenticación: tarjeta central con inputs de credenciales y feedback de error.
 function LoginForm() {
   const {
     usuario,
@@ -111,6 +112,7 @@ function LoginForm() {
   )
 }
 
+// Ícono SVG de usuario
 function UserIcon() {
   return (
     <svg
@@ -128,6 +130,7 @@ function UserIcon() {
   )
 }
 
+// Ícono SVG de candado para contraseña
 function LockIcon() {
   return (
     <svg
@@ -153,6 +156,7 @@ function LockIcon() {
   )
 }
 
+// Ícono SVG de advertencia para mensajes de error
 function AlertIcon() {
   return (
     <svg

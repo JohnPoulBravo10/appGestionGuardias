@@ -4,17 +4,13 @@ import useUsuarioActual from '../../hooks/useUsuarioActual'
 
 const API_BASE_URL = 'http://localhost:8090'
 
+// Vista de calendario mensual para empleados: muestra las guardias del área correspondiente al empleado autenticado.
 function CalendarioMisGuardias() {
-  /*
-   * Fecha del mes que estamos mirando.
-   */
+  // Fecha de referencia para el mes visualizado
   const [fechaActual, setFechaActual] =
     useState(new Date())
 
-  /*
-   * Guardias pertenecientes al área
-   * del empleado autenticado.
-   */
+  // Lista de guardias del área del empleado
   const [guardias, setGuardias] =
     useState([])
 
@@ -24,12 +20,7 @@ function CalendarioMisGuardias() {
   const [error, setError] =
     useState('')
 
-  /*
-   * Este hook obtiene al empleado autenticado.
-   *
-   * Necesitamos principalmente:
-   * empleado.rol
-   */
+  // Obtiene los datos del empleado autenticado para conocer su rol/área
   const {
     empleado,
     isLoading: cargandoEmpleado,
@@ -64,11 +55,7 @@ function CalendarioMisGuardias() {
     'Sáb',
   ]
 
-  /*
-   * Cuando finalmente tenemos los datos del empleado,
-   * usamos su rol para pedir solamente las guardias
-   * de su área.
-   */
+  // Consulta al backend únicamente las guardias pertenecientes al área del empleado
   useEffect(() => {
     if (!empleado?.rol) {
       return
@@ -88,11 +75,6 @@ function CalendarioMisGuardias() {
             method: 'GET',
             headers: {
               Accept: 'application/json',
-
-              /*
-               * Se envía el token si tus rutas
-               * están protegidas.
-               */
               ...(token && {
                 Authorization: `Bearer ${token}`,
               }),
@@ -111,7 +93,7 @@ function CalendarioMisGuardias() {
         setGuardias(data)
       } catch (err) {
         console.error(
-          'Error al cargar guardias del área:',
+          '[CALENDARIO_EMPLEADO] Error al cargar guardias del área:',
           err
         )
 
@@ -126,9 +108,7 @@ function CalendarioMisGuardias() {
     obtenerGuardiasDelArea()
   }, [empleado?.rol])
 
-  /*
-   * Construcción de los casilleros del calendario.
-   */
+  // Cálculo de casilleros y desplazamiento para armar la cuadrícula mensual
   const diasDelMes = new Date(
     anio,
     mes + 1,
@@ -161,6 +141,7 @@ function CalendarioMisGuardias() {
     diasCalendario.push(null)
   }
 
+  // Navegación de mes anterior / siguiente
   const mesAnterior = () => {
     setFechaActual(
       new Date(anio, mes - 1, 1)
@@ -173,11 +154,7 @@ function CalendarioMisGuardias() {
     )
   }
 
-  /*
-   * Aunque el empleado solamente ve su área,
-   * mantenemos las clases para reutilizar
-   * los colores del calendario administrador.
-   */
+  // Retorna la clase CSS correspondiente según el estado o área de la guardia
   const obtenerClaseGuardia = (
     guardia
   ) => {
@@ -219,13 +196,7 @@ function CalendarioMisGuardias() {
     return clase
   }
 
-  /*
-   * Filtra por día, mes y año.
-   *
-   * No necesitamos filtrar nuevamente por área,
-   * porque el backend ya devolvió únicamente
-   * el área del empleado.
-   */
+  // Filtra las guardias correspondientes a un día específico del mes y año en curso
   const obtenerGuardiasDelDia = (
     dia
   ) => {

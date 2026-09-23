@@ -3,6 +3,7 @@ import React, {
   useMemo,
   useState,
 } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import ModalConfirmacion from '../common/ui/ModalConfirmacion'
 import ModalMensaje from '../common/ui/ModalMensaje'
@@ -11,10 +12,9 @@ import { getToken } from '../../utils/authUtils'
 
 const API_BASE_URL = 'http://localhost:8090'
 
-function GestionEmpleados({
-  setPagina,
-  setEmpleadoEditar,
-}) {
+// Pantalla de gestión de empleados: listado, filtros, búsqueda, ordenamiento dinámico, alta y baja lógica del personal.
+function GestionEmpleados() {
+  const navigate = useNavigate()
   const [empleados, setEmpleados] =
     useState([])
 
@@ -42,6 +42,7 @@ function GestionEmpleados({
     mensaje: '',
   })
 
+  // Carga la lista completa de empleados desde el backend
   const fetchEmpleados = async () => {
     try {
       setLoading(true)
@@ -67,7 +68,7 @@ function GestionEmpleados({
       )
     } catch (error) {
       console.error(
-        'Error al obtener empleados:',
+        '[GESTION_EMPLEADOS] Error al obtener empleados:',
         error
       )
 
@@ -87,6 +88,7 @@ function GestionEmpleados({
     fetchEmpleados()
   }, [])
 
+  // Aplica filtros de búsqueda textual y área, junto con el ordenamiento seleccionado
   const empleadosVisibles = useMemo(() => {
     const textoNormalizado =
       textoBusqueda
@@ -183,13 +185,14 @@ function GestionEmpleados({
     orden,
   ])
 
+  // Redirige al formulario enviando el empleado a editar
   const editarEmpleado = (
     empleado
   ) => {
-    setEmpleadoEditar(empleado)
-    setPagina('CREAR EMPLEADO')
+    navigate('/admin/empleados/nuevo', { state: { empleadoEditar: empleado } })
   }
 
+  // Abre el modal de confirmación de baja lógica
   const solicitarEliminarEmpleado = (
     empleado
   ) => {
@@ -200,6 +203,7 @@ function GestionEmpleados({
     setEmpleadoAEliminar(null)
   }
 
+  // Ejecuta la baja lógica del empleado en el backend
   const confirmarEliminacion =
     async () => {
       if (!empleadoAEliminar) {
@@ -236,6 +240,10 @@ function GestionEmpleados({
             )
         )
 
+        console.info(
+          `[GESTION_EMPLEADOS] Empleado DNI ${empleadoAEliminar.dni} dado de baja exitosamente`
+        )
+
         setModal({
           visible: true,
           tipo: 'exito',
@@ -245,7 +253,7 @@ function GestionEmpleados({
         })
       } catch (error) {
         console.error(
-          'Error al eliminar empleado:',
+          '[GESTION_EMPLEADOS] Error al dar de baja al empleado:',
           error
         )
 
@@ -280,10 +288,7 @@ function GestionEmpleados({
             type="button"
             className="admin-btn-nuevo"
             onClick={() => {
-              setEmpleadoEditar(null)
-              setPagina(
-                'CREAR EMPLEADO'
-              )
+              navigate('/admin/empleados/nuevo')
             }}
           >
             + Nuevo Empleado

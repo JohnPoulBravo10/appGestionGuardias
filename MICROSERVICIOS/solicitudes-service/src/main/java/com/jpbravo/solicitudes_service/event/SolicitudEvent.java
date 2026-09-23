@@ -27,7 +27,6 @@ public class SolicitudEvent {
 
     private String observacionAdmin;
 
-    /** DNI del empleado de reemplazo asignado al aprobar la solicitud. */
     private Long empleadoReemplazoDni;
 
     private LocalDateTime fechaEvento;

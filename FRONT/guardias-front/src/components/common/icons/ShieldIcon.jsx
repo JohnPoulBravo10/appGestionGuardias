@@ -1,3 +1,4 @@
+// Ícono SVG de escudo (isotipo del sistema SGGS)
 function ShieldIcon({ className = '' }) {
   return (
     <svg

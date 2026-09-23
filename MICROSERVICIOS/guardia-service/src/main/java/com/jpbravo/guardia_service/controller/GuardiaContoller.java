@@ -8,6 +8,7 @@ import com.jpbravo.guardia_service.model.Rol;
 import com.jpbravo.guardia_service.service.GuardiaService;
 import com.jpbravo.guardia_service.validation.GuardiaValidator;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/guardias")
 public class GuardiaContoller {
@@ -28,6 +30,7 @@ public class GuardiaContoller {
     @Autowired
     private GuardiaValidator guardiaValidator;
 
+    // Devuelve todas las guardias existentes
     @GetMapping
     public ResponseEntity<List<GuardiaResponseDto>>
             listarGuardias(@RequestHeader(value = "X-User-Roles", required = false) String roles) {
@@ -40,6 +43,7 @@ public class GuardiaContoller {
         return ResponseEntity.ok(guardias);
     }
 
+    // Devuelve todas las guardias activas
     @GetMapping("/activas")
     public ResponseEntity<List<GuardiaResponseDto>>
             listarGuardiasActivas(@RequestHeader(value = "X-User-Roles", required = false) String roles) {
@@ -51,6 +55,7 @@ public class GuardiaContoller {
         return ResponseEntity.ok(guardias);
     }
 
+    // Devuelve guardias por area
     @GetMapping("/area/{rol}")
     public ResponseEntity<List<GuardiaResponseDto>>
             obtenerGuardiasPorArea(
@@ -66,6 +71,7 @@ public class GuardiaContoller {
         return ResponseEntity.ok(guardias);
     }
 
+    // Devuelve guardias por empleado
     @GetMapping("/empleado/{idEmpleado}")
     public ResponseEntity<List<Guardia>>
             obtenerGuardiasEmpleado(
@@ -84,6 +90,7 @@ public class GuardiaContoller {
         return ResponseEntity.ok(guardias);
     }
 
+    // Devuelve una guardia por su ID
     @GetMapping("/{id}")
     public ResponseEntity<Guardia>
             obtenerGuardia(
@@ -100,6 +107,7 @@ public class GuardiaContoller {
                 );
     }
 
+    // Crea una guardia
     @PostMapping
     public ResponseEntity<?> crearGuardia(
             @Valid @RequestBody CrearGuardiaDto dto,
@@ -118,6 +126,7 @@ public class GuardiaContoller {
                 );
 
         if (!erroresHorario.isEmpty()) {
+            log.warn("Petición rechazada por horarios de guardia inválidos al crear: {}", erroresHorario);
             Map<String, Object> respuesta = new HashMap<>();
             respuesta.put("errores", erroresHorario);
 
@@ -136,6 +145,7 @@ public class GuardiaContoller {
                 .body(guardiaCreada);
     }
 
+    // Elimina una guardia
     @DeleteMapping("/{id}")
     public ResponseEntity<Void>
             eliminarGuardia(
@@ -151,6 +161,7 @@ public class GuardiaContoller {
                 .build();
     }
 
+    // Actualiza una guardia
     @PutMapping("/{id}")
     public ResponseEntity<?>
             actualizarGuardia(
@@ -172,6 +183,7 @@ public class GuardiaContoller {
                 );
 
         if (!erroresHorario.isEmpty()) {
+            log.warn("Petición rechazada por horarios de guardia inválidos al actualizar guardia ID {}: {}", id, erroresHorario);
             Map<String, Object> respuesta = new HashMap<>();
             respuesta.put("errores", erroresHorario);
 
@@ -194,10 +206,8 @@ public class GuardiaContoller {
         );
     }
 
-    /**
-     * Convierte un DTO de creación/edición a la entidad Guardia.
-     * El estado se determina en el service según si tiene empleado asignado.
-     */
+    /* Convierte un DTO de creación/edición a la entidad Guardia.
+       El estado se determina en el service según si tiene empleado asignado. */
     private Guardia convertirDtoAEntidad(CrearGuardiaDto dto) {
         return Guardia.builder()
                 .fecha(dto.getFecha())
@@ -212,14 +222,19 @@ public class GuardiaContoller {
         return roles != null && roles.contains("ADMIN");
     }
 
+    // Requiere que el usuario sea admin
     private void requireAdmin(String roles) {
         if (!isAdmin(roles)) {
+            log.warn("Acceso denegado: se requiere rol ADMIN (roles recibidos: '{}')", roles);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado: Se requiere rol ADMIN");
         }
     }
 
+    // Requiere que el usuario sea admin o el dueño de la guardia
     private void requireAdminOrOwner(String roles, String userDni, Long targetDni) {
         if (!isAdmin(roles) && (userDni == null || !userDni.equals(String.valueOf(targetDni)))) {
+            log.warn("Acceso denegado: recurso no pertenece al usuario autenticado (roles: '{}', userToken: '{}', target: '{}')",
+                    roles, userDni, targetDni);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acceso denegado: No tiene permisos para este recurso");
         }
     }

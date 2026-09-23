@@ -3,25 +3,11 @@ import { useLocation } from 'react-router-dom'
 import useSolicitarCambio from '../../hooks/useSolicitarCambio'
 import ModalMensaje from '../common/ui/ModalMensaje'
 
-/**
- * Formulario para que un empleado solicite un cambio de guardia.
- *
- * - El dropdown de guardias muestra las guardias próximas
- *   asignadas al empleado autenticado (estado PROXIMA, fecha ≥ hoy),
- *   excluyendo aquellas que ya tienen una solicitud pendiente.
- * - El dropdown de compañeros lista empleados del mismo rol,
- *   excluyendo al propio empleado.
- * - Al enviar, se crea una solicitud en el solicitudes-service.
- * - Si se navega desde "Mis Guardias" con un guardiaId en el state,
- *   esa guardia se pre-selecciona automáticamente.
- */
+// Formulario para solicitar cambio de guardia: selección de guardia propia, postulación opcional de compañero y motivo.
 function SolicitarCambio() {
   const location = useLocation()
 
-  /*
-   * Leemos el guardiaId pasado como state de navegación
-   * desde la pantalla "Mis Guardias" (o vacío si se accede directamente).
-   */
+  // Lee el ID de guardia si fue transferido por state desde "Mis Guardias" para preselección
   const guardiaIdDesdeNavegacion =
     location.state?.guardiaId || ''
 
@@ -63,14 +49,14 @@ function SolicitarCambio() {
           Solicitar Cambio de Guardia
         </h2>
 
-        {/* ── Mensaje de error general ── */}
+        {/* Mensaje de error general */}
         {error && (
           <p className="empleado-mensaje-error">
             {error}
           </p>
         )}
 
-        {/* ── Dropdown: Guardia a cambiar ── */}
+        {/* Selector de guardia a cambiar */}
         <label
           className="empleado-label-form"
           htmlFor="guardia-cambiar"
@@ -105,14 +91,13 @@ function SolicitarCambio() {
           ))}
         </select>
 
-        {/* Error inline: guardia */}
         {errorGuardia && (
           <p className="empleado-campo-error">
             {errorGuardia}
           </p>
         )}
 
-        {/* ── Dropdown: Compañero propuesto ── */}
+        {/* Selector de compañero propuesto (opcional) */}
         <label
           className="empleado-label-form"
           htmlFor="companero-propuesto"
@@ -153,7 +138,7 @@ function SolicitarCambio() {
           la asigne.
         </p>
 
-        {/* ── Textarea: Motivo del cambio ── */}
+        {/* Motivo de la solicitud */}
         <label
           className="empleado-label-form"
           htmlFor="motivo-cambio"
@@ -172,14 +157,13 @@ function SolicitarCambio() {
           disabled={enviando}
         />
 
-        {/* Error inline: motivo */}
         {errorMotivo && (
           <p className="empleado-campo-error">
             {errorMotivo}
           </p>
         )}
 
-        {/* ── Botón de envío ── */}
+        {/* Botón de envío */}
         <div className="empleado-contenedor-boton">
           <button
             type="submit"
@@ -193,7 +177,7 @@ function SolicitarCambio() {
         </div>
       </form>
 
-      {/* ── Modal de éxito ── */}
+      {/* Modal de confirmación exitosa */}
       <ModalMensaje
         visible={!!exito}
         tipo="exito"

@@ -7,6 +7,7 @@ import {
 
 const API_BASE_URL = 'http://localhost:8090'
 
+// Mapeo de roles a nombres descriptivos
 const ETIQUETA_ROL = {
   ENFERMERIA: 'Enfermería',
   LIMPIEZA: 'Limpieza',
@@ -14,8 +15,8 @@ const ETIQUETA_ROL = {
   ADMINISTRADOR: 'Administración',
 }
 
+// Panel principal del empleado (Dashboard): resumen de próxima guardia, horas del mes y notificaciones pendientes.
 function PanelEmpleado() {
-
   const [guardias, setGuardias] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -29,10 +30,8 @@ function PanelEmpleado() {
     cargarNotificacionesEmpleado()
   }, [])
 
-  // Escuchar cuando otro componente (ej: ModalNotificaciones)
-  // marca una notificación como leída, para sincronizar la lista
+  // Sincroniza las notificaciones cuando otro componente (ej: modal o barra superior) marca alguna como leída
   useEffect(() => {
-
     const handleNotificacionLeida = () => {
       cargarNotificacionesEmpleado()
     }
@@ -44,10 +43,9 @@ function PanelEmpleado() {
     }
   }, [])
 
+  // Consulta al backend las guardias asignadas al empleado autenticado
   const cargarGuardiasEmpleado = async () => {
-
     try {
-
       setLoading(true)
       setError(null)
 
@@ -81,22 +79,17 @@ function PanelEmpleado() {
       const data = await response.json()
 
       setGuardias(Array.isArray(data) ? data : [])
-
     } catch (err) {
-
-      console.error('Error al cargar guardias del empleado:', err)
+      console.error('[PANEL_EMPLEADO] Error al cargar guardias del empleado:', err)
       setError(err.message)
-
     } finally {
-
       setLoading(false)
     }
   }
 
+  // Consulta las notificaciones del empleado y las ordena por fecha de creación descendente
   const cargarNotificacionesEmpleado = async () => {
-
     try {
-
       setLoadingNotificaciones(true)
       setErrorNotificaciones(null)
 
@@ -130,10 +123,8 @@ function PanelEmpleado() {
       }
 
       const data = await response.json()
-
       const lista = Array.isArray(data) ? data : []
 
-      // Ordenar por fecha de creación descendente (más recientes primero)
       lista.sort((a, b) => {
         const fechaA = a.fechaCreacion ? new Date(a.fechaCreacion) : new Date(0)
         const fechaB = b.fechaCreacion ? new Date(b.fechaCreacion) : new Date(0)
@@ -141,22 +132,17 @@ function PanelEmpleado() {
       })
 
       setNotificaciones(lista)
-
     } catch (err) {
-
-      console.error('Error al cargar notificaciones:', err)
+      console.error('[PANEL_EMPLEADO] Error al cargar notificaciones:', err)
       setErrorNotificaciones(err.message)
-
     } finally {
-
       setLoadingNotificaciones(false)
     }
   }
 
+  // Marca una notificación como leída y notifica globalmente para actualizar contadores
   const marcarComoLeida = async (id) => {
-
     try {
-
       const token = getToken()
 
       if (!token) {
@@ -190,19 +176,16 @@ function PanelEmpleado() {
         )
       )
 
-      // Notificar a otros componentes (ej: BarraSuperior) para
-      // que sincronicen el indicador de notificaciones no leídas
+      console.info(`[PANEL_EMPLEADO] Notificación ID ${id} marcada como leída`)
       window.dispatchEvent(new CustomEvent('notificacion-leida'))
-
     } catch (err) {
-
-      console.error('Error al marcar notificación como leída:', err)
+      console.error('[PANEL_EMPLEADO] Error al marcar notificación como leída:', err)
       setErrorNotificaciones('No se pudo marcar la notificación como leída.')
     }
   }
 
+  // Identifica la guardia futura más próxima
   const calcularProximaGuardia = () => {
-
     const ahora = new Date()
 
     const hoy = new Date(
@@ -213,7 +196,6 @@ function PanelEmpleado() {
 
     const futuras = guardias
       .filter((g) => {
-
         if (!g.fecha || g.estado === 'COMPLETADA') {
           return false
         }
@@ -223,7 +205,6 @@ function PanelEmpleado() {
         return fechaGuardia >= hoy
       })
       .sort((a, b) => {
-
         const fechaA = new Date(
           a.fecha + 'T' + (a.horaInicio || '00:00')
         )
@@ -238,15 +219,14 @@ function PanelEmpleado() {
     return futuras.length > 0 ? futuras[0] : null
   }
 
+  // Suma las horas acumuladas de guardias completadas durante el mes actual
   const calcularHorasMesActual = () => {
-
     const ahora = new Date()
     const mesActual = ahora.getMonth()
     const anioActual = ahora.getFullYear()
 
     return guardias
       .filter((g) => {
-
         if (!g.fecha || g.estado !== 'COMPLETADA') {
           return false
         }
@@ -259,7 +239,6 @@ function PanelEmpleado() {
         )
       })
       .reduce((total, g) => {
-
         if (!g.horaInicio || !g.horaFin) {
           return total
         }
@@ -276,16 +255,16 @@ function PanelEmpleado() {
             : 1440 - minutosInicio + minutosFin
 
         return total + diferencia / 60
-
       }, 0)
   }
 
+  // Formatea el nombre de rol
   const formatearRol = (rol) => {
     return ETIQUETA_ROL[rol] ?? rol
   }
 
+  // Formatea horario a "HH:MM"
   const formatearHora = (hora) => {
-
     if (!hora) {
       return '--:--'
     }
@@ -293,8 +272,8 @@ function PanelEmpleado() {
     return hora.substring(0, 5)
   }
 
+  // Formatea fecha a etiqueta relativa ('HOY', 'MAÑANA' o DD/MM)
   const formatearFechaRelativa = (fechaStr) => {
-
     if (!fechaStr) {
       return ''
     }
@@ -328,8 +307,8 @@ function PanelEmpleado() {
     })
   }
 
+  // Formatea fecha y hora de notificación
   const formatearFechaNotificacion = (fecha) => {
-
     if (!fecha) {
       return ''
     }

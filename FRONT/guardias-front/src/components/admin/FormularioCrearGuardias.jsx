@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import ModalMensaje from '../common/ui/ModalMensaje'
 import { validarGuardia } from '../../utils/validacionesGuardia'
@@ -16,23 +17,19 @@ const guardiaInicial = {
   empleadoId: '',
 }
 
-/**
- * Determina la clase CSS del input según si tiene error de validación.
- * Concatena la clase base con la clase de error cuando corresponde.
- */
+// Asigna clase de error visual al input si existe fallo de validación
 function claseInput(errorCampo) {
   return errorCampo
     ? 'admin-input-estilo admin-input-error'
     : 'admin-input-estilo'
 }
 
-function FormularioCrearGuardias({
-  setPagina,
-}) {
+// Formulario de creación de guardias: valida límites de horario/fecha y filtra personal disponible en el área seleccionada.
+function FormularioCrearGuardias() {
+  const navigate = useNavigate()
   const [empleados, setEmpleados] =
     useState([])
 
-  /** Todas las guardias del sistema, para filtrar empleados ocupados */
   const [guardiasExistentes, setGuardiasExistentes] =
     useState([])
 
@@ -42,7 +39,6 @@ function FormularioCrearGuardias({
   const [guardando, setGuardando] =
     useState(false)
 
-  /** Errores de validación: { campo: mensajeError } */
   const [errores, setErrores] =
     useState({})
 
@@ -54,10 +50,7 @@ function FormularioCrearGuardias({
     volver: false,
   })
 
-  /**
-   * Actualiza un campo del formulario y limpia
-   * su error de validación asociado si existía.
-   */
+  // Actualiza un campo del formulario y elimina su error de validación previo
   const actualizarCampo = (
     campo,
     valor
@@ -67,7 +60,6 @@ function FormularioCrearGuardias({
       [campo]: valor,
     }))
 
-    /* Limpiar el error del campo que se está corrigiendo */
     if (errores[campo]) {
       setErrores((erroresActuales) => {
         const nuevosErrores = {
@@ -79,6 +71,7 @@ function FormularioCrearGuardias({
     }
   }
 
+  // Carga empleados del área seleccionada y la lista completa de guardias para verificar solapamientos
   const cargarEmpleadosPorRol = async (
     rol
   ) => {
@@ -144,7 +137,7 @@ function FormularioCrearGuardias({
       }
     } catch (error) {
       console.error(
-        'Error al cargar empleados:',
+        '[CREAR_GUARDIA] Error al cargar empleados:',
         error
       )
 
@@ -152,10 +145,7 @@ function FormularioCrearGuardias({
     }
   }
 
-  /**
-   * Empleados filtrados que no tienen una guardia
-   * asignada que se solape con la guardia actual.
-   */
+  // Filtra empleados del área que no posean guardias que se superpongan en fecha y horario
   const empleadosDisponibles = useMemo(
     () =>
       filtrarEmpleadosDisponibles(
@@ -188,17 +178,11 @@ function FormularioCrearGuardias({
     })
 
     if (debeVolver) {
-      setPagina('GESTION GUARDIAS')
+      navigate('/admin/guardias')
     }
   }
 
-  /**
-   * Procesa la respuesta de error del backend y extrae
-   * errores de campo para mostrarlos inline.
-   *
-   * @param {Response} response - respuesta HTTP del backend
-   * @returns {boolean} true si se encontraron errores de campo
-   */
+  // Extrae errores de validación estructurados del backend si están disponibles
   const procesarErroresBackend = async (
     response
   ) => {
@@ -221,12 +205,13 @@ function FormularioCrearGuardias({
         return true
       }
     } catch {
-      /* Si no se puede parsear la respuesta, no hay errores de campo */
+      // Si la respuesta no es JSON, se maneja como error genérico
     }
 
     return false
   }
 
+  // Valida los datos y envía la petición de creación de guardia
   const guardarGuardia = async (
     event
   ) => {
@@ -236,7 +221,7 @@ function FormularioCrearGuardias({
       return
     }
 
-    /* ── Validación frontend ── */
+    // Validación en el frontend antes de emitir la petición
     const erroresValidacion =
       validarGuardia(guardia)
 
@@ -245,7 +230,6 @@ function FormularioCrearGuardias({
       return
     }
 
-    /* Limpiar errores previos antes de enviar */
     setErrores({})
 
     try {
@@ -299,6 +283,10 @@ function FormularioCrearGuardias({
       setGuardia(guardiaInicial)
       setEmpleados([])
 
+      console.info(
+        `[CREAR_GUARDIA] Guardia creada exitosamente (${guardia.fecha} ${guardia.horaInicio}-${guardia.horaFin} - ${guardia.rol})`
+      )
+
       setModal({
         visible: true,
         tipo: 'exito',
@@ -309,7 +297,7 @@ function FormularioCrearGuardias({
       })
     } catch (error) {
       console.error(
-        'Error al crear guardia:',
+        '[CREAR_GUARDIA] Error al crear guardia:',
         error
       )
 
@@ -327,7 +315,7 @@ function FormularioCrearGuardias({
   }
 
   const volverAGestion = () => {
-    setPagina('GESTION GUARDIAS')
+    navigate('/admin/guardias')
   }
 
   return (

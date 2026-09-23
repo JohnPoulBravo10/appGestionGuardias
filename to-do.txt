@@ -42,6 +42,7 @@ Pantallas Empleado:
   + Endpoints de consulta y resolución de solicitudes confían ciegamente en IDs sin verificar el usuario autenticado
   + Instancias de MongoDB ejecutándose sin autenticación
   + Nivel de logueo TRACE para sentencias y parámetros SQL con datos sensibles
+------------------------------------------------------------------------------------------
 
 + Añadir funcionalidades de Resilience4J:
   + API Gateway — Circuit Breakers y Fallbacks por Microservicio
@@ -49,13 +50,14 @@ Pantallas Empleado:
   + Schedulers y Procesos en Background — TimeLimiter & Retry
   + Publicación de Eventos Kafka en Operaciones de Negocio — Retry & Circuit Breaker
   + Consumidores de Eventos Kafka — Retry & Circuit Breaker en Procesamiento
+------------------------------------------------------------------------------------------
 
 + Implementar Monitoreo y Logs
+------------------------------------------------------------------------------------------
 
-- Refactorizacion de codigo:
-  + unificar bd mongo
-  - eliminar dependencias no utilizadas
-  - mejorar logeo de la aplicacion
-  - verificar codigo duplicado y eliminarlo
-  - mejorar y unificar estilo de comentarios
-  - buscar codigo en desuso y eliminarlo
++ Refactorizacion de codigo:
+  + unificar bd mongo notificaciones y solicitudes
+  + eliminar dependencias no utilizadas
+  + buscar codigo en desuso y eliminarlo
+  + mejorar y unificar estilo de comentarios
+  + mejorar logeo de la aplicacion

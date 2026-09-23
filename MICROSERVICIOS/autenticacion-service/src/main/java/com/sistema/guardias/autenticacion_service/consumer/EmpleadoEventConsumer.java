@@ -14,11 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
 
-/**
- * Consumidor Kafka que reacciona a eventos del ciclo de vida de empleados.
- * Al recibir EMPLEADO_DESACTIVADO, marca al usuario asociado como inactivo
- * para bloquear su acceso al sistema (Spring Security rechazará el login).
- */
+/* Consumidor Kafka que reacciona a eventos del ciclo de vida de empleados.
+   Al recibir EMPLEADO_DESACTIVADO, marca al usuario asociado como inactivo
+   para bloquear su acceso al sistema (Spring Security rechazará el login). */
 @Service
 @Slf4j
 public class EmpleadoEventConsumer {
@@ -38,14 +36,12 @@ public class EmpleadoEventConsumer {
             return;
         }
 
-        System.out.println("[autenticacion-service] Empleado desactivado, DNI: " + evento.getEmpleadoDni()
-                + ". Dando de baja al usuario asociado...");
+        log.info("Evento de empleado desactivado recibido, DNI: {}. Dando de baja al usuario asociado...", evento.getEmpleadoDni());
 
         Optional<Usuario> usuarioOpt = usuarioRepository.findByEmpleadoDni(evento.getEmpleadoDni());
 
         if (usuarioOpt.isEmpty()) {
-            System.err.println("[autenticacion-service] No se encontró usuario asociado al DNI: "
-                    + evento.getEmpleadoDni());
+            log.warn("No se encontró usuario asociado al DNI: {}", evento.getEmpleadoDni());
             return;
         }
 
@@ -53,12 +49,11 @@ public class EmpleadoEventConsumer {
         usuario.setActivo(false);
         usuarioRepository.save(usuario);
 
-        System.out.println("[autenticacion-service] Usuario '" + usuario.getUsuario()
-                + "' dado de baja exitosamente.");
+        log.info("Usuario '{}' dado de baja exitosamente tras desactivación de empleado.", usuario.getUsuario());
     }
 
     public void fallbackProcesamiento(EmpleadoEvent evento, Exception e) {
-        log.error("Error definitivo al procesar evento de empleado en autenticacion-service. Evento: {}, Error: {}", evento, e.getMessage());
+        log.error("Error definitivo al procesar evento de empleado. Evento: {}, Error: {}", evento, e.getMessage());
         // Se registra la falla tras agotar reintentos para evitar un Poison Pill y avanzar el offset
     }
 }

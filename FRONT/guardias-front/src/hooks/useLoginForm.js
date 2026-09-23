@@ -1,14 +1,10 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { decodeJwtPayload } from '../utils/authUtils'
 
-/**
- * URL base del API Gateway.
- */
 const API_BASE_URL = 'http://localhost:8090'
 
-/**
- * Rutas internas del único frontend.
- */
+// Mapeo de rutas de redirección post-autenticación según el rol
 const REDIRECT_ROUTES = {
   ADMINISTRADOR: '/admin',
   EMPLEADO: '/empleado',
@@ -16,40 +12,7 @@ const REDIRECT_ROUTES = {
 }
 
 /**
- * Decodifica el payload de un JWT sin verificar la firma.
- *
- * La validación real del JWT debe hacerse en el backend.
- */
-function decodeJwtPayload(token) {
-  const partes = token.split('.')
-
-  if (partes.length !== 3) {
-    throw new Error('El token recibido no tiene un formato JWT válido')
-  }
-
-  const payloadBase64 = partes[1]
-    .replace(/-/g, '+')
-    .replace(/_/g, '/')
-
-  /*
-   * atob necesita que el Base64 tenga una longitud válida.
-   * Agregamos "=" cuando sea necesario.
-   */
-  const padding = '='.repeat((4 - (payloadBase64.length % 4)) % 4)
-
-  const payloadJson = atob(payloadBase64 + padding)
-
-  return JSON.parse(payloadJson)
-}
-
-/**
- * Extrae el rol del usuario desde el payload del JWT.
- *
- * Soporta roles como:
- * [{ authority: "ROLE_ADMINISTRADOR" }]
- *
- * También soporta:
- * ["ROLE_ADMINISTRADOR"]
+ * Extrae el nombre del rol principal a partir del array de roles o authorities del JWT.
  */
 function extractRolFromPayload(payload) {
   const roles = payload.roles || payload.authorities || []
@@ -69,28 +32,25 @@ function extractRolFromPayload(payload) {
 }
 
 /**
- * Hook encargado de la lógica del formulario de login.
+ * Hook que gestiona el estado y envío del formulario de inicio de sesión.
  */
 export default function useLoginForm() {
   const navigate = useNavigate()
 
-  /* Estado del formulario */
+  // Estado de inputs del formulario
   const [usuario, setUsuario] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
-  /* Estado de interfaz */
+  // Estado de carga y errores de validación/servidor
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-
   const [fieldErrors, setFieldErrors] = useState({
     usuario: '',
     password: '',
   })
 
-  /**
-   * Valida los campos antes de enviar la solicitud.
-   */
+  // Validación local de campos requeridos
   const validarCampos = useCallback(() => {
     const errores = {
       usuario: '',
@@ -114,9 +74,7 @@ export default function useLoginForm() {
     return esValido
   }, [usuario, password])
 
-  /**
-   * Navega a la sección correspondiente según el rol.
-   */
+  // Redirecciona al panel correspondiente según el rol del usuario
   const redirigirPorRol = useCallback(
     (rol) => {
       const destino =
@@ -129,9 +87,7 @@ export default function useLoginForm() {
     [navigate]
   )
 
-  /**
-   * Envía las credenciales al backend.
-   */
+  // Envía credenciales de autenticación al backend y almacena el JWT
   const handleSubmit = useCallback(
     async (event) => {
       event.preventDefault()
@@ -143,6 +99,7 @@ export default function useLoginForm() {
       }
 
       setIsLoading(true)
+      console.info(`[USE_LOGIN_FORM] Intentando autenticación para usuario: "${usuario.trim()}"`)
 
       try {
         const response = await fetch(
@@ -165,10 +122,13 @@ export default function useLoginForm() {
             response.status === 401 ||
             response.status === 403
           ) {
+            console.warn(`[USE_LOGIN_FORM] Credenciales inválidas para usuario: "${usuario.trim()}"`)
             setError('Usuario o contraseña incorrectos')
           } else if (response.status === 429) {
+            console.warn(`[USE_LOGIN_FORM] Rate limiter activo (429) para usuario: "${usuario.trim()}"`)
             setError('Demasiados intentos fallidos. Intente nuevamente en 1 minuto.')
           } else {
+            console.warn(`[USE_LOGIN_FORM] Error en autenticación (${response.status}) para usuario: "${usuario.trim()}"`)
             setError(
               `Error del servidor (${response.status}). Intente nuevamente.`
             )
@@ -189,19 +149,26 @@ export default function useLoginForm() {
         localStorage.setItem('token', token)
 
         const payload = decodeJwtPayload(token)
+        
+        if (!payload) {
+          throw new Error('El token JWT recibido no es válido o no se pudo decodificar')
+        }
+
         const rol = extractRolFromPayload(payload)
 
         if (!rol) {
           localStorage.removeItem('token')
+          console.warn('[USE_LOGIN_FORM] No se pudo identificar el rol del usuario en el token')
           setError(
             'No se pudo identificar el rol del usuario'
           )
           return
         }
 
+        console.info(`[USE_LOGIN_FORM] Login exitoso para usuario: "${usuario.trim()}" (Rol: ${rol})`)
         redirigirPorRol(rol)
       } catch (err) {
-        console.error('Error durante el login:', err)
+        console.error('[USE_LOGIN_FORM] Error durante el login:', err)
 
         setError(
           'No se pudo conectar con el servidor. Verifique que el servicio esté activo.'
@@ -218,9 +185,7 @@ export default function useLoginForm() {
     ]
   )
 
-  /**
-   * Alterna la visibilidad de la contraseña.
-   */
+  // Alterna la visibilidad del campo contraseña
   const togglePassword = useCallback(() => {
     setShowPassword((valorAnterior) => !valorAnterior)
   }, [])

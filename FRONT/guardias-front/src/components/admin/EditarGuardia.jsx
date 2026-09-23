@@ -3,6 +3,7 @@ import React, {
   useMemo,
   useState,
 } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import ModalMensaje from '../common/ui/ModalMensaje'
 import { validarGuardia } from '../../utils/validacionesGuardia'
@@ -12,29 +13,27 @@ import { getToken } from '../../utils/authUtils'
 
 const API_BASE_URL = 'http://localhost:8090'
 
-/**
- * Determina la clase CSS del input según si tiene error de validación.
- * Concatena la clase base con la clase de error cuando corresponde.
- */
+// Asigna clase de error visual al input si existe fallo de validación
 function claseInput(errorCampo) {
   return errorCampo
     ? 'admin-input-estilo admin-input-error'
     : 'admin-input-estilo'
 }
 
-function EditarGuardia({
-  setPagina,
-  guardiaEditar,
-  setGuardiaEditar,
-}) {
+// Formulario de edición de guardias: carga la guardia desde el estado de navegación y permite reasignar horario, área o empleado.
+function EditarGuardia() {
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const [guardiaEditar, setGuardiaEditar] = useState(
+    location.state?.guardiaEditar || null
+  )
   const [empleados, setEmpleados] =
     useState([])
 
-  /** Todas las guardias del sistema, para filtrar empleados ocupados */
   const [guardiasExistentes, setGuardiasExistentes] =
     useState([])
 
-  /** Errores de validación: { campo: mensajeError } */
   const [errores, setErrores] =
     useState({})
 
@@ -49,10 +48,7 @@ function EditarGuardia({
     volver: false,
   })
 
-  /**
-   * Actualiza un campo del formulario y limpia
-   * su error de validación asociado si existía.
-   */
+  // Actualiza un campo del formulario y elimina su error de validación previo
   const actualizarCampo = (
     campo,
     valor
@@ -64,7 +60,6 @@ function EditarGuardia({
       })
     )
 
-    /* Limpiar el error del campo que se está corrigiendo */
     if (errores[campo]) {
       setErrores((erroresActuales) => {
         const nuevosErrores = {
@@ -76,6 +71,7 @@ function EditarGuardia({
     }
   }
 
+  // Carga la lista de empleados del área y las guardias existentes para verificar solapamientos
   const cargarEmpleadosPorRol = async (
     rol
   ) => {
@@ -141,17 +137,13 @@ function EditarGuardia({
       }
     } catch (error) {
       console.error(
-        'Error al cargar empleados:',
+        '[EDITAR_GUARDIA] Error al cargar empleados:',
         error
       )
     }
   }
 
-  /**
-   * Empleados filtrados que no tienen una guardia
-   * asignada que se solape con la guardia en edición.
-   * Se excluye la guardia actual para que su empleado asignado siga disponible.
-   */
+  // Filtra empleados disponibles excluyendo la guardia actual para permitir mantener la asignación
   const empleadosDisponibles = useMemo(
     () =>
       filtrarEmpleadosDisponibles(
@@ -195,18 +187,11 @@ function EditarGuardia({
     })
 
     if (debeVolver) {
-      setGuardiaEditar(null)
-      setPagina('GESTION GUARDIAS')
+      navigate('/admin/guardias')
     }
   }
 
-  /**
-   * Procesa la respuesta de error del backend y extrae
-   * errores de campo para mostrarlos inline.
-   *
-   * @param {Response} response - respuesta HTTP del backend
-   * @returns {boolean} true si se encontraron errores de campo
-   */
+  // Extrae errores de validación estructurados del backend si están presentes
   const procesarErroresBackend = async (
     response
   ) => {
@@ -229,12 +214,13 @@ function EditarGuardia({
         return true
       }
     } catch {
-      /* Si no se puede parsear la respuesta, no hay errores de campo */
+      // Si la respuesta no es JSON, se maneja como error genérico
     }
 
     return false
   }
 
+  // Valida y envía los cambios de la guardia mediante PUT
   const guardarGuardia = async (
     event
   ) => {
@@ -244,7 +230,7 @@ function EditarGuardia({
       return
     }
 
-    /* ── Validación frontend ── */
+    // Validación frontend de horarios y fechas
     const erroresValidacion =
       validarGuardia(guardiaEditar)
 
@@ -253,7 +239,6 @@ function EditarGuardia({
       return
     }
 
-    /* Limpiar errores previos antes de enviar */
     setErrores({})
 
     try {
@@ -296,6 +281,10 @@ function EditarGuardia({
         return
       }
 
+      console.info(
+        `[EDITAR_GUARDIA] Guardia ID ${guardiaEditar.id} modificada exitosamente (${guardiaEditar.fecha} ${guardiaEditar.horaInicio}-${guardiaEditar.horaFin} - ${guardiaEditar.rol})`
+      )
+
       setModal({
         visible: true,
         tipo: 'exito',
@@ -306,7 +295,7 @@ function EditarGuardia({
       })
     } catch (error) {
       console.error(
-        'Error al modificar guardia:',
+        '[EDITAR_GUARDIA] Error al modificar guardia:',
         error
       )
 
@@ -324,8 +313,7 @@ function EditarGuardia({
   }
 
   const volverAGestion = () => {
-    setGuardiaEditar(null)
-    setPagina('GESTION GUARDIAS')
+    navigate('/admin/guardias')
   }
 
   if (!guardiaEditar) {

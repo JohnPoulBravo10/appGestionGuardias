@@ -6,11 +6,10 @@ import LogoutIcon from '../common/icons/LogoutIcon'
 import ModalConfirmacion from '../common/ui/ModalConfirmacion'
 import useUsuarioActual from '../../hooks/useUsuarioActual'
 
+// Barra lateral de navegación del administrador: muestra perfil, menú y botón de cierre de sesión.
 function BarraLateral() {
   const navigate = useNavigate()
   const [mostrarModal, setMostrarModal] = useState(false)
-
-
 
   const {
     empleado,
@@ -18,6 +17,7 @@ function BarraLateral() {
     error,
   } = useUsuarioActual()
 
+  // Cierra la sesión activa y redirige al inicio de sesión
   const handleCerrarSesion = () => {
     cerrarSesion()
     setMostrarModal(false)
@@ -35,6 +35,7 @@ function BarraLateral() {
     empleado?.usuario?.rol ||
     'ADMINISTRADOR'
 
+  // Asigna clase activa al enlace de navegación de la ruta actual
   const obtenerClaseMenu = ({ isActive }) =>
     `common-btn-menu ${isActive ? 'activo' : ''}`
 
